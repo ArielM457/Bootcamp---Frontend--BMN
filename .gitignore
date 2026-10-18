@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Angular
+.angular/
+dist/
+coverage/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Local IDE files
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local agent skills
+.agents/skills/
+
+docs-sesiones-ponentes/

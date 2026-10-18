@@ -1,0 +1,130 @@
+@use '../../../styles/tokens' as *;
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: center;
+  gap: 2rem;
+  max-width: 1440px;
+  min-height: 600px;
+  padding: clamp(3rem, 7vw, 6rem) clamp(1.2rem, 7vw, 7rem);
+  margin: auto;
+}
+.hero-copy {
+  position: relative;
+  z-index: 1;
+}
+h1 {
+  margin: 1.4rem 0;
+  color: $purple;
+  font-size: clamp(3.5rem, 6.8vw, 7rem);
+  line-height: 0.98;
+  letter-spacing: -0.065em;
+}
+h1 span {
+  color: $magenta;
+}
+.intro {
+  max-width: 540px;
+  color: #594c5d;
+  font-size: 1.13rem;
+  line-height: 1.7;
+}
+.primary-action {
+  margin-top: 1rem;
+}
+.status {
+  max-width: 390px;
+  margin: 1.3rem 0 0;
+  color: #76687a;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+.hero-art {
+  display: grid;
+  place-items: center;
+  min-height: 460px;
+  border-radius: 3rem;
+  background:
+    radial-gradient(circle at 80% 15%, #eac6ef 0, transparent 35%),
+    linear-gradient(145deg, #69316d, #3d1740);
+  box-shadow: 0 28px 60px #54205730;
+  transform: rotate(3deg);
+}
+.grid-board {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  width: min(78%, 380px);
+  aspect-ratio: 1;
+  padding: 0.8rem;
+  border-radius: 1.2rem;
+  background: #2b1435;
+  box-shadow: 0 16px 24px #16081c88;
+}
+.tile {
+  display: grid;
+  place-items: center;
+  border-radius: 0.55rem;
+  color: $white;
+  background: #84538b;
+  font-size: clamp(1.2rem, 3vw, 2.2rem);
+}
+.tile.wall {
+  background: #bb8cc2;
+  box-shadow: inset 0 -0.4rem #8d6095;
+}
+.tile.block {
+  background: $pink;
+  box-shadow: inset 0 -0.4rem #d47e9b;
+}
+.tile.bomb {
+  color: $ink;
+  background: #f7e2fb;
+  text-shadow: 3px 3px 0 $magenta;
+}
+.tile.spark {
+  color: #fff4a8;
+  background: $magenta;
+}
+.tile.player {
+  color: $purple;
+  background: #fff4a8;
+}
+.feature-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  padding: 2.5rem clamp(1.2rem, 7vw, 7rem) 4rem;
+  background: $white;
+}
+.feature-strip article {
+  max-width: 320px;
+}
+.feature-strip span {
+  color: $magenta;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+.feature-strip h2 {
+  margin: 0.8rem 0;
+  color: $purple;
+  font-size: 1.35rem;
+}
+.feature-strip p {
+  color: #665a69;
+  line-height: 1.5;
+}
+@media (max-width: 850px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+  .hero-art {
+    min-height: 330px;
+    transform: none;
+  }
+  .feature-strip {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,17 @@
+<div class="site-shell">
+  <header class="site-header">
+    <a class="brand" routerLink="/" aria-label="CodeSprint Bomberman Online, inicio">
+      <span class="brand-mark" aria-hidden="true">✦</span>
+      <span><strong>CodeSprint</strong><small>BOMBERMAN ONLINE</small></span>
+    </a>
+    <nav aria-label="Navegación principal">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+        >Inicio</a
+      >
+      <a routerLink="/proximamente" routerLinkActive="active">Próximamente</a>
+    </nav>
+    <span class="demo-badge">BASE EN DESARROLLO</span>
+  </header>
+  <main><router-outlet /></main>
+  <footer>CodeSprint · Tu futuro se escribe con código</footer>
+</div>

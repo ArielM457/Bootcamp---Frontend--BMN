@@ -1,0 +1,96 @@
+@use '../styles/tokens' as *;
+
+.site-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.site-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  min-height: 86px;
+  padding: 1rem clamp(1.2rem, 5vw, 5rem);
+  background: $white;
+  border-bottom: 1px solid #e8deea;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  text-decoration: none;
+  color: $purple;
+}
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.7rem;
+  color: $white;
+  background: $purple;
+  font-size: 1.5rem;
+}
+.brand strong,
+.brand small {
+  display: block;
+}
+.brand strong {
+  font-size: 1.2rem;
+}
+.brand small {
+  font-size: 0.59rem;
+  letter-spacing: 0.18em;
+  font-weight: 800;
+}
+nav {
+  display: flex;
+  gap: 1.5rem;
+  margin-left: auto;
+}
+nav a {
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #57445b;
+}
+nav a.active,
+nav a:hover {
+  color: $magenta;
+}
+.demo-badge {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #e7cce9;
+  border-radius: 99px;
+  color: $purple;
+  background: #f8edf9;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+main {
+  flex: 1;
+}
+footer {
+  padding: 1.3rem 5vw;
+  text-align: center;
+  color: #76687a;
+  font-size: 0.8rem;
+  background: $white;
+}
+@media (max-width: 680px) {
+  .site-header {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  nav {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    margin: 0;
+  }
+  .demo-badge {
+    margin-left: auto;
+  }
+}

@@ -1,0 +1,338 @@
+openapi: 3.0.3
+info:
+  title: Bomberman Online API
+  version: 0.1.0
+  description: Propuesta inicial pendiente de validar con el backend del bootcamp.
+servers:
+  - url: http://localhost:5000
+    description: Ejemplo local; no indica que exista un servicio activo.
+security:
+  - bearerAuth: []
+paths:
+  /api/v1/auth/register:
+    post:
+      tags: [Auth]
+      summary: Registrar jugador
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+      responses:
+        '201':
+          description: Jugador registrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Player' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/v1/auth/login:
+    post:
+      tags: [Auth]
+      summary: Iniciar sesión
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Sesión iniciada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v1/players/me:
+    get:
+      tags: [Players]
+      summary: Consultar perfil propio
+      responses:
+        '200':
+          description: Perfil
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Player' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v1/rooms:
+    get:
+      tags: [Rooms]
+      summary: Listar salas
+      parameters:
+        - {
+            name: status,
+            in: query,
+            required: false,
+            schema: { type: string, enum: [waiting, playing, finished] },
+          }
+      responses:
+        '200':
+          description: Salas
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Room' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Rooms]
+      summary: Crear sala
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateRoomRequest' }
+      responses:
+        '201':
+          description: Sala creada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Room' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v1/rooms/{roomId}:
+    get:
+      tags: [Rooms]
+      summary: Consultar sala y participantes
+      parameters: [{ $ref: '#/components/parameters/RoomId' }]
+      responses:
+        '200':
+          description: Sala
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Room' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v1/rooms/{roomId}/participants:
+    post:
+      tags: [Rooms]
+      summary: Unirse a sala usando el jugador autenticado
+      parameters: [{ $ref: '#/components/parameters/RoomId' }]
+      responses:
+        '200':
+          description: Sala actualizada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Room' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/v1/rooms/{roomId}/games:
+    post:
+      tags: [Games]
+      summary: Iniciar partida como anfitrión
+      parameters: [{ $ref: '#/components/parameters/RoomId' }]
+      responses:
+        '201':
+          description: Partida iniciada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GameSummary' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/v1/games/{gameId}:
+    get:
+      tags: [Games]
+      summary: Consultar estado confirmado para entrar o reconectar
+      parameters: [{ $ref: '#/components/parameters/GameId' }]
+      responses:
+        '200':
+          description: Estado de partida
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GameSnapshot' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v1/games/{gameId}/scores:
+    get:
+      tags: [Scores]
+      summary: Consultar puntuaciones de una partida
+      parameters: [{ $ref: '#/components/parameters/GameId' }]
+      responses:
+        '200':
+          description: Puntuaciones
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Score' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v1/leaderboard:
+    get:
+      tags: [Scores]
+      summary: Consultar ranking
+      security: []
+      parameters:
+        - {
+            name: limit,
+            in: query,
+            required: false,
+            schema: { type: integer, minimum: 1, maximum: 100, default: 20 },
+          }
+      responses:
+        '200':
+          description: Ranking
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/LeaderboardEntry' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  parameters:
+    RoomId: { name: roomId, in: path, required: true, schema: { type: string, format: uuid } }
+    GameId: { name: gameId, in: path, required: true, schema: { type: string, format: uuid } }
+  responses:
+    BadRequest:
+      {
+        description: Datos no válidos,
+        content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } },
+      }
+    Unauthorized:
+      {
+        description: Sesión ausente o no válida,
+        content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } },
+      }
+    Forbidden:
+      {
+        description: Permiso insuficiente,
+        content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } },
+      }
+    NotFound:
+      {
+        description: Recurso no encontrado,
+        content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } },
+      }
+    Conflict:
+      {
+        description: Estado incompatible,
+        content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } },
+      }
+  schemas:
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        traceId: { type: string }
+    RegisterRequest:
+      type: object
+      required: [displayName, email, password]
+      properties:
+        displayName: { type: string, minLength: 2, maxLength: 40 }
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8 }
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+    TokenResponse:
+      type: object
+      required: [accessToken, expiresAtUtc, player]
+      properties:
+        accessToken: { type: string }
+        expiresAtUtc: { type: string, format: date-time }
+        player: { $ref: '#/components/schemas/Player' }
+    Player:
+      type: object
+      required: [id, displayName]
+      properties:
+        id: { type: string, format: uuid }
+        displayName: { type: string }
+    CreateRoomRequest:
+      type: object
+      required: [name, maxPlayers]
+      properties:
+        name: { type: string, minLength: 3, maxLength: 60 }
+        maxPlayers: { type: integer, minimum: 2, maximum: 8 }
+    Room:
+      type: object
+      required: [id, name, status, hostPlayerId, maxPlayers, participants]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        status: { type: string, enum: [waiting, playing, finished] }
+        hostPlayerId: { type: string, format: uuid }
+        maxPlayers: { type: integer }
+        participants: { type: array, items: { $ref: '#/components/schemas/Player' } }
+    GameSummary:
+      type: object
+      required: [id, roomId, phase, startedAtUtc]
+      properties:
+        id: { type: string, format: uuid }
+        roomId: { type: string, format: uuid }
+        phase: { type: string, enum: [waiting, running, finished] }
+        startedAtUtc: { type: string, format: date-time }
+    Cell:
+      type: object
+      required: [x, y, kind]
+      properties:
+        x: { type: integer, minimum: 0 }
+        y: { type: integer, minimum: 0 }
+        kind: { type: string, enum: [floor, wall, crate] }
+    PlayerState:
+      type: object
+      required: [playerId, x, y, lives, alive, color]
+      properties:
+        playerId: { type: string, format: uuid }
+        x: { type: integer, minimum: 0 }
+        y: { type: integer, minimum: 0 }
+        lives: { type: integer, minimum: 0 }
+        alive: { type: boolean }
+        color: { type: string }
+    BombState:
+      type: object
+      required: [id, ownerId, x, y, placedAtUtc, detonatesAtUtc, range]
+      properties:
+        id: { type: string, format: uuid }
+        ownerId: { type: string, format: uuid }
+        x: { type: integer, minimum: 0 }
+        y: { type: integer, minimum: 0 }
+        placedAtUtc: { type: string, format: date-time }
+        detonatesAtUtc: { type: string, format: date-time }
+        range: { type: integer, minimum: 1 }
+    ExplosionState:
+      type: object
+      required: [id, cells, endsAtUtc]
+      properties:
+        id: { type: string, format: uuid }
+        cells: { type: array, items: { $ref: '#/components/schemas/Cell' } }
+        endsAtUtc: { type: string, format: date-time }
+    GameSnapshot:
+      type: object
+      required:
+        [gameId, version, phase, width, height, cells, players, bombs, explosions, remainingSeconds]
+      properties:
+        gameId: { type: string, format: uuid }
+        version: { type: integer, minimum: 0 }
+        phase: { type: string, enum: [waiting, running, finished] }
+        width: { type: integer, minimum: 1 }
+        height: { type: integer, minimum: 1 }
+        cells: { type: array, items: { $ref: '#/components/schemas/Cell' } }
+        players: { type: array, items: { $ref: '#/components/schemas/PlayerState' } }
+        bombs: { type: array, items: { $ref: '#/components/schemas/BombState' } }
+        explosions: { type: array, items: { $ref: '#/components/schemas/ExplosionState' } }
+        remainingSeconds: { type: integer, minimum: 0 }
+        winnerPlayerId: { type: string, format: uuid, nullable: true }
+    Score:
+      type: object
+      required: [playerId, points, rank]
+      properties:
+        playerId: { type: string, format: uuid }
+        points: { type: integer, minimum: 0 }
+        rank: { type: integer, minimum: 1 }
+    LeaderboardEntry:
+      type: object
+      required: [player, points, wins, rank]
+      properties:
+        player: { $ref: '#/components/schemas/Player' }
+        points: { type: integer, minimum: 0 }
+        wins: { type: integer, minimum: 0 }
+        rank: { type: integer, minimum: 1 }
