@@ -1,8 +1,8 @@
 # **Tareas GAME-01**
 
-1. Aprobar tamaño, celdas, vidas, bombas, movimiento y victoria.
-2. Definir modelos y fixtures de snapshot.
-3. Crear renderer Canvas por capas y prueba con estados fijos.
-4. Crear controlador de entrada y facade.
-5. Añadir simulador local y conectar eventos confirmados por fases.
-6. Probar teclado, redimensionado, explosiones y fin de partida.
+1. Completado: tablero 13 × 11, 3 vidas, bombas de 1.5 segundos, alcance 2 y partida de 120 segundos.
+2. Completado: definir modelos y snapshots tipados.
+3. Completado: crear renderer Canvas por capas y comprobar posiciones.
+4. Completado: crear controlador de entrada y facade.
+5. Parcial: simulador local conectado. Eventos del servidor pendientes.
+6. Parcial: teclado, movimiento, bombas, explosiones y versiones pasan pruebas automatizadas. Falta revisión visual y prueba táctil en navegador.

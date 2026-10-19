@@ -1,5 +1,5 @@
 # **ROOM-01 · Salas**
 
-Estado: propuesta sin aprobar. Como jugador quiero listar, crear y unirme a una sala para esperar una partida.
+Estado: aprobado para implementación local el 18 de octubre de 2026. Como jugador quiero listar, crear y unirme a una sala para esperar una partida.
 
-Requisitos: listado y detalle, participantes, límite de plazas, anfitrión e inicio autorizado. Contratos: `/rooms`, `/rooms/{roomId}`, participantes y creación de partida en OpenAPI; `JoinRoom`, `RoomJoined` y presencia en SignalR. Errores: sala llena, cerrada, inexistente, sesión vencida y desconexión. Depende de AUTH-01 y LOBBY-01. Hay que aprobar el número de plazas y reglas de salida.
+Requisitos: listado y detalle, participantes, límite de 2 a 8 plazas, anfitrión e inicio autorizado. Cada jugador puede estar en una sola sala de espera. El anfitrión puede añadir un único bot local si existe una plaza libre. El bot ocupa una plaza, cuenta para el mínimo de 2 participantes y no ejecuta acciones. El anfitrión puede iniciar con al menos 2 participantes. Al salir el anfitrión, el siguiente jugador humano ocupa su lugar. Si solo queda el bot, la sala se elimina. Contratos: `/rooms`, `/rooms/{roomId}`, participantes y creación de partida en OpenAPI; `JoinRoom`, `RoomJoined` y presencia en SignalR. Errores: sala llena, cerrada, inexistente, sesión vencida y desconexión. Depende de AUTH-01 y LOBBY-01.

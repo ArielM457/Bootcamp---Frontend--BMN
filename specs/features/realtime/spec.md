@@ -1,5 +1,7 @@
 # **REAL-01 · Sincronización**
 
-Estado: propuesta sin aprobar. Como jugador quiero que las acciones y la presencia se actualicen en una partida compartida.
+Estado: aprobado para implementación local el 18 de octubre de 2026. Como jugador quiero que la partida se recupere de una interrupción sin aceptar acciones sobre un estado incierto.
 
-Requisitos: conectar con identidad válida, unirse a grupo, enviar comandos, recibir eventos confirmados, detectar desconexión y recuperar snapshot. Contrato: `signalr-events.md`. Errores: token vencido, comando rechazado, pérdida de red, mensajes viejos y reconexión fallida. Depende de AUTH-01, ROOM-01 y acuerdo del hub backend.
+Requisitos aprobados para el adaptador local: conectar con identidad válida, enviar comandos identificados, recibir snapshots confirmados, descartar versiones anteriores, bloquear controles durante una interrupción, recuperar el último snapshot antes de habilitarlos y permitir reintentar o salir si la recuperación falla.
+
+El contrato de servidor sigue en `signalr-events.md` como propuesta. La conexión SignalR, la presencia compartida, la autenticación del hub y la recuperación mediante API dependen de un acuerdo con el backend y no se consideran implementadas.

@@ -1,5 +1,5 @@
 # **GAME-01 · Partida y tablero**
 
-Estado: propuesta sin aprobar. Como jugador quiero moverme, colocar bombas y ver el resultado de mis acciones en un tablero 2D.
+Estado: aprobado para implementación local el 18 de octubre de 2026. Como jugador quiero moverme, colocar bombas y ver el resultado de mis acciones en un tablero 2D.
 
-Requisitos: celdas, paredes, bloques, jugadores, bombas, explosiones, vidas, tiempo y resultado. Entrada por teclado. Canvas dibuja `GameSnapshot`; el servidor confirma colisiones, daño y ganador. Contratos: modelos del juego, partida HTTP y comandos/eventos SignalR. Errores: comando rechazado, evento fuera de orden, desconexión y estado incompleto. Depende de ROOM-01 y REAL-01. Faltan reglas exactas del juego.
+Requisitos: tablero local de 13 × 11, 3 vidas, 120 segundos, bombas con espera de 1.5 segundos y alcance de 2 celdas. Las paredes detienen la explosión y no se destruyen. Las cajas se destruyen y detienen el alcance. Entrada por teclado y controles visibles. Canvas dibuja `GameSnapshot`; el simulador local confirma colisiones, daño y ganador. El servidor será la autoridad al conectar multijugador. Contratos: modelos del juego, partida HTTP y comandos/eventos SignalR. Errores: comando rechazado, evento fuera de orden, desconexión y estado incompleto. Depende de ROOM-01.

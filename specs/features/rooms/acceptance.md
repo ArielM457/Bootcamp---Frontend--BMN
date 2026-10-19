@@ -5,3 +5,6 @@
 - Unirse agrega al jugador confirmado sin duplicarlo.
 - Una sala llena rechaza la entrada y conserva la pantalla estable.
 - El anfitrión puede iniciar solo cuando se cumplen reglas aprobadas.
+- El anfitrión puede añadir un bot cuando existe una plaza libre.
+- El bot aparece identificado, no se duplica y cuenta para iniciar la partida.
+- Un bot no puede convertirse en anfitrión ni conservar una sala sin jugadores humanos.
