@@ -1,0 +1,82 @@
+<main class="rooms-page waiting-page">
+  <header class="rooms-header">
+    <a class="back-link" routerLink="/salas">← Salas</a>
+    <span class="waiting-label">SALA DE ESPERA</span>
+    <button class="leave-button" type="button" (click)="leave()" [disabled]="rooms.isLoading()">
+      Salir
+    </button>
+  </header>
+
+  @if (rooms.error()) {
+    <div class="page-error" role="alert">{{ rooms.error() }}</div>
+  }
+
+  @if (rooms.currentRoom(); as room) {
+    <section class="waiting-heading">
+      <p>ESPERANDO JUGADORES</p>
+      <h1>{{ room.name }}</h1>
+      <span>{{ room.participants.length }} de {{ room.maxPlayers }} jugadores</span>
+    </section>
+
+    <section class="players-grid" aria-label="Jugadores en la sala">
+      @for (slot of slots(); track slot) {
+        @if (room.participants[slot]; as player) {
+          <article
+            class="player-slot player-slot--filled"
+            [class.player-slot--bot]="player.kind === 'bot'"
+          >
+            <div>{{ player.displayName.charAt(0).toUpperCase() }}</div>
+            <h2>{{ player.displayName }}</h2>
+            <p>
+              {{
+                player.id === room.hostPlayerId
+                  ? 'Anfitrión'
+                  : player.kind === 'bot'
+                    ? 'Bot'
+                    : 'Listo'
+              }}
+            </p>
+          </article>
+        } @else {
+          <article class="player-slot player-slot--empty">
+            <div>+</div>
+            <h2>Esperando</h2>
+            <p>Lugar disponible</p>
+          </article>
+        }
+      }
+    </section>
+
+    <section class="start-area">
+      @if (rooms.isHost()) {
+        <div class="waiting-actions">
+          @if (!rooms.hasBot()) {
+            <button
+              class="secondary-button"
+              type="button"
+              (click)="addBot()"
+              [disabled]="!rooms.canAddBot() || rooms.isLoading()"
+            >
+              Añadir bot
+            </button>
+          }
+          <button
+            class="primary-button start-button"
+            type="button"
+            (click)="start()"
+            [disabled]="!rooms.canStart() || rooms.isLoading()"
+          >
+            Iniciar partida
+          </button>
+        </div>
+        @if (!rooms.canStart()) {
+          <p>Se necesitan al menos 2 jugadores.</p>
+        }
+      } @else {
+        <p>El anfitrión iniciará la partida.</p>
+      }
+    </section>
+  } @else if (rooms.isLoading()) {
+    <div class="loading-state">Entrando a la sala…</div>
+  }
+</main>

@@ -1,0 +1,124 @@
+<main class="game-page">
+  <header>
+    <a routerLink="/menu">← Salir</a>
+    <h1>BOMBERMAN</h1>
+    @if (game.snapshot(); as snapshot) {
+      <span>{{ snapshot.remainingSeconds }} s</span>
+    }
+  </header>
+
+  @if (game.snapshot(); as snapshot) {
+    <section class="hud" aria-label="Estado del jugador">
+      <div>
+        <small>VIDAS</small><strong>{{ game.player()?.lives ?? 0 }}</strong>
+      </div>
+      <div>
+        <small>RIVAL</small><strong>{{ snapshot.players[1]?.alive ? 'ACTIVO' : 'FUERA' }}</strong>
+      </div>
+      <div>
+        <small>BOMBAS</small><strong>{{ snapshot.bombs.length }}</strong>
+      </div>
+    </section>
+
+    <section class="board-shell">
+      <canvas #board aria-label="Tablero de Bomberman" role="img"></canvas>
+      @if (game.connection() === 'connecting' || game.connection() === 'reconnecting') {
+        <div class="connection-card" role="status" aria-live="polite">
+          <span class="connection-loader" aria-hidden="true"></span>
+          <h2>
+            {{ game.connection() === 'connecting' ? 'Preparando partida' : 'Recuperando partida' }}
+          </h2>
+          <p>Espera un momento.</p>
+        </div>
+      }
+      @if (game.connection() === 'failed') {
+        <div class="connection-card" role="alert">
+          <h2>Se perdió la conexión</h2>
+          <p>Tu última partida está guardada.</p>
+          <div class="connection-actions">
+            <button type="button" (click)="game.reconnect()">Reintentar</button>
+            <a routerLink="/menu">Salir</a>
+          </div>
+        </div>
+      }
+      @if (game.finished()) {
+        <div class="result-card" role="status">
+          <p>PARTIDA TERMINADA</p>
+          <h2>{{ game.won() ? '¡Ganaste!' : 'Inténtalo de nuevo' }}</h2>
+          @if (scores.resultFor(snapshot.gameId); as result) {
+            <div class="result-stats">
+              <span
+                ><small>PUNTOS</small><strong>+{{ result.earnedPoints }}</strong></span
+              >
+              <span
+                ><small>VIDAS</small><strong>{{ result.remainingLives }}</strong></span
+              >
+              <span
+                ><small>TIEMPO</small><strong>{{ result.remainingSeconds }} s</strong></span
+              >
+            </div>
+          } @else if (scores.error()) {
+            <p class="result-error" role="alert">{{ scores.error() }}</p>
+          }
+          <div class="result-actions">
+            <button type="button" (click)="restart()">Jugar otra vez</button>
+            <a routerLink="/ranking">Ver ranking</a>
+          </div>
+        </div>
+      }
+    </section>
+
+    <section class="controls" aria-label="Controles del juego">
+      <div class="dpad">
+        <button
+          class="up"
+          type="button"
+          aria-label="Mover arriba"
+          [disabled]="!game.controlsEnabled()"
+          (click)="move('up')"
+        >
+          ▲
+        </button>
+        <button
+          class="left"
+          type="button"
+          aria-label="Mover a la izquierda"
+          [disabled]="!game.controlsEnabled()"
+          (click)="move('left')"
+        >
+          ◀
+        </button>
+        <button
+          class="down"
+          type="button"
+          aria-label="Mover abajo"
+          [disabled]="!game.controlsEnabled()"
+          (click)="move('down')"
+        >
+          ▼
+        </button>
+        <button
+          class="right"
+          type="button"
+          aria-label="Mover a la derecha"
+          [disabled]="!game.controlsEnabled()"
+          (click)="move('right')"
+        >
+          ▶
+        </button>
+      </div>
+      <button
+        class="bomb-button"
+        type="button"
+        [disabled]="!game.controlsEnabled()"
+        (click)="bomb()"
+      >
+        <span aria-hidden="true">●</span> Bomba
+      </button>
+      <p>Flechas o WASD para moverte · Espacio para colocar una bomba</p>
+      @if (game.rejection(); as rejection) {
+        <p class="command-message" role="status">{{ rejection.message }}</p>
+      }
+    </section>
+  }
+</main>

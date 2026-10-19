@@ -1,0 +1,48 @@
+<main class="ranking-page">
+  <header>
+    <a routerLink="/menu">← Menú</a>
+    <h1>RANKING</h1>
+    <span>LOCAL</span>
+  </header>
+
+  <section class="ranking-heading">
+    <p>MEJORES PUNTUACIONES</p>
+    <h2>Salón de campeones</h2>
+  </section>
+
+  @if (scores.error()) {
+    <section class="ranking-state" role="alert">
+      <h2>No pudimos cargar el ranking</h2>
+      <button type="button" (click)="retry()">Reintentar</button>
+    </section>
+  } @else if (scores.isLoading()) {
+    <section class="ranking-state" aria-live="polite">Cargando puntuaciones…</section>
+  } @else if (scores.leaderboard().length === 0) {
+    <section class="ranking-state">
+      <span aria-hidden="true">★</span>
+      <h2>Aún no hay resultados</h2>
+      <p>Termina una partida para aparecer aquí.</p>
+      <a routerLink="/salas">Jugar ahora</a>
+    </section>
+  } @else {
+    <section class="ranking-list" aria-label="Clasificación local">
+      <div class="ranking-row ranking-row--head" aria-hidden="true">
+        <span>POS.</span><span>JUGADOR</span><span>PUNTOS</span><span>VICTORIAS</span>
+      </div>
+      @for (entry of scores.leaderboard(); track entry.playerId) {
+        <article
+          class="ranking-row"
+          [class.ranking-row--current]="entry.playerId === auth.player()?.id"
+        >
+          <strong>#{{ entry.rank }}</strong>
+          <div>
+            <span class="player-mark">{{ entry.displayName.charAt(0).toUpperCase() }}</span>
+            <span>{{ entry.displayName }}</span>
+          </div>
+          <b>{{ entry.points }}</b>
+          <span>{{ entry.victories }}</span>
+        </article>
+      }
+    </section>
+  }
+</main>

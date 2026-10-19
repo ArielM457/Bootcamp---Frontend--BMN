@@ -1,0 +1,55 @@
+<section class="welcome" aria-labelledby="welcome-title">
+  <div class="menu-panel">
+    <div class="menu-card">
+      <h1 id="welcome-title">BOMBER<span>MAN</span></h1>
+      <p class="subtitle">Enciende la estrategia. Domina el laberinto.</p>
+
+      <nav class="game-menu" aria-label="Menú de Bomberman Online">
+        <a class="menu-option menu-option--main" routerLink="/entrar">
+          <span class="option-icon" aria-hidden="true">▶</span>
+          <span>Jugar ahora<small>Entra a la partida</small></span>
+        </a>
+        <a class="menu-option" routerLink="/proximamente" [queryParams]="{ opcion: 'Buscar sala' }">
+          <span class="option-icon" aria-hidden="true">⌂</span>
+          <span>Buscar sala<small>Encuentra una partida</small></span>
+        </a>
+        <a class="menu-option" routerLink="/proximamente" [queryParams]="{ opcion: 'Ranking' }">
+          <span class="option-icon" aria-hidden="true">★</span>
+          <span>Ranking<small>Mira a los mejores</small></span>
+        </a>
+        <a class="menu-option" routerLink="/proximamente" [queryParams]="{ opcion: 'Cómo jugar' }">
+          <span class="option-icon" aria-hidden="true">?</span>
+          <span>Cómo jugar<small>Aprende los controles</small></span>
+        </a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="game-preview">
+    <div class="arcade-frame" aria-hidden="true">
+      <div class="arcade-screen">
+        <div class="screen-shine"></div>
+        <div class="hud">
+          <span>1P <b>00350</b></span
+          ><span>TIME <b>087</b></span>
+        </div>
+        <div class="maze">
+          <span class="wall wall--1"></span><span class="wall wall--2"></span
+          ><span class="wall wall--3"></span> <span class="wall wall--4"></span
+          ><span class="wall wall--5"></span> <span class="crate crate--1"></span
+          ><span class="crate crate--2"></span> <span class="crate crate--3"></span
+          ><span class="crate crate--4"></span> <span class="bomb bomb--1"></span
+          ><span class="bomb bomb--2"></span> <span class="blast blast--1"></span
+          ><span class="blast blast--2"></span>
+          <span class="bomber"><i class="bomber-head"></i><i class="bomber-body"></i></span>
+          <span class="enemy enemy--1"></span><span class="enemy enemy--2"></span>
+        </div>
+        <div class="screen-caption">NIVEL 01 · LISTO</div>
+      </div>
+      <div class="arcade-controls">
+        <span class="d-pad">✚</span><span class="speaker">•••<br />•••</span>
+        <span class="action-buttons"><i>A</i><i>B</i></span>
+      </div>
+    </div>
+  </div>
+</section>

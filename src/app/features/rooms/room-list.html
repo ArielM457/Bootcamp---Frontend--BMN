@@ -1,0 +1,97 @@
+<main class="rooms-page">
+  <header class="rooms-header">
+    <a class="back-link" routerLink="/menu">← Menú</a>
+    <h1>Salas</h1>
+    <button class="create-toggle" type="button" (click)="toggleCreate()">
+      {{ showCreate() ? 'Cancelar' : 'Crear sala' }}
+    </button>
+  </header>
+
+  <p class="local-note">Estas partidas funcionan solo en este navegador.</p>
+
+  @if (showCreate()) {
+    <section class="create-room" aria-labelledby="create-title">
+      <div>
+        <p>NUEVA PARTIDA</p>
+        <h2 id="create-title">Prepara tu sala</h2>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="create()" novalidate>
+        <div class="field">
+          <label for="room-name">Nombre</label>
+          <input
+            id="room-name"
+            type="text"
+            formControlName="name"
+            maxlength="60"
+            placeholder="Ejemplo: Batalla Rosa"
+          />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <span class="field-error">Usa entre 3 y 60 caracteres.</span>
+          }
+        </div>
+        <div class="field capacity-field">
+          <label for="room-capacity">Jugadores</label>
+          <input id="room-capacity" type="number" formControlName="maxPlayers" min="2" max="8" />
+          @if (form.controls.maxPlayers.touched && form.controls.maxPlayers.invalid) {
+            <span class="field-error">Elige entre 2 y 8 jugadores.</span>
+          }
+        </div>
+        <button class="primary-button" type="submit" [disabled]="rooms.isLoading()">
+          {{ rooms.isLoading() ? 'Creando…' : 'Crear' }}
+        </button>
+      </form>
+    </section>
+  }
+
+  @if (rooms.error()) {
+    <div class="page-error" role="alert">{{ rooms.error() }}</div>
+  }
+
+  @if (rooms.isLoading() && rooms.rooms().length === 0) {
+    <div class="loading-state">Buscando salas…</div>
+  } @else if (rooms.rooms().length === 0) {
+    <section class="empty-state">
+      <span aria-hidden="true">●</span>
+      <h2>No hay salas abiertas</h2>
+      <p>Crea una y espera a otros jugadores.</p>
+    </section>
+  } @else {
+    <section class="room-grid" aria-label="Salas disponibles">
+      @for (room of rooms.rooms(); track room.id) {
+        <article
+          class="room-card"
+          [class.room-card--full]="room.participants.length >= room.maxPlayers"
+        >
+          <div class="room-card__top">
+            <span class="status-dot" aria-hidden="true"></span
+            ><span>{{ room.status === 'waiting' ? 'Esperando' : 'En partida' }}</span>
+          </div>
+          <h2>{{ room.name }}</h2>
+          <div class="occupancy">
+            <span>Jugadores</span
+            ><strong>{{ room.participants.length }} / {{ room.maxPlayers }}</strong>
+          </div>
+          <div class="capacity-bar" aria-hidden="true">
+            <span [style.width.%]="(room.participants.length / room.maxPlayers) * 100"></span>
+          </div>
+          <button
+            type="button"
+            (click)="join(room)"
+            [disabled]="
+              room.status !== 'waiting' ||
+              (room.participants.length >= room.maxPlayers && !isMember(room))
+            "
+          >
+            {{
+              isMember(room)
+                ? 'Volver a entrar'
+                : room.participants.length >= room.maxPlayers
+                  ? 'Sala llena'
+                  : 'Unirse'
+            }}
+          </button>
+        </article>
+      }
+    </section>
+  }
+</main>

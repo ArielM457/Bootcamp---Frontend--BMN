@@ -1,0 +1,169 @@
+@use '../../../styles/tokens' as *;
+
+:host {
+  display: block;
+  min-height: 100vh;
+}
+.lobby-page {
+  min-height: 100vh;
+  padding: clamp(1.2rem, 4vw, 3rem) clamp(1.2rem, 7vw, 7rem) 4rem;
+  color: $white;
+  background: linear-gradient(145deg, $purple-dark, $purple 60%, #713477);
+}
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.game-title {
+  color: $white;
+  font:
+    900 clamp(1rem, 3vw, 1.35rem) 'Courier New',
+    monospace;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+.logout {
+  padding: 0.7rem 1rem;
+  border: 1px solid rgba($pink, 0.65);
+  border-radius: 999px;
+  color: $white;
+  background: rgba($purple-dark, 0.48);
+  cursor: pointer;
+  font-weight: 800;
+}
+.logout:hover {
+  background: $magenta;
+}
+.logout:focus-visible {
+  outline: 3px solid $white;
+  outline-offset: 3px;
+}
+.player-welcome {
+  display: flex;
+  align-items: center;
+  gap: 1.3rem;
+  max-width: 72rem;
+  margin: clamp(4rem, 10vw, 8rem) auto clamp(2.5rem, 6vw, 4.5rem);
+}
+.player-avatar {
+  display: grid;
+  flex: 0 0 auto;
+  width: clamp(4.5rem, 8vw, 6.5rem);
+  height: clamp(4.5rem, 8vw, 6.5rem);
+  place-items: center;
+  border: 0.25rem solid $pink;
+  border-radius: 50%;
+  background: $magenta;
+  box-shadow: 0.45rem 0.45rem 0 $pink;
+  font:
+    900 clamp(1.8rem, 4vw, 3rem) 'Courier New',
+    monospace;
+}
+.player-welcome p,
+.menu-card p {
+  margin-bottom: 0.45rem;
+  color: $pink;
+  font:
+    900 0.68rem 'Courier New',
+    monospace;
+  letter-spacing: 0.16em;
+}
+.player-welcome h1 {
+  margin: 0;
+  font:
+    900 clamp(2.4rem, 6vw, 5.2rem)/0.95 'Courier New',
+    monospace;
+  letter-spacing: -0.07em;
+}
+.player-menu {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  max-width: 72rem;
+  margin: auto;
+}
+.menu-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  min-height: 11rem;
+  padding: 1.5rem;
+  border: 2px solid rgba($pink, 0.35);
+  border-radius: 1.5rem;
+  color: $white;
+  background: rgba($purple-dark, 0.72);
+  box-shadow: 0 0.8rem 2rem rgba(#150519, 0.22);
+  text-decoration: none;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+a.menu-card:hover,
+a.menu-card:focus-visible {
+  border-color: $pink;
+  background: $magenta;
+  transform: translateY(-0.4rem);
+}
+a.menu-card:focus-visible {
+  outline: 3px solid $white;
+  outline-offset: 4px;
+}
+.profile-card {
+  background: rgba($magenta, 0.42);
+}
+.card-icon {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  border: 2px solid $pink;
+  border-radius: 1rem;
+  color: $pink;
+  font:
+    900 1.35rem 'Courier New',
+    monospace;
+}
+.menu-card h2 {
+  margin: 0 0 0.4rem;
+  font:
+    900 clamp(1.25rem, 2vw, 1.7rem) 'Courier New',
+    monospace;
+  text-transform: uppercase;
+}
+.menu-card div > span {
+  color: rgba($white, 0.68);
+  font-size: 0.8rem;
+}
+.menu-card b {
+  font-size: 1.5rem;
+}
+
+@media (max-width: 850px) {
+  .player-menu {
+    grid-template-columns: 1fr;
+  }
+  .menu-card {
+    min-height: 8.5rem;
+  }
+}
+@media (max-width: 520px) {
+  .player-welcome {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .logout {
+    font-size: 0.72rem;
+  }
+  .menu-card {
+    padding: 1.1rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .menu-card {
+    transition: none;
+  }
+}

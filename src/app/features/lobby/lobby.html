@@ -1,0 +1,57 @@
+<main class="lobby-page">
+  <header>
+    <a class="game-title" routerLink="/">BOMBERMAN</a>
+    <button class="logout" type="button" (click)="logout()">Cerrar sesión</button>
+  </header>
+
+  <section class="player-welcome" aria-labelledby="player-title">
+    <div class="player-avatar" aria-hidden="true">
+      {{ auth.player()?.displayName?.charAt(0)?.toUpperCase() }}
+    </div>
+    <div>
+      <p>LISTO PARA JUGAR</p>
+      <h1 id="player-title">Hola, {{ auth.player()?.displayName }}</h1>
+    </div>
+  </section>
+
+  <nav class="player-menu" aria-label="Opciones del jugador">
+    <article class="menu-card profile-card">
+      <span class="card-icon" aria-hidden="true">●</span>
+      <div>
+        <p>PERFIL</p>
+        <h2>{{ auth.player()?.displayName }}</h2>
+        <span>Jugador listo</span>
+      </div>
+    </article>
+
+    <a class="menu-card" routerLink="/salas">
+      <span class="card-icon" aria-hidden="true">⌂</span>
+      <div>
+        <p>JUGAR</p>
+        <h2>Salas</h2>
+        <span>Busca o crea una partida</span>
+      </div>
+      <b aria-hidden="true">→</b>
+    </a>
+
+    <a class="menu-card" routerLink="/juego">
+      <span class="card-icon" aria-hidden="true">●</span>
+      <div>
+        <p>ENTRENAMIENTO</p>
+        <h2>Partida local</h2>
+        <span>Practica movimiento y bombas</span>
+      </div>
+      <b aria-hidden="true">→</b>
+    </a>
+
+    <a class="menu-card" routerLink="/ranking">
+      <span class="card-icon" aria-hidden="true">★</span>
+      <div>
+        <p>PUNTUACIONES</p>
+        <h2>Ranking</h2>
+        <span>Conoce a los mejores</span>
+      </div>
+      <b aria-hidden="true">→</b>
+    </a>
+  </nav>
+</main>

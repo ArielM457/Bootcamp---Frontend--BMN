@@ -1,130 +1,647 @@
 @use '../../../styles/tokens' as *;
 
-.hero {
-  display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  align-items: center;
-  gap: 2rem;
-  max-width: 1440px;
-  min-height: 600px;
-  padding: clamp(3rem, 7vw, 6rem) clamp(1.2rem, 7vw, 7rem);
-  margin: auto;
+:host {
+  display: block;
+  min-height: 100vh;
 }
-.hero-copy {
+
+.welcome {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.16fr) minmax(0, 0.84fr);
+  min-height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(
+    90deg,
+    $purple-dark 0%,
+    $purple 34%,
+    $purple-soft 45%,
+    $pink-soft 56%,
+    $white 68%,
+    $white 100%
+  );
+}
+
+.welcome::before,
+.welcome::after {
+  position: absolute;
+  content: '';
+  pointer-events: none;
+}
+
+.welcome::before {
+  inset: 0 50% 0 0;
+  opacity: 0.13;
+  background-image: conic-gradient(
+    from 90deg,
+    transparent 25%,
+    rgba($pink, 0.78) 0 50%,
+    transparent 0 75%,
+    rgba($pink, 0.78) 0
+  );
+  background-size: 192px 192px;
+  mask-image: linear-gradient(90deg, #000 0%, transparent 88%);
+}
+
+.welcome::after {
+  width: 34rem;
+  height: 34rem;
+  right: -17rem;
+  top: -17rem;
+  border: 1px solid rgba($magenta, 0.18);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 5rem rgba($pink, 0.08),
+    0 0 0 10rem rgba($magenta, 0.04);
+}
+
+.menu-panel,
+.game-preview {
   position: relative;
   z-index: 1;
+  display: flex;
+  min-width: 0;
+}
+
+.menu-panel {
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1.4rem, 6vw, 6rem);
+  color: $white;
+}
+
+.menu-card {
+  width: min(100%, 36rem);
 }
 h1 {
-  margin: 1.4rem 0;
-  color: $purple;
-  font-size: clamp(3.5rem, 6.8vw, 7rem);
-  line-height: 0.98;
-  letter-spacing: -0.065em;
+  margin: 0;
+  font-family: 'Courier New', monospace;
+  font-size: clamp(4rem, 7.5vw, 8.4rem);
+  font-weight: 900;
+  line-height: 0.82;
+  letter-spacing: -0.11em;
+  text-shadow: 0.12em 0.12em 0 rgba($purple-dark, 0.55);
 }
+
 h1 span {
-  color: $magenta;
+  display: block;
+  color: $pink;
+  letter-spacing: -0.08em;
 }
-.intro {
-  max-width: 540px;
-  color: #594c5d;
-  font-size: 1.13rem;
-  line-height: 1.7;
-}
-.primary-action {
-  margin-top: 1rem;
-}
-.status {
-  max-width: 390px;
-  margin: 1.3rem 0 0;
-  color: #76687a;
-  font-size: 0.8rem;
+.subtitle {
+  max-width: 28rem;
+  margin: 1.2rem 0 1.75rem;
+  color: rgba($white, 0.78);
+  font-size: clamp(0.85rem, 1.2vw, 1rem);
   line-height: 1.5;
 }
-.hero-art {
+.game-menu {
   display: grid;
-  place-items: center;
-  min-height: 460px;
-  border-radius: 3rem;
-  background:
-    radial-gradient(circle at 80% 15%, #eac6ef 0, transparent 35%),
-    linear-gradient(145deg, #69316d, #3d1740);
-  box-shadow: 0 28px 60px #54205730;
-  transform: rotate(3deg);
+  gap: 0.55rem;
 }
-.grid-board {
+
+.menu-option {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0.5rem;
-  width: min(78%, 380px);
-  aspect-ratio: 1;
-  padding: 0.8rem;
-  border-radius: 1.2rem;
-  background: #2b1435;
-  box-shadow: 0 16px 24px #16081c88;
-}
-.tile {
-  display: grid;
-  place-items: center;
-  border-radius: 0.55rem;
+  grid-template-columns: 2.5rem 1fr;
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 4.7rem;
+  padding: 0.8rem 1.2rem;
+  border: 2px solid rgba($pink, 0.48);
+  border-radius: 1.15rem;
   color: $white;
-  background: #84538b;
-  font-size: clamp(1.2rem, 3vw, 2.2rem);
+  background: rgba($purple-dark, 0.88);
+  box-shadow:
+    inset 0 0 0 1px rgba($white, 0.05),
+    0 0.4rem 1rem rgba($purple-dark, 0.22);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    transform 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease;
 }
-.tile.wall {
-  background: #bb8cc2;
-  box-shadow: inset 0 -0.4rem #8d6095;
+
+.menu-option:hover,
+.menu-option:focus-visible {
+  border-color: $pink;
+  background: $magenta;
+  transform: translateX(0.5rem);
 }
-.tile.block {
-  background: $pink;
-  box-shadow: inset 0 -0.4rem #d47e9b;
+.menu-option:focus-visible {
+  outline: 3px solid $white;
+  outline-offset: 3px;
 }
-.tile.bomb {
-  color: $ink;
-  background: #f7e2fb;
-  text-shadow: 3px 3px 0 $magenta;
+.menu-option--main {
+  color: $white;
+  border-color: $pink;
+  background: $purple-dark;
+  box-shadow: 0.3rem 0.3rem 0 $magenta;
 }
-.tile.spark {
-  color: #fff4a8;
+.menu-option--main:hover,
+.menu-option--main:focus-visible {
+  color: $white;
   background: $magenta;
 }
-.tile.player {
-  color: $purple;
-  background: #fff4a8;
+.menu-option > span:nth-child(2) {
+  font:
+    900 1.08rem 'Courier New',
+    monospace;
+  letter-spacing: 0.04em;
 }
-.feature-strip {
+.menu-option small {
+  display: block;
+  margin-top: 0.12rem;
+  font:
+    700 0.7rem Arial,
+    Helvetica,
+    sans-serif;
+  letter-spacing: 0.04em;
+  color: $white;
+  opacity: 0.82;
+  text-transform: none;
+}
+.option-icon {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  padding: 2.5rem clamp(1.2rem, 7vw, 7rem) 4rem;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid currentColor;
+  border-radius: 0.65rem;
+  color: $white;
+  font:
+    900 1rem 'Courier New',
+    monospace;
+}
+.game-preview {
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: clamp(4rem, 7vw, 7rem) clamp(1.2rem, 5vw, 5rem) 2rem;
+}
+.arcade-frame {
+  width: min(100%, 29rem);
+  padding: clamp(0.8rem, 1.5vw, 1.15rem);
+  border: 0.4rem solid $purple-dark;
+  border-radius: 1.6rem 1.6rem 3rem 3rem;
+  background: linear-gradient(145deg, $purple, $magenta);
+  box-shadow:
+    1.2rem 1.4rem 0 rgba($pink, 0.65),
+    1.8rem 2rem 3.5rem rgba($purple, 0.28),
+    inset 0 0 0 0.25rem rgba($white, 0.25);
+  transform: perspective(900px) rotateY(-4deg) rotateX(2deg);
+  animation: cabinet-float 4.5s ease-in-out infinite;
+}
+
+.arcade-screen {
+  position: relative;
+  overflow: hidden;
+  padding: 0.8rem;
+  border: 0.35rem solid $purple-dark;
+  border-radius: 0.8rem;
+  background: #1b0d25;
+  box-shadow: inset 0 0 2rem #08020d;
+}
+.screen-shine {
+  position: absolute;
+  z-index: 4;
+  width: 45%;
+  height: 180%;
+  top: -45%;
+  left: -70%;
+  opacity: 0.11;
   background: $white;
+  transform: rotate(24deg);
+  animation: screen-shine 6s ease-in-out infinite;
 }
-.feature-strip article {
-  max-width: 320px;
+.hud {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.55rem;
+  color: $pink;
+  font:
+    900 clamp(0.56rem, 1.2vw, 0.78rem) 'Courier New',
+    monospace;
 }
-.feature-strip span {
-  color: $magenta;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
+.hud b {
+  color: $white;
 }
-.feature-strip h2 {
-  margin: 0.8rem 0;
-  color: $purple;
-  font-size: 1.35rem;
+
+.maze {
+  position: relative;
+  aspect-ratio: 1.25;
+  overflow: hidden;
+  border: 0.15rem solid $purple-soft;
+  background-color: #43204c;
+  background-image:
+    linear-gradient(rgba($pink, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba($pink, 0.07) 1px, transparent 1px);
+  background-size: 12.5% 16.66%;
+  image-rendering: pixelated;
 }
-.feature-strip p {
-  color: #665a69;
-  line-height: 1.5;
+
+.wall,
+.crate,
+.bomb,
+.blast,
+.bomber,
+.enemy {
+  position: absolute;
+  width: 12.5%;
+  height: 16.67%;
 }
-@media (max-width: 850px) {
-  .hero {
-    grid-template-columns: 1fr;
+
+.wall {
+  border: 0.18rem solid #dca7df;
+  background: repeating-linear-gradient(135deg, #bd7fc1 0 7px, #94549a 7px 14px);
+  box-shadow: inset 0 -0.3rem 0 #733b79;
+}
+.wall--1 {
+  left: 12.5%;
+  top: 16.67%;
+}
+.wall--2 {
+  left: 37.5%;
+  top: 16.67%;
+}
+.wall--3 {
+  left: 62.5%;
+  top: 16.67%;
+}
+.wall--4 {
+  left: 25%;
+  top: 50%;
+}
+.wall--5 {
+  left: 62.5%;
+  top: 66.67%;
+}
+
+.crate {
+  border: 0.22rem solid #b94983;
+  background: linear-gradient(45deg, transparent 43%, #bd4c85 44% 56%, transparent 57%), $pink;
+  box-shadow: inset 0 -0.35rem 0 #d4789d;
+}
+.crate--1 {
+  left: 50%;
+  top: 0;
+}
+.crate--2 {
+  left: 75%;
+  top: 33.33%;
+}
+.crate--3 {
+  left: 12.5%;
+  top: 66.67%;
+}
+.crate--4 {
+  left: 50%;
+  top: 83.33%;
+}
+
+.bomb {
+  z-index: 2;
+  width: 8%;
+  height: 11%;
+  border: 0.18rem solid $white;
+  border-radius: 50%;
+  background: $purple-dark;
+  box-shadow:
+    inset -0.3rem -0.2rem 0 #08020d,
+    0 0 0 0.12rem $magenta;
+  animation: bomb-tick 0.85s steps(2) infinite;
+}
+.bomb::before {
+  position: absolute;
+  width: 35%;
+  height: 35%;
+  top: -28%;
+  right: -5%;
+  content: '';
+  border-radius: 50%;
+  background: $yellow;
+  box-shadow: 0 0 0.55rem $yellow;
+}
+.bomb--1 {
+  left: 41%;
+  top: 39%;
+}
+.bomb--2 {
+  left: 79%;
+  top: 76%;
+  animation-delay: -0.4s;
+}
+
+.blast {
+  z-index: 1;
+  width: 11%;
+  height: 15%;
+  border-radius: 45%;
+  background: $yellow;
+  box-shadow:
+    0 0 1.1rem $magenta,
+    inset 0 0 0 0.25rem $pink;
+  clip-path: polygon(
+    50% 0,
+    64% 30%,
+    100% 16%,
+    78% 50%,
+    100% 82%,
+    63% 71%,
+    50% 100%,
+    37% 70%,
+    0 84%,
+    23% 50%,
+    0 17%,
+    37% 30%
+  );
+  animation: blast-pop 2.4s steps(2) infinite;
+}
+.blast--1 {
+  left: 30%;
+  top: 38%;
+}
+.blast--2 {
+  left: 52%;
+  top: 35%;
+  animation-delay: -1.2s;
+}
+
+.bomber {
+  z-index: 3;
+  left: 4%;
+  top: 7%;
+  filter: drop-shadow(0.2rem 0.25rem 0 #1a081e);
+  animation: bomber-path 7s steps(1) infinite;
+}
+.bomber-head {
+  position: absolute;
+  width: 58%;
+  height: 53%;
+  top: 4%;
+  left: 21%;
+  border: 0.17rem solid $purple-dark;
+  border-radius: 50%;
+  background: $white;
+  box-shadow: inset 0 -0.35rem 0 #d7c3dd;
+}
+.bomber-head::before,
+.bomber-head::after {
+  position: absolute;
+  width: 13%;
+  height: 19%;
+  top: 38%;
+  content: '';
+  background: $purple-dark;
+}
+.bomber-head::before {
+  left: 25%;
+}
+.bomber-head::after {
+  right: 25%;
+}
+.bomber-body {
+  position: absolute;
+  width: 68%;
+  height: 48%;
+  left: 16%;
+  bottom: 0;
+  border: 0.17rem solid $purple-dark;
+  border-radius: 45% 45% 30% 30%;
+  background: $magenta;
+}
+
+.enemy {
+  z-index: 2;
+  width: 9%;
+  height: 12%;
+  border: 0.18rem solid $purple-dark;
+  border-radius: 50% 50% 20% 20%;
+  background: $pink;
+  box-shadow: inset 0 -0.3rem 0 #ca5a8d;
+  animation: enemy-walk 3s steps(4) infinite;
+}
+.enemy::before {
+  position: absolute;
+  inset: 28% 18% auto;
+  height: 18%;
+  content: '';
+  background: linear-gradient(90deg, $purple-dark 0 28%, transparent 28% 70%, $purple-dark 70%);
+}
+.enemy--1 {
+  left: 67%;
+  top: 8%;
+}
+.enemy--2 {
+  left: 18%;
+  top: 78%;
+  animation-delay: -1.5s;
+}
+
+.screen-caption {
+  padding-top: 0.65rem;
+  color: $white;
+  font:
+    900 clamp(0.52rem, 1.1vw, 0.68rem) 'Courier New',
+    monospace;
+  letter-spacing: 0.16em;
+  text-align: center;
+}
+.arcade-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 5rem;
+  padding: 0.8rem 1.2rem 0;
+  color: $purple-dark;
+}
+.d-pad {
+  font-size: 3.4rem;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0.14rem 0.14rem 0 rgba($white, 0.25);
+}
+.speaker {
+  font:
+    900 0.8rem/0.6 'Courier New',
+    monospace;
+  letter-spacing: 0.14em;
+  opacity: 0.65;
+  transform: rotate(-12deg);
+}
+.action-buttons {
+  display: flex;
+  gap: 0.6rem;
+  transform: rotate(-12deg);
+}
+.action-buttons i {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0.2rem solid $purple-dark;
+  border-radius: 50%;
+  color: $white;
+  background: $pink;
+  box-shadow: 0.17rem 0.23rem 0 $purple-dark;
+  font:
+    900 0.72rem 'Courier New',
+    monospace;
+}
+.action-buttons i:first-child {
+  background: $yellow;
+  color: $purple-dark;
+}
+@keyframes status-pulse {
+  50% {
+    opacity: 0.35;
   }
-  .hero-art {
-    min-height: 330px;
+}
+@keyframes cabinet-float {
+  50% {
+    transform: perspective(900px) rotateY(-2deg) rotateX(1deg) translateY(-0.65rem);
+  }
+}
+@keyframes screen-shine {
+  0%,
+  65% {
+    left: -70%;
+  }
+  100% {
+    left: 135%;
+  }
+}
+@keyframes bomb-tick {
+  50% {
+    transform: scale(1.15);
+    filter: brightness(1.45);
+  }
+}
+@keyframes blast-pop {
+  0%,
+  42%,
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  48%,
+  62% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+@keyframes bomber-path {
+  0%,
+  18% {
+    left: 4%;
+    top: 7%;
+  }
+  19%,
+  36% {
+    left: 27%;
+    top: 7%;
+  }
+  37%,
+  54% {
+    left: 27%;
+    top: 37%;
+  }
+  55%,
+  72% {
+    left: 52%;
+    top: 37%;
+  }
+  73%,
+  88% {
+    left: 52%;
+    top: 70%;
+  }
+  89%,
+  100% {
+    left: 4%;
+    top: 70%;
+  }
+}
+@keyframes enemy-walk {
+  50% {
+    transform: translateX(1.2rem) scaleY(0.92);
+  }
+}
+
+@media (max-width: 920px) {
+  .welcome {
+    grid-template-columns: 1fr;
+    background: linear-gradient(
+      180deg,
+      $purple-dark 0%,
+      $purple 44%,
+      $pink-soft 53%,
+      $white 61%,
+      $white 100%
+    );
+  }
+  .welcome::before {
+    inset: 0 0 48% 0;
+    mask-image: linear-gradient(180deg, #000 0%, transparent 90%);
+  }
+  .menu-panel,
+  .game-preview {
+    min-height: auto;
+  }
+  .menu-panel {
+    padding-bottom: 7rem;
+  }
+  .game-preview {
+    padding-top: 5rem;
+    padding-bottom: 4rem;
+  }
+  .menu-card {
+    margin-block: 2rem;
+  }
+}
+
+@media (max-width: 560px) {
+  h1 {
+    font-size: clamp(3rem, 18vw, 5rem);
+  }
+  .menu-panel {
+    padding-inline: 1.15rem;
+  }
+  .game-preview {
+    padding-inline: 1rem;
+  }
+  .arcade-frame {
+    border-width: 0.28rem;
+    border-radius: 1rem 1rem 2rem 2rem;
+    box-shadow:
+      0.65rem 0.8rem 0 rgba($pink, 0.65),
+      1rem 1.2rem 2rem rgba($purple, 0.23);
     transform: none;
   }
-  .feature-strip {
-    grid-template-columns: 1fr;
+  .arcade-controls {
+    min-height: 4rem;
+  }
+  .d-pad {
+    font-size: 2.7rem;
+  }
+  .action-buttons i {
+    width: 2.1rem;
+    height: 2.1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  .menu-option {
+    transition: none;
   }
 }

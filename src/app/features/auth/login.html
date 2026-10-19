@@ -1,0 +1,47 @@
+<main class="auth-page">
+  <a class="back-link" routerLink="/" aria-label="Volver al inicio">← Volver</a>
+
+  <section class="auth-card" aria-labelledby="login-title">
+    <span class="bomb-mark" aria-hidden="true"></span>
+    <p class="overline">BIENVENIDO</p>
+    <h1 id="login-title">Entra al juego</h1>
+    <p class="intro">Continúa tu partida y vuelve al laberinto.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <label for="login-email">Correo</label>
+      <input
+        id="login-email"
+        type="email"
+        formControlName="email"
+        autocomplete="email"
+        placeholder="jugador@correo.com"
+      />
+      @if (form.controls.email.touched && form.controls.email.invalid) {
+        <p class="field-error">Ingresa un correo válido.</p>
+      }
+
+      <label for="login-password">Contraseña</label>
+      <input
+        id="login-password"
+        type="password"
+        formControlName="password"
+        autocomplete="current-password"
+        placeholder="Tu contraseña"
+      />
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <p class="field-error">Ingresa tu contraseña.</p>
+      }
+
+      @if (auth.error()) {
+        <div class="form-error" role="alert">{{ auth.error() }}</div>
+      }
+
+      <button type="submit" [disabled]="auth.isLoading()">
+        {{ auth.isLoading() ? 'Entrando…' : 'Entrar' }}
+      </button>
+    </form>
+
+    <p class="switch-form">¿Primera partida? <a routerLink="/registro">Crea tu cuenta</a></p>
+    <p class="local-note">Tus datos se guardan solo en este navegador.</p>
+  </section>
+</main>
