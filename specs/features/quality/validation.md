@@ -45,8 +45,8 @@ Comprobaciones realizadas:
 
 - `npm run validate`: correcto. 8 archivos y 29 pruebas, de las cuales 2 vienen de cambios de `welcome` en curso; esta tarea deja 27 pruebas.
 - `npx ng build --configuration production,api`: compila y el bundle contiene el mensaje del modo `api`.
+- Revisión manual con `npx ng serve --configuration api`: la consola del navegador muestra `Uncaught Error: Modo 'api' no disponible…` desde `provideDataAdapters` y la app no arranca.
 
 Pendiente:
 
-- Abrir la app con `npx ng serve --configuration api` y revisar el error en la consola del navegador.
 - Implementar los adaptadores reales.
