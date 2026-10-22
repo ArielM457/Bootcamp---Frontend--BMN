@@ -6,3 +6,4 @@
 4. Completado: actualizar README y guía de integración.
 5. Completado: ejecutar pruebas, build, lint, formato y revisión de diferencias.
 6. Pendiente: revisión manual final en navegador, teclado y dispositivo táctil.
+7. Completado: elegir adaptadores según el modo `demo` o `api` desde configuración (ADR 0002).

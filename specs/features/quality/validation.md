@@ -28,3 +28,25 @@ Pendiente:
 - Recorrer con teclado todas las pantallas en un navegador real.
 - Probar los controles táctiles en un dispositivo físico.
 - Probar el flujo compartido cuando exista backend.
+
+## **Selección de adaptadores (tarea 7)**
+
+Fecha: 22 de octubre de 2026.
+
+Estado: implementado según el ADR 0002. El modo `demo` registra los adaptadores locales. El modo `api` falla al iniciar con un mensaje que nombra los adaptadores HTTP y SignalR pendientes.
+
+`src/app/app.config.spec.ts` añade tres pruebas:
+
+- Modo `demo`: cada token resuelve a su adaptador local.
+- Modo `api`: `provideDataAdapters('api')` lanza el error esperado.
+- `appConfig` usa el modo `demo` del environment por defecto.
+
+Comprobaciones realizadas:
+
+- `npm run validate`: correcto. 8 archivos y 29 pruebas, de las cuales 2 vienen de cambios de `welcome` en curso; esta tarea deja 27 pruebas.
+- `npx ng build --configuration production,api`: compila y el bundle contiene el mensaje del modo `api`.
+
+Pendiente:
+
+- Abrir la app con `npx ng serve --configuration api` y revisar el error en la consola del navegador.
+- Implementar los adaptadores reales.

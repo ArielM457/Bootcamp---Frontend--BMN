@@ -18,6 +18,8 @@ npm start
 
 Abre `http://localhost:4200`.
 
+La aplicación arranca en modo `demo`, con adaptadores locales. El modo `api` (`npx ng serve --configuration api`) existe, pero falla al iniciar hasta que haya adaptadores HTTP y SignalR. Lee `specs/architecture/decisions/0002-adapter-selection.md`.
+
 ## **Validación**
 
 ```bash

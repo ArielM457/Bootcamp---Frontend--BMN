@@ -2,6 +2,15 @@
 
 La interfaz ya funciona con adaptadores locales. Para conectarla a un backend no debemos cambiar componentes ni facades. Debemos implementar las mismas interfaces y seleccionar los adaptadores reales en `app.config.ts`.
 
+## **Selección de adaptadores**
+
+El modo sale de `src/environments/environment.ts` (`demo`) o de `environment.api.ts` (`api`), según el ADR 0002. `provideDataAdapters(mode)` en `app.config.ts` registra `AUTH_REPOSITORY`, `ROOM_REPOSITORY`, `GAME_PORT` y `SCORE_REPOSITORY`.
+
+- `npm start` y `npm run build` usan `demo`.
+- `npx ng serve --configuration api` y `npx ng build --configuration production,api` usan `api`.
+
+Hoy la rama `api` lanza un error al iniciar porque faltan los adaptadores reales. Para conectar el backend, crea los adaptadores en `src/app/infrastructure/api/` y `src/app/infrastructure/realtime/` y cambia solo esa rama.
+
 ## **Autenticación**
 
 Implementamos `AuthRepository` con registro, acceso, restauración de sesión y cierre. El adaptador HTTP debe validar los DTO y errores de `specs/contracts/openapi.yaml`. Los tokens deben permanecer fuera de componentes.
