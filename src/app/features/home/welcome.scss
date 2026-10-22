@@ -8,17 +8,17 @@
 .welcome {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.16fr) minmax(0, 0.84fr);
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   min-height: 100vh;
   overflow: hidden;
   background: linear-gradient(
     90deg,
-    $purple-dark 0%,
-    $purple 34%,
-    $purple-soft 45%,
-    $pink-soft 56%,
-    $white 68%,
-    $white 100%
+    $purple-deep 0%,
+    $purple 30%,
+    $purple-soft 44%,
+    $pink-soft 58%,
+    $lilac-white 70%,
+    $lilac-white 100%
   );
 }
 
@@ -29,9 +29,10 @@
   pointer-events: none;
 }
 
+// Patrón de cuadros del panel izquierdo.
 .welcome::before {
-  inset: 0 50% 0 0;
-  opacity: 0.13;
+  inset: 0 45% 0 0;
+  opacity: 0.12;
   background-image: conic-gradient(
     from 90deg,
     transparent 25%,
@@ -39,20 +40,27 @@
     transparent 0 75%,
     rgba($pink, 0.78) 0
   );
-  background-size: 192px 192px;
-  mask-image: linear-gradient(90deg, #000 0%, transparent 88%);
+  background-size: 96px 96px;
+  mask-image: linear-gradient(90deg, #000 0%, transparent 90%);
 }
 
+// Partículas de luz.
 .welcome::after {
-  width: 34rem;
-  height: 34rem;
-  right: -17rem;
-  top: -17rem;
-  border: 1px solid rgba($magenta, 0.18);
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 5rem rgba($pink, 0.08),
-    0 0 0 10rem rgba($magenta, 0.04);
+  inset: 0 40% 0 0;
+  background-image:
+    radial-gradient(circle, rgba($pink-light, 0.9) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle, rgba($white, 0.7) 0 1px, transparent 2px),
+    radial-gradient(circle, rgba($pink, 0.8) 0 2px, transparent 3px);
+  background-position:
+    12% 30%,
+    48% 62%,
+    78% 18%;
+  background-size:
+    260px 230px,
+    190px 170px,
+    340px 300px;
+  opacity: 0.65;
+  animation: sparkle 5s ease-in-out infinite;
 }
 
 .menu-panel,
@@ -74,500 +82,610 @@
 .menu-card {
   width: min(100%, 36rem);
 }
+
 h1 {
   margin: 0;
-  font-family: 'Courier New', monospace;
-  font-size: clamp(4rem, 7.5vw, 8.4rem);
+  color: $pink-light;
+  font-family: 'Arial Black', 'Arial Bold', Arial, sans-serif;
+  font-size: clamp(3.6rem, 7vw, 7.4rem);
   font-weight: 900;
-  line-height: 0.82;
-  letter-spacing: -0.11em;
-  text-shadow: 0.12em 0.12em 0 rgba($purple-dark, 0.55);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-shadow:
+    0 -1px 0 rgba($white, 0.7),
+    0.025em 0.025em 0 $pink-shadow,
+    0.05em 0.05em 0 $pink-shadow,
+    0.075em 0.075em 0 rgba($purple-deep, 0.85),
+    0.1em 0.14em 0.22em rgba($purple-deep, 0.6);
 }
 
 h1 span {
   display: block;
   color: $pink;
-  letter-spacing: -0.08em;
 }
+
 .subtitle {
   max-width: 28rem;
-  margin: 1.2rem 0 1.75rem;
-  color: rgba($white, 0.78);
-  font-size: clamp(0.85rem, 1.2vw, 1rem);
+  margin: 1.4rem 0 1.9rem;
+  color: rgba($white, 0.85);
+  font-size: clamp(0.9rem, 1.2vw, 1.05rem);
   line-height: 1.5;
 }
+
 .game-menu {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.75rem;
 }
 
 .menu-option {
+  position: relative;
   display: grid;
-  grid-template-columns: 2.5rem 1fr;
+  grid-template-columns: 2.4rem 1fr;
   align-items: center;
-  gap: 0.85rem;
-  min-height: 4.7rem;
-  padding: 0.8rem 1.2rem;
-  border: 2px solid rgba($pink, 0.48);
-  border-radius: 1.15rem;
+  gap: 1rem;
+  min-height: 4.6rem;
+  padding: 0.85rem 1.25rem;
+  overflow: hidden;
+  border: 1px solid rgba($pink, 0.35);
+  border-radius: 0.9rem;
   color: $white;
-  background: rgba($purple-dark, 0.88);
+  background:
+    linear-gradient(180deg, rgba($white, 0.1), rgba($white, 0.04)), rgba($purple-deep, 0.55);
   box-shadow:
-    inset 0 0 0 1px rgba($white, 0.05),
-    0 0.4rem 1rem rgba($purple-dark, 0.22);
+    inset 0 1px 0 rgba($white, 0.12),
+    0 0.5rem 1.4rem rgba($purple-deep, 0.3);
+  backdrop-filter: blur(8px);
   text-decoration: none;
   text-transform: uppercase;
   transition:
     transform 160ms ease,
-    background 160ms ease,
-    border-color 160ms ease;
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+// Reflejo diagonal del cristal.
+.menu-option::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 52%,
+    rgba($white, 0.09) 52% 64%,
+    transparent 64% 70%,
+    rgba($white, 0.05) 70% 76%,
+    transparent 76%
+  );
 }
 
 .menu-option:hover,
 .menu-option:focus-visible {
-  border-color: $pink;
-  background: $magenta;
+  border-color: $magenta;
   transform: translateX(0.5rem);
 }
+
 .menu-option:focus-visible {
   outline: 3px solid $white;
   outline-offset: 3px;
 }
+
 .menu-option--main {
-  color: $white;
-  border-color: $pink;
-  background: $purple-dark;
-  box-shadow: 0.3rem 0.3rem 0 $magenta;
+  border: 2px solid $magenta;
+  background:
+    linear-gradient(180deg, rgba($white, 0.14), rgba($white, 0.05)), rgba($purple-glass, 0.75);
+  box-shadow:
+    0 0 0 1px rgba($pink, 0.4),
+    0 0 1.6rem rgba($magenta, 0.45),
+    inset 0 1px 0 rgba($white, 0.2);
 }
-.menu-option--main:hover,
-.menu-option--main:focus-visible {
-  color: $white;
-  background: $magenta;
-}
-.menu-option > span:nth-child(2) {
+
+.option-text {
   font:
-    900 1.08rem 'Courier New',
+    900 1.05rem 'Courier New',
     monospace;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
 }
+
 .menu-option small {
   display: block;
-  margin-top: 0.12rem;
+  margin-top: 0.15rem;
   font:
-    700 0.7rem Arial,
+    400 0.82rem Arial,
     Helvetica,
     sans-serif;
-  letter-spacing: 0.04em;
-  color: $white;
-  opacity: 0.82;
+  letter-spacing: 0.01em;
+  color: rgba($white, 0.88);
   text-transform: none;
 }
+
 .option-icon {
   display: grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
-  border: 1px solid currentColor;
-  border-radius: 0.65rem;
-  color: $white;
-  font:
-    900 1rem 'Courier New',
-    monospace;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 1px solid rgba($white, 0.5);
+  border-radius: 0.6rem;
+  background: rgba($white, 0.08);
 }
+
+.option-icon svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: $white;
+}
+
+.option-icon [fill='none'] {
+  stroke: $white;
+}
+
 .game-preview {
   align-items: center;
   justify-content: center;
-  flex-direction: column;
   min-height: 100vh;
-  padding: clamp(4rem, 7vw, 7rem) clamp(1.2rem, 5vw, 5rem) 2rem;
-}
-.arcade-frame {
-  width: min(100%, 29rem);
-  padding: clamp(0.8rem, 1.5vw, 1.15rem);
-  border: 0.4rem solid $purple-dark;
-  border-radius: 1.6rem 1.6rem 3rem 3rem;
-  background: linear-gradient(145deg, $purple, $magenta);
-  box-shadow:
-    1.2rem 1.4rem 0 rgba($pink, 0.65),
-    1.8rem 2rem 3.5rem rgba($purple, 0.28),
-    inset 0 0 0 0.25rem rgba($white, 0.25);
-  transform: perspective(900px) rotateY(-4deg) rotateX(2deg);
-  animation: cabinet-float 4.5s ease-in-out infinite;
+  padding: clamp(2rem, 5vw, 5rem) clamp(1.2rem, 5vw, 5rem);
 }
 
-.arcade-screen {
-  position: relative;
-  overflow: hidden;
-  padding: 0.8rem;
-  border: 0.35rem solid $purple-dark;
-  border-radius: 0.8rem;
-  background: #1b0d25;
-  box-shadow: inset 0 0 2rem #08020d;
-}
-.screen-shine {
+// Fragmentos rosas alrededor de la consola.
+.shard {
   position: absolute;
-  z-index: 4;
-  width: 45%;
-  height: 180%;
-  top: -45%;
-  left: -70%;
-  opacity: 0.11;
-  background: $white;
-  transform: rotate(24deg);
-  animation: screen-shine 6s ease-in-out infinite;
-}
-.hud {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.55rem;
-  color: $pink;
-  font:
-    900 clamp(0.56rem, 1.2vw, 0.78rem) 'Courier New',
-    monospace;
-}
-.hud b {
-  color: $white;
+  width: 2.6rem;
+  height: 2.2rem;
+  background: linear-gradient(150deg, $pink-light, $pink-shadow);
+  clip-path: polygon(0 20%, 100% 0, 70% 100%);
+  filter: drop-shadow(0.3rem 0.4rem 0.3rem rgba($purple, 0.25));
+  animation: shard-float 6s ease-in-out infinite;
 }
 
-.maze {
-  position: relative;
-  aspect-ratio: 1.25;
-  overflow: hidden;
-  border: 0.15rem solid $purple-soft;
-  background-color: #43204c;
-  background-image:
-    linear-gradient(rgba($pink, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba($pink, 0.07) 1px, transparent 1px);
-  background-size: 12.5% 16.66%;
-  image-rendering: pixelated;
-}
-
-.wall,
-.crate,
-.bomb,
-.blast,
-.bomber,
-.enemy {
-  position: absolute;
-  width: 12.5%;
-  height: 16.67%;
-}
-
-.wall {
-  border: 0.18rem solid #dca7df;
-  background: repeating-linear-gradient(135deg, #bd7fc1 0 7px, #94549a 7px 14px);
-  box-shadow: inset 0 -0.3rem 0 #733b79;
-}
-.wall--1 {
-  left: 12.5%;
-  top: 16.67%;
-}
-.wall--2 {
-  left: 37.5%;
-  top: 16.67%;
-}
-.wall--3 {
-  left: 62.5%;
-  top: 16.67%;
-}
-.wall--4 {
-  left: 25%;
-  top: 50%;
-}
-.wall--5 {
-  left: 62.5%;
-  top: 66.67%;
-}
-
-.crate {
-  border: 0.22rem solid #b94983;
-  background: linear-gradient(45deg, transparent 43%, #bd4c85 44% 56%, transparent 57%), $pink;
-  box-shadow: inset 0 -0.35rem 0 #d4789d;
-}
-.crate--1 {
-  left: 50%;
-  top: 0;
-}
-.crate--2 {
-  left: 75%;
-  top: 33.33%;
-}
-.crate--3 {
-  left: 12.5%;
-  top: 66.67%;
-}
-.crate--4 {
-  left: 50%;
-  top: 83.33%;
-}
-
-.bomb {
-  z-index: 2;
-  width: 8%;
-  height: 11%;
-  border: 0.18rem solid $white;
-  border-radius: 50%;
-  background: $purple-dark;
-  box-shadow:
-    inset -0.3rem -0.2rem 0 #08020d,
-    0 0 0 0.12rem $magenta;
-  animation: bomb-tick 0.85s steps(2) infinite;
-}
-.bomb::before {
-  position: absolute;
-  width: 35%;
-  height: 35%;
-  top: -28%;
-  right: -5%;
-  content: '';
-  border-radius: 50%;
-  background: $yellow;
-  box-shadow: 0 0 0.55rem $yellow;
-}
-.bomb--1 {
-  left: 41%;
-  top: 39%;
-}
-.bomb--2 {
-  left: 79%;
-  top: 76%;
-  animation-delay: -0.4s;
-}
-
-.blast {
-  z-index: 1;
-  width: 11%;
-  height: 15%;
-  border-radius: 45%;
-  background: $yellow;
-  box-shadow:
-    0 0 1.1rem $magenta,
-    inset 0 0 0 0.25rem $pink;
-  clip-path: polygon(
-    50% 0,
-    64% 30%,
-    100% 16%,
-    78% 50%,
-    100% 82%,
-    63% 71%,
-    50% 100%,
-    37% 70%,
-    0 84%,
-    23% 50%,
-    0 17%,
-    37% 30%
-  );
-  animation: blast-pop 2.4s steps(2) infinite;
-}
-.blast--1 {
-  left: 30%;
-  top: 38%;
-}
-.blast--2 {
-  left: 52%;
-  top: 35%;
-  animation-delay: -1.2s;
-}
-
-.bomber {
-  z-index: 3;
-  left: 4%;
-  top: 7%;
-  filter: drop-shadow(0.2rem 0.25rem 0 #1a081e);
-  animation: bomber-path 7s steps(1) infinite;
-}
-.bomber-head {
-  position: absolute;
-  width: 58%;
-  height: 53%;
-  top: 4%;
-  left: 21%;
-  border: 0.17rem solid $purple-dark;
-  border-radius: 50%;
-  background: $white;
-  box-shadow: inset 0 -0.35rem 0 #d7c3dd;
-}
-.bomber-head::before,
-.bomber-head::after {
-  position: absolute;
-  width: 13%;
-  height: 19%;
-  top: 38%;
-  content: '';
-  background: $purple-dark;
-}
-.bomber-head::before {
-  left: 25%;
-}
-.bomber-head::after {
-  right: 25%;
-}
-.bomber-body {
-  position: absolute;
-  width: 68%;
-  height: 48%;
-  left: 16%;
-  bottom: 0;
-  border: 0.17rem solid $purple-dark;
-  border-radius: 45% 45% 30% 30%;
-  background: $magenta;
-}
-
-.enemy {
-  z-index: 2;
-  width: 9%;
-  height: 12%;
-  border: 0.18rem solid $purple-dark;
-  border-radius: 50% 50% 20% 20%;
-  background: $pink;
-  box-shadow: inset 0 -0.3rem 0 #ca5a8d;
-  animation: enemy-walk 3s steps(4) infinite;
-}
-.enemy::before {
-  position: absolute;
-  inset: 28% 18% auto;
-  height: 18%;
-  content: '';
-  background: linear-gradient(90deg, $purple-dark 0 28%, transparent 28% 70%, $purple-dark 70%);
-}
-.enemy--1 {
-  left: 67%;
+.shard--1 {
   top: 8%;
-}
-.enemy--2 {
   left: 18%;
-  top: 78%;
-  animation-delay: -1.5s;
 }
 
-.screen-caption {
-  padding-top: 0.65rem;
-  color: $white;
+.shard--2 {
+  top: 6%;
+  right: 12%;
+  width: 2rem;
+  animation-delay: -2s;
+}
+
+.shard--3 {
+  bottom: 18%;
+  left: 8%;
+  width: 3rem;
+  animation-delay: -4s;
+}
+
+.shard--4 {
+  bottom: 9%;
+  left: 24%;
+  width: 1.8rem;
+  height: 1.6rem;
+  animation-delay: -1s;
+}
+
+.console {
+  width: min(100%, 27rem);
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(1.2rem 1.6rem 1.8rem rgba($purple, 0.35));
+  animation: console-float 5s ease-in-out infinite;
+}
+
+.console-shell {
+  fill: $console-body;
+  stroke: $purple-dark;
+  stroke-width: 3;
+}
+
+.console-edge {
+  fill: none;
+  stroke: rgba($lilac, 0.35);
+  stroke-width: 2;
+}
+
+.console-bezel {
+  fill: $purple-deep;
+}
+
+.console-screen {
+  fill: $purple-dark;
+}
+
+.console-board {
+  fill: $purple-glass;
+}
+
+.console-grid {
+  stroke: rgba($pink, 0.12);
+  stroke-width: 1;
+}
+
+.console-hud,
+.console-caption {
+  fill: $white;
   font:
-    900 clamp(0.52rem, 1.1vw, 0.68rem) 'Courier New',
+    700 13px 'Courier New',
     monospace;
-  letter-spacing: 0.16em;
-  text-align: center;
+  letter-spacing: 0.1em;
 }
-.arcade-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 5rem;
-  padding: 0.8rem 1.2rem 0;
-  color: $purple-dark;
+
+.console-hud-label {
+  fill: $pink;
 }
-.d-pad {
-  font-size: 3.4rem;
-  font-weight: 900;
-  line-height: 1;
-  text-shadow: 0.14rem 0.14rem 0 rgba($white, 0.25);
+
+.console-wall rect {
+  fill: $purple-soft;
+  stroke: $lilac;
+  stroke-width: 2;
 }
-.speaker {
-  font:
-    900 0.8rem/0.6 'Courier New',
-    monospace;
-  letter-spacing: 0.14em;
-  opacity: 0.65;
-  transform: rotate(-12deg);
+
+.console-brick rect {
+  fill: $pink-shadow;
+  stroke: $pink-light;
+  stroke-width: 1.5;
 }
-.action-buttons {
-  display: flex;
-  gap: 0.6rem;
-  transform: rotate(-12deg);
+
+// Simulación decorativa: ciclo de 12 s sobre celdas de 40 × 40.
+$loop: 12s;
+
+.console-bomber {
+  transform: translate(80px, 80px);
+  animation: bomber-route $loop linear infinite;
 }
-.action-buttons i {
-  display: grid;
-  place-items: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 0.2rem solid $purple-dark;
-  border-radius: 50%;
-  color: $white;
-  background: $pink;
-  box-shadow: 0.17rem 0.23rem 0 $purple-dark;
-  font:
-    900 0.72rem 'Courier New',
-    monospace;
+
+.bomber-helmet,
+.bomber-body {
+  fill: $purple-soft;
+  stroke: $purple-deep;
+  stroke-width: 1.4;
 }
-.action-buttons i:first-child {
-  background: $yellow;
-  color: $purple-dark;
+
+.bomber-shine {
+  fill: rgba($white, 0.45);
 }
-@keyframes status-pulse {
+
+.bomber-face {
+  fill: $pink-light;
+  stroke: $purple-deep;
+  stroke-width: 1;
+}
+
+.bomber-eye,
+.bomber-line {
+  fill: $purple-deep;
+}
+
+.bomber-pompom {
+  fill: $magenta;
+  stroke: $purple-deep;
+  stroke-width: 1;
+}
+
+.bomber-glove,
+.bomber-belt,
+.bomber-boot {
+  fill: $pink;
+  stroke: $purple-deep;
+  stroke-width: 1;
+}
+
+.bomber-belt {
+  stroke: none;
+}
+
+.bomber-buckle {
+  fill: $yellow;
+}
+
+.bomber-boot--l {
+  animation: bomber-step 0.5s steps(2) infinite;
+}
+
+.bomber-boot--r {
+  animation: bomber-step 0.5s steps(2) -0.25s infinite;
+}
+
+.console-ghost path {
+  fill: $pink;
+  stroke: $magenta;
+  stroke-width: 1.5;
+}
+
+.ghost-eye {
+  fill: $purple-dark;
+}
+
+.ghost-sprite {
+  animation: ghost-bob 1.2s ease-in-out infinite;
+}
+
+.console-ghost--a {
+  transform: translate(280px, 120px);
+  animation: ghost-a-route $loop linear infinite;
+}
+
+.console-ghost--b {
+  transform: translate(0, 200px);
+  animation: ghost-b-route $loop linear infinite;
+}
+
+.console-bomb,
+.console-blast {
+  opacity: 0;
+}
+
+.console-bomb--1 {
+  transform: translate(160px, 80px);
+  animation: bomb-1 $loop linear infinite;
+}
+
+.console-bomb--2 {
+  transform: translate(80px, 160px);
+  animation: bomb-2 $loop linear infinite;
+}
+
+.bomb-sprite {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bomb-tick 0.5s steps(2) infinite;
+}
+
+.bomb-body {
+  fill: $purple-deep;
+  stroke: $white;
+  stroke-width: 2;
+}
+
+.bomb-fuse {
+  stroke: $lilac;
+  stroke-width: 2;
+}
+
+.bomb-spark {
+  fill: $yellow;
+  animation: spark 0.4s steps(2) infinite;
+}
+
+.console-blast rect {
+  fill: $yellow;
+}
+
+.console-blast .blast-core {
+  fill: $white;
+}
+
+.console-blast--1 {
+  animation: blast-1 $loop linear infinite;
+}
+
+.console-blast--2 {
+  animation: blast-2 $loop linear infinite;
+}
+
+.console-dpad {
+  fill: $purple-deep;
+}
+
+.console-speaker circle {
+  fill: rgba($purple-deep, 0.7);
+}
+
+.console-button {
+  fill: $yellow;
+  stroke: $purple-dark;
+  stroke-width: 3;
+}
+
+@keyframes sparkle {
   50% {
     opacity: 0.35;
   }
 }
-@keyframes cabinet-float {
+
+@keyframes shard-float {
   50% {
-    transform: perspective(900px) rotateY(-2deg) rotateX(1deg) translateY(-0.65rem);
+    transform: translateY(-0.8rem) rotate(12deg);
   }
 }
-@keyframes screen-shine {
-  0%,
-  65% {
-    left: -70%;
-  }
-  100% {
-    left: 135%;
+
+@keyframes console-float {
+  50% {
+    transform: translateY(-0.6rem);
   }
 }
+
+@keyframes ghost-bob {
+  50% {
+    translate: 0 -3px;
+  }
+}
+
+@keyframes bomber-step {
+  50% {
+    translate: 0 -1.5px;
+  }
+}
+
 @keyframes bomb-tick {
   50% {
-    transform: scale(1.15);
-    filter: brightness(1.45);
+    scale: 1.12;
   }
 }
-@keyframes blast-pop {
+
+// Ruta: camina, pone la bomba 1, se cubre, pone la bomba 2, se cubre y vuelve al inicio.
+@keyframes bomber-route {
+  0% {
+    transform: translate(80px, 80px);
+  }
+  4.17% {
+    transform: translate(120px, 80px);
+  }
+  8.33% {
+    transform: translate(160px, 80px);
+  }
+  10.83% {
+    transform: translate(160px, 120px);
+  }
+  13.33%,
+  33.33% {
+    transform: translate(120px, 120px);
+  }
+  36.67% {
+    transform: translate(120px, 160px);
+  }
+  40%,
+  41.67% {
+    transform: translate(80px, 160px);
+  }
+  44.17% {
+    transform: translate(120px, 160px);
+  }
+  46.67%,
+  66.67% {
+    transform: translate(120px, 120px);
+  }
+  70.83% {
+    transform: translate(120px, 80px);
+  }
+  75%,
+  100% {
+    transform: translate(80px, 80px);
+  }
+}
+
+@keyframes bomb-1 {
   0%,
-  42%,
-  70%,
+  8.2% {
+    opacity: 0;
+  }
+  8.33%,
+  24.9% {
+    opacity: 1;
+  }
+  25%,
   100% {
     opacity: 0;
-    transform: scale(0.35);
-  }
-  48%,
-  62% {
-    opacity: 1;
-    transform: scale(1.15);
   }
 }
-@keyframes bomber-path {
+
+@keyframes bomb-2 {
   0%,
-  18% {
-    left: 4%;
-    top: 7%;
+  41.5% {
+    opacity: 0;
   }
-  19%,
-  36% {
-    left: 27%;
-    top: 7%;
+  41.67%,
+  58.2% {
+    opacity: 1;
   }
-  37%,
-  54% {
-    left: 27%;
-    top: 37%;
-  }
-  55%,
-  72% {
-    left: 52%;
-    top: 37%;
-  }
-  73%,
-  88% {
-    left: 52%;
-    top: 70%;
-  }
-  89%,
+  58.33%,
   100% {
-    left: 4%;
-    top: 70%;
+    opacity: 0;
   }
 }
-@keyframes enemy-walk {
+
+@keyframes blast-1 {
+  0%,
+  24.9% {
+    opacity: 0;
+  }
+  25%,
+  28% {
+    opacity: 1;
+  }
+  29.17%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes blast-2 {
+  0%,
+  58.2% {
+    opacity: 0;
+  }
+  58.33%,
+  61.33% {
+    opacity: 1;
+  }
+  62.5%,
+  100% {
+    opacity: 0;
+  }
+}
+
+// El fantasma A entra en la fila de la bomba 1 y cae en la explosión.
+@keyframes ghost-a-route {
+  0% {
+    transform: translate(280px, 120px);
+    opacity: 1;
+  }
+  5% {
+    transform: translate(240px, 120px);
+  }
+  10% {
+    transform: translate(200px, 120px);
+  }
+  15%,
+  29% {
+    transform: translate(200px, 80px);
+  }
+  25% {
+    opacity: 1;
+  }
+  29%,
+  87.5% {
+    opacity: 0;
+  }
+  29.5% {
+    transform: translate(280px, 120px);
+  }
+  91.67%,
+  100% {
+    transform: translate(280px, 120px);
+    opacity: 1;
+  }
+}
+
+// El fantasma B sube y baja por la izquierda hasta cruzarse con la bomba 2.
+@keyframes ghost-b-route {
+  0% {
+    transform: translate(0, 200px);
+    opacity: 1;
+  }
+  12.5% {
+    transform: translate(0, 160px);
+  }
+  25% {
+    transform: translate(0, 120px);
+  }
+  37.5% {
+    transform: translate(0, 160px);
+  }
+  50%,
+  62.5% {
+    transform: translate(40px, 160px);
+  }
+  58.33% {
+    opacity: 1;
+  }
+  62.5%,
+  87.5% {
+    opacity: 0;
+  }
+  63% {
+    transform: translate(0, 200px);
+  }
+  91.67%,
+  100% {
+    transform: translate(0, 200px);
+    opacity: 1;
+  }
+}
+
+@keyframes spark {
   50% {
-    transform: translateX(1.2rem) scaleY(0.92);
+    opacity: 0.3;
   }
 }
 
@@ -576,72 +694,85 @@ h1 span {
     grid-template-columns: 1fr;
     background: linear-gradient(
       180deg,
-      $purple-dark 0%,
-      $purple 44%,
-      $pink-soft 53%,
-      $white 61%,
-      $white 100%
+      $purple-deep 0%,
+      $purple 42%,
+      $purple-soft 52%,
+      $pink-soft 62%,
+      $lilac-white 72%,
+      $lilac-white 100%
     );
   }
-  .welcome::before {
-    inset: 0 0 48% 0;
+
+  .welcome::before,
+  .welcome::after {
+    inset: 0 0 45% 0;
     mask-image: linear-gradient(180deg, #000 0%, transparent 90%);
   }
+
   .menu-panel,
   .game-preview {
     min-height: auto;
   }
+
   .menu-panel {
-    padding-bottom: 7rem;
-  }
-  .game-preview {
-    padding-top: 5rem;
     padding-bottom: 4rem;
   }
+
   .menu-card {
-    margin-block: 2rem;
+    margin: 2rem auto 0;
+  }
+
+  .game-preview {
+    padding-bottom: 4rem;
+  }
+
+  .console {
+    width: min(100%, 22rem);
   }
 }
 
 @media (max-width: 560px) {
+  .welcome {
+    background: linear-gradient(180deg, $purple-deep 0%, $purple 100%);
+  }
+
+  .welcome::before,
+  .welcome::after {
+    inset: 0;
+  }
+
   h1 {
-    font-size: clamp(3rem, 18vw, 5rem);
+    font-size: clamp(3rem, 17vw, 4.6rem);
   }
+
   .menu-panel {
-    padding-inline: 1.15rem;
-  }
-  .game-preview {
+    min-height: 100vh;
     padding-inline: 1rem;
   }
-  .arcade-frame {
-    border-width: 0.28rem;
-    border-radius: 1rem 1rem 2rem 2rem;
-    box-shadow:
-      0.65rem 0.8rem 0 rgba($pink, 0.65),
-      1rem 1.2rem 2rem rgba($purple, 0.23);
-    transform: none;
+
+  .menu-card {
+    margin-top: 0;
   }
-  .arcade-controls {
-    min-height: 4rem;
-  }
-  .d-pad {
-    font-size: 2.7rem;
-  }
-  .action-buttons i {
-    width: 2.1rem;
-    height: 2.1rem;
+
+  .game-preview {
+    display: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
+  .welcome::after,
+  .shard,
+  .console,
+  .console :is(g, rect, circle) {
+    animation: none;
   }
+
   .menu-option {
     transition: none;
+  }
+
+  .menu-option:hover,
+  .menu-option:focus-visible {
+    transform: none;
   }
 }
