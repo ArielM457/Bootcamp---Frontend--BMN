@@ -60,6 +60,31 @@ describe('Motor local GAME-01', () => {
     expect(renderer.cellRect(3, 2)).toEqual({ x: 144, y: 96, size: 48 });
   });
 
+  it('deja Enter y Espacio a enlaces y botones de la página', () => {
+    const input = new GameInputController();
+    const keyOn = (target: Element, key: string): KeyboardEvent => {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true });
+      target.dispatchEvent(event);
+      return event;
+    };
+    const link = document.createElement('a');
+    link.href = '/menu';
+    const restart = document.createElement('button');
+    const bombButton = document.createElement('button');
+    bombButton.setAttribute('data-game-control', '');
+    document.body.append(link, restart, bombButton);
+
+    expect(input.fromKey(keyOn(link, 'Enter'))).toBeNull();
+    expect(input.fromKey(keyOn(restart, ' '))).toBeNull();
+    expect(input.fromKey(keyOn(restart, 'ArrowUp'))).toEqual({ type: 'move', direction: 'up' });
+    expect(input.fromKey(keyOn(bombButton, ' '))).toEqual({ type: 'place-bomb' });
+    expect(input.fromKey(keyOn(document.body, ' '))).toEqual({ type: 'place-bomb' });
+
+    link.remove();
+    restart.remove();
+    bombButton.remove();
+  });
+
   it('descarta snapshots con una versión anterior', () => {
     const snapshots = new Subject<GameSnapshot>();
     const connection = new BehaviorSubject<'connected'>('connected');

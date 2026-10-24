@@ -7,3 +7,5 @@
 5. Completado: ejecutar pruebas, build, lint, formato y revisión de diferencias.
 6. Pendiente: revisión manual final en navegador, teclado y dispositivo táctil.
 7. Completado: elegir adaptadores según el modo `demo` o `api` desde configuración (ADR 0002).
+8. Completado: corregir hallazgos de accesibilidad P1, G1, G2 y G3 de la revisión del 22 de octubre de 2026.
+9. Pendiente: corregir el resto de hallazgos de esa revisión.

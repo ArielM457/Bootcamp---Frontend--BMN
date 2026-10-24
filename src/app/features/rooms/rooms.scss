@@ -50,7 +50,7 @@
 }
 .create-toggle:hover,
 .leave-button:hover {
-  background: $magenta;
+  background: $magenta-action;
 }
 .local-note {
   max-width: 76rem;
@@ -129,7 +129,7 @@ input:focus {
   border: 2px solid $pink;
   border-radius: 1rem;
   color: $white;
-  background: $magenta;
+  background: $magenta-action;
   box-shadow: 0.22rem 0.22rem 0 $pink;
   cursor: pointer;
   font:
@@ -259,7 +259,7 @@ button:focus-visible,
   font-weight: 800;
 }
 .room-card button:hover:not(:disabled) {
-  background: $magenta;
+  background: $magenta-action;
 }
 .room-card button:disabled {
   cursor: not-allowed;
@@ -391,7 +391,7 @@ button:focus-visible,
   text-transform: uppercase;
 }
 .secondary-button:hover:not(:disabled) {
-  background: $magenta;
+  background: $magenta-action;
 }
 .secondary-button:disabled {
   cursor: not-allowed;

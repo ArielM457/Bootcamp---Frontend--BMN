@@ -72,6 +72,7 @@
       <div class="dpad">
         <button
           class="up"
+          data-game-control
           type="button"
           aria-label="Mover arriba"
           [disabled]="!game.controlsEnabled()"
@@ -81,6 +82,7 @@
         </button>
         <button
           class="left"
+          data-game-control
           type="button"
           aria-label="Mover a la izquierda"
           [disabled]="!game.controlsEnabled()"
@@ -90,6 +92,7 @@
         </button>
         <button
           class="down"
+          data-game-control
           type="button"
           aria-label="Mover abajo"
           [disabled]="!game.controlsEnabled()"
@@ -99,6 +102,7 @@
         </button>
         <button
           class="right"
+          data-game-control
           type="button"
           aria-label="Mover a la derecha"
           [disabled]="!game.controlsEnabled()"
@@ -109,6 +113,7 @@
       </div>
       <button
         class="bomb-button"
+        data-game-control
         type="button"
         [disabled]="!game.controlsEnabled()"
         (click)="bomb()"

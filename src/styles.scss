@@ -17,7 +17,7 @@ a {
 }
 a:focus-visible,
 button:focus-visible {
-  outline: 3px solid $magenta;
+  outline: 3px solid $white;
   outline-offset: 4px;
 }
 h1,
@@ -44,7 +44,7 @@ p {
   text-decoration: none;
 }
 .primary-action:hover {
-  background: $magenta;
+  background: $magenta-action;
 }
 .placeholder {
   max-width: 780px;

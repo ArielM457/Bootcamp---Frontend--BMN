@@ -34,7 +34,7 @@ header {
   font-weight: 800;
 }
 .logout:hover {
-  background: $magenta;
+  background: $magenta-action;
 }
 .logout:focus-visible {
   outline: 3px solid $white;
@@ -105,7 +105,7 @@ header {
 a.menu-card:hover,
 a.menu-card:focus-visible {
   border-color: $pink;
-  background: $magenta;
+  background: $magenta-action;
   transform: translateY(-0.4rem);
 }
 a.menu-card:focus-visible {
