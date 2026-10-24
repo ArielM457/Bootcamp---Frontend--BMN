@@ -54,6 +54,14 @@ Pendiente:
 - Partidas compartidas entre navegadores.
 - Validación táctil en un dispositivo real.
 
+## Cambios
+- Rediseño de la pantalla de bienvenida según referencia visual (specs/features/welcome)
+- Selección de adaptadores mock/api por configuración (ADR 0002)
+- Revisión de accesibilidad en todas las pantallas (specs/features/quality)
+
+## Validación
+npm run validate en verde.
+
 ## **Documentación**
 
 Lee [specs/README.md](specs/README.md) para conocer las funciones y su estado. La guía para conectar el backend está en [specs/integration/backend-guide.md](specs/integration/backend-guide.md).
