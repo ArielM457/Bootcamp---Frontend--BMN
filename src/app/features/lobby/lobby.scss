@@ -397,46 +397,25 @@ fieldset label:has(input:focus-visible) {
   text-transform: uppercase;
 }
 
-.mini-bomber {
-  --accent: #2f8cff;
-  position: relative;
+.color-swatch {
   display: block;
-  width: 2.9rem;
-  height: 3.4rem;
-}
-
-.mini-bomber--violet {
-  --accent: #8d6bff;
-}
-
-.mini-bomber--coral {
-  --accent: #ff6f91;
-}
-
-.mini-bomber i,
-.mini-bomber b {
-  position: absolute;
-  left: 50%;
-  display: block;
-  transform: translateX(-50%);
-}
-
-.mini-bomber i {
-  width: 2.3rem;
-  height: 2.2rem;
-  top: 0;
-  border: 0.18rem solid $purple-dark;
+  width: 2.65rem;
+  height: 2.65rem;
+  border: 0.2rem solid $white;
   border-radius: 50%;
-  background: linear-gradient(var(--accent) 0 35%, $white 36%);
+  background: #2f8cff;
+  box-shadow:
+    0 0 0 0.16rem $purple-dark,
+    inset 0.45rem 0.45rem 0.7rem rgba($white, 0.42),
+    inset -0.45rem -0.45rem 0.7rem rgba($purple-deep, 0.22);
 }
 
-.mini-bomber b {
-  width: 2rem;
-  height: 1.7rem;
-  bottom: 0;
-  border: 0.18rem solid $purple-dark;
-  border-radius: 50% 50% 35% 35%;
-  background: linear-gradient(90deg, $white 0 30%, var(--accent) 31% 69%, $white 70%);
+.color-swatch--violet {
+  background: #8d6bff;
+}
+
+.color-swatch--coral {
+  background: #ff6f91;
 }
 
 .mode-picker label,
@@ -658,12 +637,8 @@ fieldset label:has(input:focus-visible) {
   --accent: #2f8cff;
   position: relative;
   z-index: 2;
-  width: 12rem;
-  height: 20rem;
-  transform-origin: 50% 92%;
-  transform-style: preserve-3d;
-  animation: character-turn 8s linear infinite;
-  will-change: transform;
+  width: 20rem;
+  aspect-ratio: 3 / 4;
 }
 
 .bomber-model--violet {
@@ -674,155 +649,37 @@ fieldset label:has(input:focus-visible) {
   --accent: #ff6f91;
 }
 
-.bomber-model span {
+.character-sprite {
   position: absolute;
-  display: block;
-}
-
-.helmet {
-  z-index: 5;
-  width: 10.5rem;
-  height: 9.6rem;
-  top: 1.7rem;
-  left: 0.75rem;
-  border: 0.35rem solid $purple-dark;
-  border-radius: 50% 50% 46% 46%;
-  background: linear-gradient(145deg, $white 0 48%, #d8e3f2 49% 72%, var(--accent) 73%);
-  box-shadow:
-    inset 1rem 0 1rem rgba($white, 0.35),
-    inset -1.25rem -1.1rem 0 rgba($purple-dark, 0.13);
-  backface-visibility: hidden;
-  transform: translateZ(1.1rem);
-  transform-style: preserve-3d;
-  -webkit-backface-visibility: hidden;
-}
-
-.antenna {
-  z-index: 4;
-  width: 0.55rem;
-  height: 3.2rem;
-  top: 0;
-  left: 5.7rem;
-  border-radius: 999px;
-  background: $purple-dark;
-  transform: translateZ(1.1rem) rotate(16deg);
-}
-
-.antenna::after {
-  position: absolute;
-  width: 1.2rem;
-  height: 1.2rem;
-  top: -0.3rem;
-  left: -0.33rem;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 1rem var(--accent);
-  content: '';
-}
-
-.face {
-  z-index: 6;
-  width: 6.8rem;
-  height: 4.8rem;
-  top: 5.2rem;
-  left: 2.6rem;
-  border: 0.25rem solid $purple-dark;
-  border-radius: 50%;
-  background: #ffe0c8;
-  box-shadow:
-    inset 0.8rem 0.35rem 0 rgba($white, 0.38),
-    inset -0.8rem -0.55rem 0 rgba($pink-shadow, 0.18);
-  backface-visibility: hidden;
-  transform: translateZ(2.25rem);
-  -webkit-backface-visibility: hidden;
-}
-
-.face i {
-  position: absolute;
-  width: 0.55rem;
-  height: 1rem;
-  top: 1.4rem;
-  border-radius: 50%;
-  background: $purple-dark;
-}
-
-.face i:first-child {
-  left: 1.8rem;
-}
-
-.face i:last-child {
-  right: 1.8rem;
-}
-
-.body {
-  z-index: 3;
-  width: 8rem;
-  height: 8rem;
-  top: 10rem;
-  left: 2rem;
-  border: 0.35rem solid $purple-dark;
-  border-radius: 46% 46% 35% 35%;
-  background: linear-gradient(90deg, $white 0 31%, var(--accent) 32% 68%, $white 69%);
-  box-shadow:
-    inset 0.8rem 0 0 rgba($white, 0.3),
-    inset -0.9rem -0.9rem 0 rgba($purple-dark, 0.12);
-  backface-visibility: hidden;
-  transform: translateZ(0.65rem);
-  transform-style: preserve-3d;
-  -webkit-backface-visibility: hidden;
-}
-
-.belt {
-  z-index: 7;
-  width: 7.7rem;
-  height: 0.8rem;
-  top: 15.2rem;
-  left: 2.15rem;
-  background: $purple-dark;
-  box-shadow: 0 0.25rem 0 rgba($white, 0.18);
-  transform: translateZ(1.25rem);
-}
-
-.arm,
-.leg {
   z-index: 2;
-  border: 0.32rem solid $purple-dark;
-  background: $white;
+  inset: 0;
+  display: block;
+  background-image: url('/bomberman-turntable.png');
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: 400% 200%;
+  filter: drop-shadow(0 1rem 0.8rem rgba($purple-deep, 0.2));
+  animation: character-turntable 8s steps(1, end) infinite;
+  will-change: background-position;
 }
 
-.arm {
-  width: 3rem;
-  height: 7.5rem;
-  top: 10.5rem;
-  border-radius: 50% 50% 45% 45%;
-  box-shadow: inset -0.55rem -0.45rem 0 rgba($purple-dark, 0.1);
-}
-
-.arm--left {
-  left: 0;
-  transform: translateZ(0.15rem) rotate(16deg);
-}
-
-.arm--right {
-  right: 0;
-  transform: translateZ(0.15rem) rotate(-16deg);
-}
-
-.leg {
-  width: 3.4rem;
-  height: 4.8rem;
-  top: 16rem;
-  border-radius: 25% 25% 48% 48%;
-  box-shadow: inset -0.5rem -0.5rem 0 rgba($purple-dark, 0.12);
-  transform: translateZ(0.35rem);
-}
-
-.leg--left {
-  left: 2rem;
-}
-
-.leg--right {
-  right: 2rem;
+.character-sprite::after {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  clip-path: polygon(18% 46%, 82% 46%, 76% 68%, 62% 78%, 38% 78%, 24% 68%);
+  content: '';
+  -webkit-mask-image: url('/bomberman-turntable.png');
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: 0 0;
+  -webkit-mask-size: 400% 200%;
+  mask-image: url('/bomberman-turntable.png');
+  mask-repeat: no-repeat;
+  mask-position: 0 0;
+  mask-size: 400% 200%;
+  mix-blend-mode: color;
+  opacity: 0.86;
+  animation: character-turntable 8s steps(1, end) infinite;
 }
 
 .arena-stage {

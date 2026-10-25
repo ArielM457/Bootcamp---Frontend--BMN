@@ -61,15 +61,14 @@
             </div>
 
             <fieldset class="character-picker">
-              <legend>Elige tu personaje</legend>
+              <legend>Elige el color de tu personaje</legend>
               @for (avatar of ['azure', 'violet', 'coral']; track avatar) {
                 <label [class.selected]="profileForm.controls.avatarId.value === avatar">
                   <input type="radio" formControlName="avatarId" [value]="avatar" />
                   <span
-                    class="mini-bomber"
-                    [class]="'mini-bomber mini-bomber--' + avatar"
+                    class="color-swatch"
+                    [class]="'color-swatch color-swatch--' + avatar"
                     aria-hidden="true"
-                    ><i></i><b></b
                   ></span>
                   <span>{{
                     avatar === 'azure' ? 'Azul' : avatar === 'violet' ? 'Violeta' : 'Coral'
@@ -171,12 +170,7 @@
           class="bomber-model"
           [class]="'bomber-model bomber-model--' + profileForm.controls.avatarId.value"
         >
-          <span class="model-depth"></span>
-          <span class="antenna"></span><span class="helmet"></span
-          ><span class="face"><i></i><i></i></span> <span class="body"></span
-          ><span class="belt"></span><span class="arm arm--left"></span>
-          <span class="arm arm--right"></span><span class="leg leg--left"></span
-          ><span class="leg leg--right"></span>
+          <span class="character-sprite"></span>
         </div>
       </div>
       <p class="preview-caption">Tu personaje dentro del juego</p>
