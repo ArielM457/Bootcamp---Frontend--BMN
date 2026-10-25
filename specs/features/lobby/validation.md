@@ -25,3 +25,15 @@ Pendiente:
 - Recorrer Perfil, Crear sala y el popup con teclado en un navegador real.
 - Probar la adaptación en un dispositivo móvil.
 - Reducir `lobby.scss`, que supera el presupuesto de aviso sin alcanzar el límite de error.
+
+## **Personaje 3D del 25 de octubre de 2026**
+
+Reemplazamos la oscilación corta por una vuelta continua de 360 grados. La vista previa ahora separa frente, perfil y espalda mediante capas CSS en profundidad. También añadimos una plataforma fija y una sombra que cambia durante el giro.
+
+Comprobaciones realizadas:
+
+- Revisión en Chrome del personaje en `0deg`, `90deg` y `180deg`.
+- En el perfil lateral el personaje conserva volumen y no desaparece.
+- En la parte posterior el rostro queda oculto.
+- La plataforma y la sombra permanecen debajo del personaje durante toda la vuelta.
+- Con movimiento reducido, el personaje queda fijo y la sombra deja de animarse.

@@ -165,11 +165,13 @@
       </div>
     } @else if (view() === 'profile') {
       <div class="character-stage" aria-hidden="true">
+        <div class="character-platform"><span></span></div>
         <div class="character-shadow"></div>
         <div
           class="bomber-model"
           [class]="'bomber-model bomber-model--' + profileForm.controls.avatarId.value"
         >
+          <span class="model-depth"></span>
           <span class="antenna"></span><span class="helmet"></span
           ><span class="face"><i></i><i></i></span> <span class="body"></span
           ><span class="belt"></span><span class="arm arm--left"></span>
