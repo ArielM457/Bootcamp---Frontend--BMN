@@ -50,3 +50,13 @@ Comprobaciones realizadas:
 - Revisión en Chrome de los perfiles derecho e izquierdo durante el giro.
 - Revisión en Chrome de la vista posterior completa.
 - Confirmación visual de la plataforma, la sombra y las tres muestras de color.
+
+## **Regreso a la sala activa del 25 de octubre de 2026**
+
+El menú recupera la sala activa del jugador. Cuando existe una membresía, la acción Crear sala cambia a Volver a la sala, muestra el nombre actualizado y abre directamente su sala de espera.
+
+Comprobaciones realizadas:
+
+- Creación de una partida local desde el menú y entrada automática a `/salas/:roomId`.
+- Regreso desde la lista de salas al menú con la acción Volver a la sala visible.
+- Prueba automatizada del estado con y sin sala activa.

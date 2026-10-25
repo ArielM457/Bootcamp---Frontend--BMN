@@ -7,3 +7,4 @@
 5. Completado: reemplazar la vista de bienvenida separada por el menú principal de dos paneles.
 6. Completado: editar nombre, nickname y personaje con guardado local.
 7. Completado: configurar partida local o sala, elegir una de dos pistas y unirse mediante popup.
+8. Completado: recuperar la sala activa y reemplazar Crear sala por Volver a la sala cuando corresponda.

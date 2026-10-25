@@ -12,11 +12,47 @@ describe('MockRoomRepository ROOM-01', () => {
   });
 
   it('crea una sala válida con el creador como anfitrión', async () => {
-    const room = await repository.create({ name: 'Batalla Rosa', maxPlayers: 4 }, ariel);
+    const room = await repository.create(
+      { name: 'Batalla Rosa', maxPlayers: 4, mode: 'local' },
+      ariel,
+    );
 
     expect(room.name).toBe('Batalla Rosa');
     expect(room.hostPlayerId).toBe(ariel.id);
+    expect(room.mode).toBe('local');
     expect(room.participants).toEqual([{ ...ariel, kind: 'player' }]);
+  });
+
+  it('permite al anfitrión configurar la sala y conserva sus participantes', async () => {
+    const room = await repository.create({ name: 'Batalla Rosa', maxPlayers: 4 }, ariel);
+    await repository.join(room.id, luna);
+
+    const updated = await repository.update(
+      room.id,
+      { name: 'Fortaleza local', maxPlayers: 3, arenaId: 'fortress', mode: 'local' },
+      ariel.id,
+    );
+
+    expect(updated).toMatchObject({
+      name: 'Fortaleza local',
+      maxPlayers: 3,
+      arenaId: 'fortress',
+      mode: 'local',
+    });
+    expect(updated.participants).toHaveLength(2);
+  });
+
+  it('rechaza la configuración de otro jugador o una capacidad insuficiente', async () => {
+    const room = await repository.create({ name: 'Batalla Rosa', maxPlayers: 4 }, ariel);
+    await repository.join(room.id, luna);
+
+    await expect(
+      repository.update(room.id, { name: 'Otra sala', maxPlayers: 4 }, luna.id),
+    ).rejects.toMatchObject({ code: 'not-host' });
+    await repository.join(room.id, sol);
+    await expect(
+      repository.update(room.id, { name: 'Otra sala', maxPlayers: 2 }, ariel.id),
+    ).rejects.toMatchObject({ code: 'invalid-data' });
   });
 
   it('permite unirse una vez y rechaza una sala llena', async () => {

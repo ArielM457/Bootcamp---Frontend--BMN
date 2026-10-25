@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthFacade } from '../../core/auth/auth.facade';
 import { PlayerAvatarId } from '../../core/auth/auth.models';
 import { RoomFacade } from '../../core/rooms/room.facade';
@@ -22,6 +22,9 @@ export class Lobby implements OnInit {
   readonly scores = inject(ScoreFacade);
   readonly view = signal<MenuView>('main');
   readonly joinOpen = signal(false);
+  readonly editingRoomId = signal<string | null>(null);
+  readonly isEditingRoom = computed(() => this.editingRoomId() !== null);
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
   readonly profileForm = new FormGroup({
@@ -62,6 +65,7 @@ export class Lobby implements OnInit {
   ngOnInit(): void {
     this.resetProfileForm();
     void this.scores.loadLeaderboard();
+    void this.initializeRoomState();
   }
 
   openView(view: Exclude<MenuView, 'main'>): void {
@@ -74,6 +78,26 @@ export class Lobby implements OnInit {
     this.rooms.clearError();
     this.auth.clearError();
     this.view.set('main');
+  }
+
+  async openRoomOrCreate(): Promise<void> {
+    const room = this.rooms.currentRoom();
+    if (room) {
+      await this.router.navigate(['/salas', room.id]);
+      return;
+    }
+    this.editingRoomId.set(null);
+    this.resetRoomForm();
+    this.openView('create');
+  }
+
+  async cancelRoomConfiguration(): Promise<void> {
+    const roomId = this.editingRoomId();
+    if (roomId) {
+      await this.router.navigate(['/salas', roomId]);
+      return;
+    }
+    this.backToMenu();
   }
 
   async saveProfile(): Promise<void> {
@@ -90,15 +114,15 @@ export class Lobby implements OnInit {
       return;
     }
     const value = this.roomForm.getRawValue();
-    if (value.mode === 'local') {
-      await this.router.navigate(['/juego'], { queryParams: { arena: value.arenaId } });
-      return;
-    }
-    const room = await this.rooms.create({
+    const request = {
       name: value.name,
       maxPlayers: value.maxPlayers,
       arenaId: value.arenaId,
-    });
+      mode: value.mode,
+    };
+    const room = this.isEditingRoom()
+      ? await this.rooms.update(request)
+      : await this.rooms.create(request);
     if (room) await this.router.navigate(['/salas', room.id]);
   }
 
@@ -137,5 +161,38 @@ export class Lobby implements OnInit {
       nickname: player?.nickname ?? player?.displayName ?? '',
       avatarId: player?.avatarId ?? 'azure',
     });
+  }
+
+  private resetRoomForm(): void {
+    this.roomForm.reset({
+      mode: 'local',
+      name: 'Sala de batalla',
+      maxPlayers: 4,
+      arenaId: 'open',
+    });
+  }
+
+  private async initializeRoomState(): Promise<void> {
+    await this.rooms.restoreCurrentRoom();
+    const roomId = this.route.snapshot.queryParamMap.get('configurarSala');
+    if (!roomId || !(await this.rooms.loadRoom(roomId))) return;
+    const room = this.rooms.currentRoom();
+    const playerId = this.auth.player()?.id;
+    if (
+      !room ||
+      !this.rooms.isHost() ||
+      !room.participants.some((participant) => participant.id === playerId)
+    ) {
+      await this.rooms.restoreCurrentRoom();
+      return;
+    }
+    this.editingRoomId.set(room.id);
+    this.roomForm.reset({
+      mode: room.mode,
+      name: room.name,
+      maxPlayers: room.maxPlayers,
+      arenaId: room.arenaId,
+    });
+    this.view.set('create');
   }
 }

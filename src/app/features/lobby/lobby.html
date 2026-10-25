@@ -11,9 +11,16 @@
             <span class="option-icon" aria-hidden="true">●</span>
             <span>Perfil<small>Personaje, datos y score</small></span>
           </button>
-          <button class="menu-option--main" type="button" (click)="openView('create')">
-            <span class="option-icon" aria-hidden="true">＋</span>
-            <span>Crear sala<small>Partida local o con amigos</small></span>
+          <button class="menu-option--main" type="button" (click)="openRoomOrCreate()">
+            <span class="option-icon" aria-hidden="true">{{
+              rooms.currentRoom() ? '↩' : '＋'
+            }}</span>
+            <span>
+              {{ rooms.currentRoom() ? 'Volver a la sala' : 'Crear sala' }}
+              <small>
+                {{ rooms.currentRoom() ? rooms.currentRoom()?.name : 'Partida local o con amigos' }}
+              </small>
+            </span>
           </button>
           <button type="button" (click)="openJoin()">
             <span class="option-icon" aria-hidden="true">⌁</span>
@@ -92,8 +99,12 @@
           </form>
         } @else if (view() === 'create') {
           <form class="detail-form" [formGroup]="roomForm" (ngSubmit)="saveRoom()">
-            <button class="back-button" type="button" (click)="backToMenu()">← Volver atrás</button>
-            <p class="section-label">NUEVA PARTIDA</p>
+            <button class="back-button" type="button" (click)="cancelRoomConfiguration()">
+              ← {{ isEditingRoom() ? 'Volver a la sala' : 'Volver atrás' }}
+            </button>
+            <p class="section-label">
+              {{ isEditingRoom() ? 'CONFIGURACIÓN DE SALA' : 'NUEVA PARTIDA' }}
+            </p>
             <h2>Configura tu sala</h2>
 
             <fieldset class="mode-picker">
@@ -140,11 +151,15 @@
             }
 
             <div class="floating-actions">
-              <button class="secondary-action" type="button" (click)="backToMenu()">
+              <button class="secondary-action" type="button" (click)="cancelRoomConfiguration()">
                 Cancelar
               </button>
               <button class="primary-action" type="submit" [disabled]="rooms.isLoading()">
-                {{ rooms.isLoading() ? 'Guardando…' : 'Guardar' }}
+                @if (rooms.isLoading()) {
+                  {{ isEditingRoom() ? 'Guardando…' : 'Creando…' }}
+                } @else {
+                  {{ isEditingRoom() ? 'Guardar y volver a la sala' : 'Crear y unirse a la sala' }}
+                }
               </button>
             </div>
           </form>
@@ -235,7 +250,7 @@
             (click)="joinRoom()"
             [disabled]="rooms.isLoading()"
           >
-            {{ rooms.isLoading() ? 'Entrando…' : 'Guardar' }}
+            {{ rooms.isLoading() ? 'Entrando…' : 'Entrar a la sala' }}
           </button>
         </div>
       </section>

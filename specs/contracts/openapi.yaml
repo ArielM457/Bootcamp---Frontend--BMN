@@ -119,6 +119,26 @@ paths:
               schema: { $ref: '#/components/schemas/Room' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Rooms]
+      summary: Configurar una sala como anfitrión
+      parameters: [{ $ref: '#/components/parameters/RoomId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateRoomRequest' }
+      responses:
+        '200':
+          description: Sala configurada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Room' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
   /api/v1/rooms/{roomId}/participants:
     post:
       tags: [Rooms]
@@ -274,14 +294,15 @@ components:
         avatarId: { type: string, enum: [azure, violet, coral] }
     CreateRoomRequest:
       type: object
-      required: [name, maxPlayers, arenaId]
+      required: [name, maxPlayers, arenaId, mode]
       properties:
         name: { type: string, minLength: 3, maxLength: 60 }
         maxPlayers: { type: integer, minimum: 2, maximum: 8 }
         arenaId: { type: string, enum: [open, fortress] }
+        mode: { type: string, enum: [local, online] }
     Room:
       type: object
-      required: [id, name, status, hostPlayerId, maxPlayers, arenaId, participants]
+      required: [id, name, status, hostPlayerId, maxPlayers, arenaId, mode, participants]
       properties:
         id: { type: string, format: uuid }
         name: { type: string }
@@ -289,6 +310,7 @@ components:
         hostPlayerId: { type: string, format: uuid }
         maxPlayers: { type: integer }
         arenaId: { type: string, enum: [open, fortress] }
+        mode: { type: string, enum: [local, online] }
         participants: { type: array, items: { $ref: '#/components/schemas/Player' } }
     GameSummary:
       type: object

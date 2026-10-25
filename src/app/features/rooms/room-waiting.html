@@ -50,6 +50,14 @@
     <section class="start-area">
       @if (rooms.isHost()) {
         <div class="waiting-actions">
+          <button
+            class="secondary-button"
+            type="button"
+            (click)="configure()"
+            [disabled]="rooms.isLoading()"
+          >
+            Configurar sala
+          </button>
           @if (!rooms.hasBot()) {
             <button
               class="secondary-button"

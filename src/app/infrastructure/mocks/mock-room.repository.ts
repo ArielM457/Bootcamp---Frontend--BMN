@@ -15,6 +15,7 @@ export class MockRoomRepository implements RoomRepository {
         hostPlayerId: 'player-pixel',
         maxPlayers: 4,
         arenaId: 'open',
+        mode: 'online',
         participants: [{ id: 'player-pixel', displayName: 'Pixelina', kind: 'player' }],
       },
     ],
@@ -27,6 +28,7 @@ export class MockRoomRepository implements RoomRepository {
         hostPlayerId: 'player-shadow',
         maxPlayers: 2,
         arenaId: 'fortress',
+        mode: 'online',
         participants: [
           { id: 'player-shadow', displayName: 'Sombra', kind: 'player' },
           { id: 'player-bomb', displayName: 'Bombita', kind: 'player' },
@@ -48,9 +50,7 @@ export class MockRoomRepository implements RoomRepository {
   async create(request: CreateRoomRequest, player: Player): Promise<Room> {
     await this.wait();
     const name = request.name.trim();
-    if (name.length < 3 || name.length > 60 || request.maxPlayers < 2 || request.maxPlayers > 8) {
-      throw new RoomError('invalid-data', 'Invalid room data');
-    }
+    this.validateRequest(request, name);
     this.assertFreePlayer(player.id);
     const room: Room = {
       id: this.createId(),
@@ -59,9 +59,26 @@ export class MockRoomRepository implements RoomRepository {
       hostPlayerId: player.id,
       maxPlayers: request.maxPlayers,
       arenaId: request.arenaId ?? 'open',
+      mode: request.mode ?? 'online',
       participants: [{ ...player, kind: 'player' }],
     };
     this.rooms.set(room.id, room);
+    return this.copy(room);
+  }
+
+  async update(roomId: string, request: CreateRoomRequest, playerId: string): Promise<Room> {
+    await this.wait();
+    const room = this.find(roomId);
+    const name = request.name.trim();
+    this.validateRequest(request, name);
+    if (room.hostPlayerId !== playerId) throw new RoomError('not-host', 'Player is not the host');
+    if (room.status !== 'waiting') throw new RoomError('not-waiting', 'Room is not waiting');
+    if (request.maxPlayers < room.participants.length)
+      throw new RoomError('invalid-data', 'Room capacity is below current participants');
+    room.name = name;
+    room.maxPlayers = request.maxPlayers;
+    room.arenaId = request.arenaId ?? room.arenaId;
+    room.mode = request.mode ?? room.mode;
     return this.copy(room);
   }
 
@@ -125,6 +142,12 @@ export class MockRoomRepository implements RoomRepository {
         room.participants.some((participant) => participant.id === playerId),
     );
     if (activeRoom) throw new RoomError('already-in-room', 'Player already has a room');
+  }
+
+  private validateRequest(request: CreateRoomRequest, name: string): void {
+    if (name.length < 3 || name.length > 60 || request.maxPlayers < 2 || request.maxPlayers > 8) {
+      throw new RoomError('invalid-data', 'Invalid room data');
+    }
   }
 
   private find(roomId: string): Room {

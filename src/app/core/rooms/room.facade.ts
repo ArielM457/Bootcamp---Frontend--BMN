@@ -53,6 +53,20 @@ export class RoomFacade {
     });
   }
 
+  async restoreCurrentRoom(): Promise<boolean> {
+    const player = this.auth.player();
+    if (!player) return false;
+    return this.run(async () => {
+      const rooms = await this.repository.list();
+      this.roomsState.set(rooms);
+      this.currentRoomState.set(
+        rooms.find((room) =>
+          room.participants.some((participant) => participant.id === player.id),
+        ) ?? null,
+      );
+    });
+  }
+
   async create(request: CreateRoomRequest): Promise<Room | null> {
     const player = this.auth.player();
     if (!player) return null;
@@ -73,6 +87,18 @@ export class RoomFacade {
       this.currentRoomState.set(joined);
     });
     return joined;
+  }
+
+  async update(request: CreateRoomRequest): Promise<Room | null> {
+    const room = this.currentRoomState();
+    const player = this.auth.player();
+    if (!room || !player) return null;
+    let updated: Room | null = null;
+    await this.run(async () => {
+      updated = await this.repository.update(room.id, request, player.id);
+      this.currentRoomState.set(updated);
+    });
+    return updated;
   }
 
   async leave(): Promise<boolean> {
@@ -137,7 +163,7 @@ export class RoomFacade {
       case 'not-member':
         return 'No formas parte de esta sala.';
       case 'not-host':
-        return 'Solo el anfitrión puede iniciar la partida.';
+        return 'Solo el anfitrión puede cambiar o iniciar la sala.';
       case 'not-enough-players':
         return 'Se necesitan al menos 2 jugadores para comenzar.';
       case 'bot-already-added':

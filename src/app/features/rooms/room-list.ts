@@ -44,7 +44,7 @@ export class RoomList implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
-    const room = await this.rooms.create(this.form.getRawValue());
+    const room = await this.rooms.create({ ...this.form.getRawValue(), mode: 'online' });
     if (room) await this.router.navigate(['/salas', room.id]);
   }
 

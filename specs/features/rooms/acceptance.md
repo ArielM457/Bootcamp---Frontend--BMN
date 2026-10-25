@@ -2,7 +2,9 @@
 
 - El listado muestra estado y plazas reales o señaladas como demostración.
 - Crear una sala válida devuelve su detalle; datos inválidos muestran el campo a corregir.
-- La creación permite elegir una pista abierta o una fortaleza y la partida local aplica su densidad de obstáculos.
+- Partida local y Crear sala crean la sala, unen al creador y abren directamente la sala de espera.
+- La creación permite elegir una pista abierta o una fortaleza y la partida aplica su densidad de obstáculos.
+- El anfitrión puede abrir Configurar sala, guardar los cambios y volver a la misma sala sin perder participantes.
 - Unirse agrega al jugador confirmado sin duplicarlo.
 - Una sala llena rechaza la entrada y conserva la pantalla estable.
 - El anfitrión puede iniciar solo cuando se cumplen reglas aprobadas.
