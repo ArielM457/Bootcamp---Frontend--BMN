@@ -9,8 +9,15 @@
   padding: clamp(1.2rem, 4vw, 3rem) clamp(1rem, 7vw, 7rem) 5rem;
   color: $white;
   background:
-    radial-gradient(circle at 80% 10%, rgba($pink, 0.24), transparent 22rem),
-    linear-gradient(145deg, $purple-dark, $purple 65%, #713477);
+    linear-gradient(rgba($pink, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba($pink, 0.055) 1px, transparent 1px),
+    radial-gradient(circle at 80% 10%, rgba($pink-light, 0.24), transparent 22rem),
+    linear-gradient(145deg, $purple-deep, $purple 65%, $purple-soft);
+  background-size:
+    48px 48px,
+    48px 48px,
+    auto,
+    auto;
 }
 header {
   display: grid;
@@ -75,7 +82,9 @@ header > span {
   min-height: 5.3rem;
   padding: 0.8rem 1.2rem;
   border-bottom: 1px solid rgba($pink, 0.2);
-  background: rgba($purple-dark, 0.58);
+  background:
+    linear-gradient(180deg, rgba($white, 0.07), rgba($white, 0.015)), rgba($purple-deep, 0.62);
+  backdrop-filter: blur(8px);
 }
 .ranking-row--head {
   min-height: 2.7rem;

@@ -9,8 +9,15 @@
   padding: clamp(1.25rem, 4vw, 3rem) clamp(1.1rem, 6vw, 6rem) 5rem;
   color: $white;
   background:
-    radial-gradient(circle at 90% 5%, rgba($pink, 0.2), transparent 20rem),
-    linear-gradient(145deg, $purple-dark, $purple 58%, #703175);
+    linear-gradient(rgba($pink, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba($pink, 0.055) 1px, transparent 1px),
+    radial-gradient(circle at 90% 5%, rgba($pink-light, 0.2), transparent 20rem),
+    linear-gradient(145deg, $purple-deep, $purple 58%, $purple-soft);
+  background-size:
+    48px 48px,
+    48px 48px,
+    auto,
+    auto;
 }
 .rooms-header {
   display: grid;
@@ -68,8 +75,10 @@
   padding: clamp(1.4rem, 3vw, 2rem);
   border: 2px solid rgba($pink, 0.55);
   border-radius: 1.5rem;
-  background: rgba($purple-dark, 0.74);
-  box-shadow: 0.7rem 0.7rem 0 rgba($magenta, 0.45);
+  background:
+    linear-gradient(180deg, rgba($white, 0.08), rgba($white, 0.02)), rgba($purple-deep, 0.74);
+  box-shadow: 0.7rem 0.7rem 0 rgba($pink-shadow, 0.62);
+  backdrop-filter: blur(8px);
 }
 .create-room p,
 .waiting-heading p {
@@ -196,8 +205,10 @@ button:focus-visible,
   padding: 1.5rem;
   border: 2px solid rgba($pink, 0.32);
   border-radius: 1.4rem;
-  background: rgba($purple-dark, 0.72);
+  background:
+    linear-gradient(180deg, rgba($white, 0.08), rgba($white, 0.02)), rgba($purple-deep, 0.72);
   box-shadow: 0 1rem 2.2rem rgba(#16051b, 0.2);
+  backdrop-filter: blur(8px);
 }
 .room-card--full {
   opacity: 0.72;
@@ -268,7 +279,14 @@ button:focus-visible,
 
 .waiting-page {
   background:
-    radial-gradient(circle at 50% 18%, rgba($magenta, 0.3), transparent 25rem), $purple-dark;
+    linear-gradient(rgba($pink, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba($pink, 0.055) 1px, transparent 1px),
+    radial-gradient(circle at 50% 18%, rgba($magenta, 0.3), transparent 25rem), $purple-deep;
+  background-size:
+    48px 48px,
+    48px 48px,
+    auto,
+    auto;
 }
 .waiting-label {
   justify-self: center;

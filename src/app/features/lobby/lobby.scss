@@ -24,11 +24,12 @@ label {
   overflow: hidden;
   background: linear-gradient(
     90deg,
-    $purple-dark 0%,
-    $purple 34%,
-    $purple-soft 45%,
-    $pink-soft 56%,
-    $white 69%
+    $purple-deep 0%,
+    $purple 30%,
+    $purple-soft 44%,
+    $pink-soft 58%,
+    $lilac-white 70%,
+    $lilac-white 100%
   );
 }
 
@@ -45,7 +46,7 @@ label {
     transparent 0 75%,
     rgba($pink, 0.8) 0
   );
-  background-size: 192px 192px;
+  background-size: 96px 96px;
   mask-image: linear-gradient(90deg, #000, transparent 90%);
 }
 
@@ -106,17 +107,23 @@ label {
 
 h1 {
   margin: 0;
-  font:
-    900 clamp(3.8rem, 7.2vw, 8rem) / 0.82 'Courier New',
-    monospace;
-  letter-spacing: -0.11em;
-  text-shadow: 0.12em 0.12em 0 rgba($purple-dark, 0.55);
+  color: $pink-light;
+  font-family: 'Arial Black', 'Arial Bold', Arial, sans-serif;
+  font-size: clamp(3.6rem, 7vw, 7.4rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-shadow:
+    0 -1px 0 rgba($white, 0.7),
+    0.025em 0.025em 0 $pink-shadow,
+    0.05em 0.05em 0 $pink-shadow,
+    0.075em 0.075em 0 rgba($purple-deep, 0.85),
+    0.1em 0.14em 0.22em rgba($purple-deep, 0.6);
 }
 
 h1 span {
   display: block;
   color: $pink;
-  letter-spacing: -0.08em;
 }
 
 .subtitle {
@@ -132,17 +139,23 @@ h1 span {
 
 .game-menu button,
 .game-menu a {
+  position: relative;
   display: grid;
   grid-template-columns: 2.5rem 1fr;
   align-items: center;
   gap: 0.85rem;
   min-height: 4.45rem;
   padding: 0.75rem 1.15rem;
-  border: 2px solid rgba($pink, 0.48);
-  border-radius: 1.15rem;
+  overflow: hidden;
+  border: 1px solid rgba($pink, 0.35);
+  border-radius: 0.9rem;
   color: $white;
-  background: rgba($purple-dark, 0.88);
-  box-shadow: 0 0.4rem 1rem rgba($purple-dark, 0.22);
+  background:
+    linear-gradient(180deg, rgba($white, 0.1), rgba($white, 0.04)), rgba($purple-deep, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba($white, 0.12),
+    0 0.5rem 1.4rem rgba($purple-deep, 0.3);
+  backdrop-filter: blur(8px);
   cursor: pointer;
   text-align: left;
   text-decoration: none;
@@ -150,18 +163,38 @@ h1 span {
   transition: 160ms ease;
 }
 
+.game-menu button::after,
+.game-menu a::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 52%,
+    rgba($white, 0.09) 52% 64%,
+    transparent 64% 70%,
+    rgba($white, 0.05) 70% 76%,
+    transparent 76%
+  );
+}
+
 .game-menu button:hover,
 .game-menu button:focus-visible,
 .game-menu a:hover,
 .game-menu a:focus-visible {
   border-color: $pink;
-  background: $magenta;
   transform: translateX(0.5rem);
 }
 
 .game-menu .menu-option--main {
-  border-color: $pink;
-  box-shadow: 0.3rem 0.3rem 0 $magenta;
+  border: 2px solid $magenta;
+  background:
+    linear-gradient(180deg, rgba($white, 0.14), rgba($white, 0.05)), rgba($purple-glass, 0.75);
+  box-shadow:
+    0 0 0 1px rgba($pink, 0.4),
+    0 0 1.6rem rgba($magenta, 0.45),
+    inset 0 1px 0 rgba($white, 0.2);
 }
 
 .game-menu button > span:last-child,

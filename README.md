@@ -55,11 +55,13 @@ Pendiente:
 - Validación táctil en un dispositivo real.
 
 ## Cambios
+
 - Rediseño de la pantalla de bienvenida según referencia visual (specs/features/welcome)
 - Selección de adaptadores mock/api por configuración (ADR 0002)
 - Revisión de accesibilidad en todas las pantallas (specs/features/quality)
 
 ## Validación
+
 npm run validate en verde.
 
 ## **Documentación**

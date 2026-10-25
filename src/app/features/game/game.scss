@@ -7,7 +7,14 @@
   min-height: 100vh;
   padding: 1rem clamp(0.8rem, 3vw, 2rem) 2rem;
   color: $white;
-  background: radial-gradient(circle at 50% 20%, #713477, $purple-dark 65%);
+  background:
+    linear-gradient(rgba($pink, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba($pink, 0.055) 1px, transparent 1px),
+    radial-gradient(circle at 50% 20%, $purple-soft, $purple-deep 65%);
+  background-size:
+    48px 48px,
+    48px 48px,
+    auto;
 }
 header {
   display: grid;
@@ -77,9 +84,9 @@ header > span {
   padding: clamp(0.45rem, 1.2vw, 0.8rem);
   border: 0.3rem solid $pink;
   border-radius: 1.2rem;
-  background: #1a081f;
+  background: $purple-deep;
   box-shadow:
-    0.7rem 0.8rem 0 $magenta,
+    0.7rem 0.8rem 0 $pink-shadow,
     0 2rem 4rem rgba(#100313, 0.45);
 }
 canvas {

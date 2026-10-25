@@ -7,7 +7,7 @@
   padding: 1.25rem;
   background:
     linear-gradient(rgba($white, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba($white, 0.04) 1px, transparent 1px), $purple-dark;
+    linear-gradient(90deg, rgba($white, 0.04) 1px, transparent 1px), $purple-deep;
   background-size: 32px 32px;
 }
 
@@ -16,8 +16,8 @@
   padding: clamp(2rem, 7vw, 5rem);
   border: 0.2rem solid $pink;
   color: $white;
-  background: $purple;
-  box-shadow: 0.8rem 0.8rem 0 $magenta;
+  background: linear-gradient(180deg, rgba($white, 0.08), rgba($white, 0.02)), $purple;
+  box-shadow: 0.8rem 0.8rem 0 $pink-shadow;
   text-align: center;
 }
 

@@ -13,9 +13,9 @@
   place-items: center;
   overflow: hidden;
   background:
-    radial-gradient(circle at 78% 22%, rgba($pink, 0.26) 0 7rem, transparent 7.1rem),
-    radial-gradient(circle at 18% 80%, rgba($magenta, 0.18) 0 10rem, transparent 10.1rem),
-    linear-gradient(135deg, $purple-dark, $purple 58%, $purple-soft);
+    radial-gradient(circle at 78% 22%, rgba($pink-light, 0.3) 0 7rem, transparent 7.1rem),
+    radial-gradient(circle at 18% 80%, rgba($magenta, 0.2) 0 10rem, transparent 10.1rem),
+    linear-gradient(135deg, $purple-deep, $purple 58%, $purple-soft);
 }
 
 .auth-page::before {
@@ -55,10 +55,12 @@
   padding: clamp(2rem, 5vw, 3.5rem);
   border: 2px solid rgba($pink, 0.75);
   border-radius: 2rem;
-  background: rgba($purple-dark, 0.94);
+  background:
+    linear-gradient(180deg, rgba($white, 0.08), rgba($white, 0.02)), rgba($purple-deep, 0.94);
   box-shadow:
-    1rem 1rem 0 rgba($magenta, 0.72),
+    1rem 1rem 0 rgba($pink-shadow, 0.78),
     0 2rem 5rem rgba(#16061b, 0.45);
+  backdrop-filter: blur(10px);
 }
 
 .bomb-mark {
