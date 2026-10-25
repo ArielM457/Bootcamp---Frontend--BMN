@@ -113,6 +113,45 @@ describe('Motor local GAME-01', () => {
     expect(facade.snapshot()?.version).toBe(5);
   });
 
+  it('resume los rivales activos y el poder equipado para el HUD', () => {
+    const port: GamePort = {
+      snapshots$: new Subject<GameSnapshot>().asObservable(),
+      connection$: new BehaviorSubject<'connected'>('connected').asObservable(),
+      rejections$: new Subject<GameCommandRejection>().asObservable(),
+      start: () => undefined,
+      send: () => undefined,
+      reconnect: () => undefined,
+      stop: () => undefined,
+    };
+    const player = signal({ id: 'player-1', displayName: 'Ariel' });
+    TestBed.configureTestingModule({
+      providers: [
+        GameFacade,
+        { provide: GAME_PORT, useValue: port },
+        { provide: AuthFacade, useValue: { player } },
+      ],
+    });
+    const facade = TestBed.inject(GameFacade);
+    const current = snapshot(1);
+    current.players = [
+      {
+        playerId: 'player-1',
+        x: 0,
+        y: 0,
+        lives: 3,
+        alive: true,
+        color: '#2f8cff',
+        powerUpName: 'Doble bomba',
+      },
+      { playerId: 'rival-1', x: 1, y: 0, lives: 2, alive: true, color: '#c63bc9' },
+      { playerId: 'rival-2', x: 2, y: 0, lives: 0, alive: false, color: '#f5a5b8' },
+    ];
+    facade.applySnapshot(current);
+
+    expect(facade.activeOpponents()).toBe(1);
+    expect(facade.powerUpName()).toBe('Doble bomba');
+  });
+
   it('recupera el último snapshot antes de volver a habilitar los comandos', () => {
     vi.useFakeTimers();
     const adapter = new MockRealtimeGameAdapter();

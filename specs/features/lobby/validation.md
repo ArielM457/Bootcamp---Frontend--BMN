@@ -26,6 +26,16 @@ Pendiente:
 - Probar la adaptación en un dispositivo móvil.
 - Reducir `lobby.scss`, que supera el presupuesto de aviso sin alcanzar el límite de error.
 
+## **Consola detallada del menú autenticado del 25 de octubre de 2026**
+
+El menú autenticado conserva la misma composición del inicio y reemplaza la consola simplificada por una consola detallada con tablero, paredes, cajas, bombas, enemigos, personaje, controles y marcadores.
+
+Comprobaciones realizadas:
+
+- Revisión visual en Chromium a 1440 × 1000: la consola se muestra completa y mantiene la identidad del inicio público.
+- `npm test -- --watch=false`: correcto, 9 archivos y 40 pruebas.
+- `npm run lint`, `npm run build` y `npm run format:check`: correctos. El build conserva el aviso conocido de 110 bytes en `lobby.scss`.
+
 ## **Personaje 3D del 25 de octubre de 2026**
 
 Reemplazamos la oscilación corta y la imagen plana por una vuelta de 360 grados compuesta por ocho renders 3D del mismo personaje. La vista previa incluye frente, vistas en tres cuartos, ambos perfiles y espalda. También conserva una plataforma fija y una sombra que cambia durante el giro.

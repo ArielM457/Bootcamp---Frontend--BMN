@@ -23,12 +23,10 @@ export class RoomFacade {
     () => this.currentRoomState()?.hostPlayerId === this.auth.player()?.id,
   );
   readonly canStart = computed(
-    () => this.isHost() && (this.currentRoomState()?.participants.length ?? 0) >= 2,
-  );
-  readonly hasBot = computed(
     () =>
-      this.currentRoomState()?.participants.some((participant) => participant.kind === 'bot') ??
-      false,
+      this.isHost() &&
+      this.currentRoomState()?.status === 'waiting' &&
+      (this.currentRoomState()?.participants.length ?? 0) >= 2,
   );
   readonly canAddBot = computed(() => {
     const room = this.currentRoomState();
@@ -36,8 +34,7 @@ export class RoomFacade {
       !!room &&
       this.isHost() &&
       room.status === 'waiting' &&
-      room.participants.length < room.maxPlayers &&
-      !room.participants.some((participant) => participant.kind === 'bot')
+      room.participants.length < room.maxPlayers
     );
   });
 
@@ -130,6 +127,18 @@ export class RoomFacade {
     });
   }
 
+  async returnToWaiting(): Promise<Room | null> {
+    const room = this.currentRoomState();
+    const player = this.auth.player();
+    if (!room || !player) return null;
+    let waitingRoom: Room | null = null;
+    await this.run(async () => {
+      waitingRoom = await this.repository.returnToWaiting(room.id, player.id);
+      this.currentRoomState.set(waitingRoom);
+    });
+    return waitingRoom;
+  }
+
   clearError(): void {
     this.errorState.set(null);
     if (this.statusState() === 'error') this.statusState.set('idle');
@@ -166,8 +175,6 @@ export class RoomFacade {
         return 'Solo el anfitrión puede cambiar o iniciar la sala.';
       case 'not-enough-players':
         return 'Se necesitan al menos 2 jugadores para comenzar.';
-      case 'bot-already-added':
-        return 'La sala ya tiene un bot.';
       case 'invalid-data':
         return 'Revisa el nombre y la cantidad de jugadores.';
     }

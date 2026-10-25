@@ -170,13 +170,7 @@
 
   <aside class="preview-panel" aria-label="Vista previa">
     @if (view() === 'main') {
-      <div class="game-console" aria-hidden="true">
-        <div class="console-screen">
-          <div class="pixel-map"></div>
-          <span class="screen-player"></span><span class="screen-bomb"></span><b>READY!</b>
-        </div>
-        <div class="console-controls"><span>✚</span><i></i><i></i></div>
-      </div>
+      <app-bomber-console-preview aria-hidden="true" />
     } @else if (view() === 'profile') {
       <div class="character-stage" aria-hidden="true">
         <div class="character-platform"><span></span></div>

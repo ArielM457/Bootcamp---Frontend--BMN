@@ -34,7 +34,6 @@ export type RoomErrorCode =
   | 'not-member'
   | 'not-host'
   | 'not-enough-players'
-  | 'bot-already-added'
   | 'invalid-data';
 
 export class RoomError extends Error {

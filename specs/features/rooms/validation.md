@@ -45,3 +45,15 @@ Comprobaciones realizadas:
 - `npm run lint`: correcto.
 - `npm run build`: correcto, con el aviso conocido del presupuesto de `lobby.scss`.
 - `npm run format:check`: correcto.
+
+## **Espera, bots y regreso del 25 de octubre de 2026**
+
+La sala de espera presenta primero el nombre, después la cantidad y finalmente los jugadores. Con una sola persona, el botón muestra Esperando jugadores y permanece deshabilitado. Desde dos participantes muestra Iniciar partida. El anfitrión puede añadir varios bots mientras existan plazas.
+
+Comprobaciones realizadas:
+
+- Revisión en Chromium con 1 de 4 jugadores: botón Esperando jugadores deshabilitado.
+- Revisión en Chromium con 3 de 4 jugadores: Bombot 1 y Bombot 2 visibles; botón Iniciar partida habilitado.
+- Pruebas del repositorio local para añadir bots hasta completar la sala y devolver una partida terminada al estado de espera.
+- `npm test -- --watch=false`: correcto, 9 archivos y 40 pruebas.
+- `npm run lint`, `npm run build` y `npm run format:check`: correctos. El build conserva el aviso conocido de 110 bytes en `lobby.scss`.

@@ -44,7 +44,15 @@
   text-decoration: none;
   text-transform: uppercase;
 }
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-self: end;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
 .create-toggle,
+.return-room-button,
 .leave-button {
   justify-self: end;
   padding: 0.75rem 1.05rem;
@@ -56,6 +64,7 @@
   font-weight: 800;
 }
 .create-toggle:hover,
+.return-room-button:hover,
 .leave-button:hover {
   background: $magenta-action;
 }
@@ -276,6 +285,17 @@ button:focus-visible,
   cursor: not-allowed;
   opacity: 0.5;
 }
+.room-card__actions {
+  display: grid;
+  gap: 0.65rem;
+}
+.room-card .leave-room-card {
+  border-color: rgba($white, 0.35);
+  background: rgba($purple-dark, 0.72);
+}
+.room-card .leave-room-card:hover:not(:disabled) {
+  background: rgba($pink-shadow, 0.72);
+}
 
 .waiting-page {
   background:
@@ -437,6 +457,9 @@ button:focus-visible,
     grid-row: 2;
     margin-top: 1.2rem;
     text-align: center;
+  }
+  .header-actions {
+    max-width: 12rem;
   }
   .local-note {
     text-align: left;

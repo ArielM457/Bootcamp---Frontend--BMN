@@ -13,7 +13,6 @@
 
   @if (rooms.currentRoom(); as room) {
     <section class="waiting-heading">
-      <p>ESPERANDO JUGADORES</p>
       <h1>{{ room.name }}</h1>
       <span>{{ room.participants.length }} de {{ room.maxPlayers }} jugadores</span>
     </section>
@@ -58,28 +57,23 @@
           >
             Configurar sala
           </button>
-          @if (!rooms.hasBot()) {
-            <button
-              class="secondary-button"
-              type="button"
-              (click)="addBot()"
-              [disabled]="!rooms.canAddBot() || rooms.isLoading()"
-            >
-              Añadir bot
-            </button>
-          }
+          <button
+            class="secondary-button"
+            type="button"
+            (click)="addBot()"
+            [disabled]="!rooms.canAddBot() || rooms.isLoading()"
+          >
+            Añadir bot
+          </button>
           <button
             class="primary-button start-button"
             type="button"
             (click)="start()"
             [disabled]="!rooms.canStart() || rooms.isLoading()"
           >
-            Iniciar partida
+            {{ rooms.canStart() ? 'Iniciar partida' : 'Esperando jugadores' }}
           </button>
         </div>
-        @if (!rooms.canStart()) {
-          <p>Se necesitan al menos 2 jugadores.</p>
-        }
       } @else {
         <p>El anfitrión iniciará la partida.</p>
       }

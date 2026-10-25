@@ -1,6 +1,7 @@
 # **Aceptación LOBBY-01**
 
 - El jugador autenticado ve su nombre y rutas a salas y ranking.
+- El menú autenticado conserva la identidad y los detalles de la consola mostrada en la bienvenida pública.
 - Perfil y crear sala se abren sin cambiar de ruta y ofrecen volver, guardar y cancelar.
 - Si el jugador ya pertenece a una sala, el menú muestra Volver a la sala y abre directamente su sala de espera.
 - El perfil permite cambiar nombre, nickname y color del personaje, conserva la selección local y muestra el score disponible.

@@ -31,7 +31,7 @@ export class RoomList implements OnInit {
 
   ngOnInit(): void {
     this.rooms.clearError();
-    void this.rooms.loadRooms();
+    void this.rooms.restoreCurrentRoom();
   }
 
   toggleCreate(): void {
@@ -55,6 +55,17 @@ export class RoomList implements OnInit {
     }
     const joined = await this.rooms.join(room.id);
     if (joined) await this.router.navigate(['/salas', joined.id]);
+  }
+
+  async returnToRoom(): Promise<void> {
+    const room = this.rooms.currentRoom();
+    if (room) await this.router.navigate(['/salas', room.id]);
+  }
+
+  async leave(room: Room): Promise<void> {
+    if (!this.isMember(room)) return;
+    if (this.rooms.currentRoom()?.id !== room.id && !(await this.rooms.loadRoom(room.id))) return;
+    if (await this.rooms.leave()) await this.rooms.loadRooms();
   }
 
   isMember(room: Room): boolean {

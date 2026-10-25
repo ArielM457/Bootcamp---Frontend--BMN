@@ -524,104 +524,6 @@ fieldset label:has(input:focus-visible) {
   padding: clamp(2rem, 5vw, 5rem);
 }
 
-.game-console {
-  width: min(100%, 28rem);
-  padding: 1.1rem;
-  border: 0.42rem solid $purple-dark;
-  border-radius: 1.6rem 1.6rem 3rem 3rem;
-  background: linear-gradient(145deg, $purple, $magenta);
-  box-shadow:
-    1.1rem 1.3rem 0 rgba($pink, 0.65),
-    1.7rem 2rem 3.4rem rgba($purple, 0.25),
-    inset 0 0 0 0.25rem rgba($white, 0.24);
-  transform: perspective(900px) rotateY(-4deg) rotateX(2deg);
-  animation: console-float 4.5s ease-in-out infinite;
-}
-
-.console-screen {
-  position: relative;
-  aspect-ratio: 1.25;
-  overflow: hidden;
-  border: 0.32rem solid $purple-dark;
-  border-radius: 0.8rem;
-  background: #32163a;
-  box-shadow: inset 0 0 2rem #09020c;
-}
-
-.pixel-map {
-  position: absolute;
-  inset: 1rem;
-  border: 2px solid $purple-soft;
-  background-color: #4b2854;
-  background-image:
-    linear-gradient(90deg, transparent 42%, #b57cba 43% 57%, transparent 58%),
-    linear-gradient(transparent 42%, #db8daa 43% 57%, transparent 58%);
-  background-size: 4rem 4rem;
-}
-
-.screen-player,
-.screen-bomb {
-  position: absolute;
-  z-index: 2;
-  border: 0.2rem solid $white;
-  border-radius: 50%;
-}
-
-.screen-player {
-  width: 2.1rem;
-  height: 2.1rem;
-  top: 24%;
-  left: 24%;
-  background: #2f8cff;
-}
-
-.screen-bomb {
-  width: 1.7rem;
-  height: 1.7rem;
-  right: 26%;
-  bottom: 23%;
-  background: $purple-dark;
-  animation: bomb-pulse 0.8s steps(2) infinite;
-}
-
-.console-screen b {
-  position: absolute;
-  right: 0.8rem;
-  bottom: 0.55rem;
-  color: $yellow;
-  font:
-    900 0.65rem 'Courier New',
-    monospace;
-}
-
-.console-controls {
-  display: flex;
-  align-items: center;
-  min-height: 5.2rem;
-  gap: 0.7rem;
-  padding: 0.75rem 1rem 0;
-  color: $purple-dark;
-}
-
-.console-controls span {
-  margin-right: auto;
-  font-size: 3.4rem;
-  font-weight: 900;
-}
-
-.console-controls i {
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 0.2rem solid $purple-dark;
-  border-radius: 50%;
-  background: $yellow;
-  box-shadow: 0.17rem 0.23rem 0 $purple-dark;
-}
-
-.console-controls i:last-child {
-  background: $pink;
-}
-
 .character-stage {
   position: relative;
   display: grid;
@@ -818,19 +720,6 @@ fieldset label:has(input:focus-visible) {
   margin-top: 1.2rem;
 }
 
-@keyframes console-float {
-  50% {
-    transform: perspective(900px) rotateY(-2deg) rotateX(1deg) translateY(-0.65rem);
-  }
-}
-
-@keyframes bomb-pulse {
-  50% {
-    scale: 1.16;
-    filter: brightness(1.5);
-  }
-}
-
 @keyframes arena-turn {
   0%,
   100% {
@@ -922,12 +811,6 @@ fieldset label:has(input:focus-visible) {
   .bomber-model {
     scale: 0.82;
   }
-
-  .game-console {
-    box-shadow:
-      0.65rem 0.8rem 0 rgba($pink, 0.65),
-      1rem 1.2rem 2rem rgba($purple, 0.23);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -935,10 +818,8 @@ fieldset label:has(input:focus-visible) {
     transition: none;
   }
 
-  .game-console,
   .bomber-model,
   .arena-board,
-  .screen-bomb,
   .character-shadow,
   .dialog-backdrop {
     animation: none;

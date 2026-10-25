@@ -6,13 +6,14 @@ import { AuthFacade } from '../../core/auth/auth.facade';
 import { PlayerAvatarId } from '../../core/auth/auth.models';
 import { RoomFacade } from '../../core/rooms/room.facade';
 import { ScoreFacade } from '../../core/score/score.facade';
+import { BomberConsolePreview } from '../../shared/bomber-console-preview/bomber-console-preview';
 
 type MenuView = 'main' | 'profile' | 'create';
 type MatchMode = 'local' | 'online';
 
 @Component({
   selector: 'app-lobby',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [BomberConsolePreview, CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './lobby.html',
   styleUrl: './lobby.scss',
 })

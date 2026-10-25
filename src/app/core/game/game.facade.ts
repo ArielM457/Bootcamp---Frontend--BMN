@@ -29,6 +29,14 @@ export class GameFacade {
       this.snapshotState()?.players.find((item) => item.playerId === this.auth.player()?.id) ??
       null,
   );
+  readonly activeOpponents = computed(() => {
+    const playerId = this.auth.player()?.id;
+    return (
+      this.snapshotState()?.players.filter((item) => item.playerId !== playerId && item.alive)
+        .length ?? 0
+    );
+  });
+  readonly powerUpName = computed(() => this.player()?.powerUpName?.trim() || 'Sin poder');
   readonly finished = computed(() => this.snapshotState()?.phase === 'finished');
   readonly won = computed(() => this.snapshotState()?.winnerPlayerId === this.auth.player()?.id);
 

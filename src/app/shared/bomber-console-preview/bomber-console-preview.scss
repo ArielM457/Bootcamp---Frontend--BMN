@@ -1,0 +1,200 @@
+@use '../../../styles/tokens' as *;
+
+:host {
+  position: relative;
+  display: grid;
+  width: min(100%, 27rem);
+  place-items: center;
+}
+
+.console {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(1.2rem 1.6rem 1.8rem rgba($purple, 0.35));
+  animation: console-float 5s ease-in-out infinite;
+}
+
+.console-shell {
+  fill: $console-body;
+  stroke: $purple-dark;
+  stroke-width: 3;
+}
+
+.console-edge {
+  fill: none;
+  stroke: rgba($lilac, 0.35);
+  stroke-width: 2;
+}
+
+.console-bezel {
+  fill: $purple-deep;
+}
+
+.console-screen,
+.console-board {
+  fill: $purple-dark;
+}
+
+.console-board {
+  fill: $purple-glass;
+}
+
+.console-grid {
+  stroke: rgba($pink, 0.16);
+  stroke-width: 1;
+}
+
+.console-hud,
+.console-caption {
+  fill: $white;
+  font:
+    700 13px 'Courier New',
+    monospace;
+  letter-spacing: 0.1em;
+}
+
+.console-hud tspan {
+  fill: $pink;
+}
+
+.walls rect {
+  fill: $purple-soft;
+  stroke: $lilac;
+  stroke-width: 2;
+}
+
+.bricks rect {
+  fill: $pink-shadow;
+  stroke: $pink-light;
+  stroke-width: 1.5;
+}
+
+.bomb circle:first-child {
+  fill: $purple-deep;
+  stroke: $white;
+  stroke-width: 2;
+}
+
+.bomb path {
+  stroke: $lilac;
+  stroke-width: 2;
+}
+
+.spark {
+  fill: $yellow;
+  animation: spark 0.5s steps(2) infinite;
+}
+
+.ghost path {
+  fill: $pink;
+  stroke: $magenta;
+  stroke-width: 1.5;
+}
+
+.ghost rect {
+  fill: $purple-dark;
+}
+
+.bomber-helmet,
+.bomber-body {
+  fill: $purple-soft;
+  stroke: $purple-deep;
+  stroke-width: 1.4;
+}
+
+.bomber-face {
+  fill: $pink-light;
+  stroke: $purple-deep;
+}
+
+.bomber-eye,
+.bomber-line {
+  fill: $purple-deep;
+}
+
+.bomber-pompom,
+.bomber-glove,
+.bomber-belt,
+.bomber-boot {
+  fill: $pink;
+  stroke: $purple-deep;
+  stroke-width: 1;
+}
+
+.bomber-buckle {
+  fill: $yellow;
+}
+
+.console-dpad {
+  fill: $purple-deep;
+}
+
+.console-speaker circle {
+  fill: rgba($purple-deep, 0.7);
+}
+
+.console-button {
+  fill: $yellow;
+  stroke: $purple-dark;
+  stroke-width: 3;
+}
+
+.console-button--second {
+  fill: $pink-light;
+}
+
+.shard {
+  position: absolute;
+  z-index: -1;
+  width: 2.5rem;
+  height: 2rem;
+  background: linear-gradient(150deg, $pink-light, $pink-shadow);
+  clip-path: polygon(0 20%, 100% 0, 70% 100%);
+  filter: drop-shadow(0.3rem 0.4rem 0.3rem rgba($purple, 0.25));
+  animation: shard-float 6s ease-in-out infinite;
+}
+
+.shard--one {
+  top: 4%;
+  left: -4%;
+}
+
+.shard--two {
+  top: 10%;
+  right: -3%;
+  animation-delay: -2s;
+}
+
+.shard--three {
+  bottom: 12%;
+  left: 3%;
+  animation-delay: -4s;
+}
+
+@keyframes console-float {
+  50% {
+    transform: translateY(-0.6rem);
+  }
+}
+
+@keyframes shard-float {
+  50% {
+    transform: translateY(-0.8rem) rotate(12deg);
+  }
+}
+
+@keyframes spark {
+  50% {
+    opacity: 0.3;
+    scale: 1.2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .console,
+  .shard,
+  .spark {
+    animation: none;
+  }
+}

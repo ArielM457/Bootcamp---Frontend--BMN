@@ -26,6 +26,7 @@ export interface PlayerState {
   lives: number;
   alive: boolean;
   color: string;
+  powerUpName?: string | null;
 }
 export interface BombState {
   id: string;

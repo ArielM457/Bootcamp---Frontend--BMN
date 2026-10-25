@@ -99,12 +99,12 @@ export class MockRoomRepository implements RoomRepository {
     const room = this.find(roomId);
     if (room.hostPlayerId !== playerId) throw new RoomError('not-host', 'Player is not the host');
     if (room.status !== 'waiting') throw new RoomError('not-waiting', 'Room is not waiting');
-    if (room.participants.some((participant) => participant.kind === 'bot'))
-      throw new RoomError('bot-already-added', 'Room already has a bot');
     if (room.participants.length >= room.maxPlayers) throw new RoomError('full', 'Room is full');
+    const botNumber =
+      room.participants.filter((participant) => participant.kind === 'bot').length + 1;
     room.participants.push({
-      id: `bot-${room.id}`,
-      displayName: 'Bombot',
+      id: `bot-${room.id}-${botNumber}`,
+      displayName: `Bombot ${botNumber}`,
       kind: 'bot',
     });
     return this.copy(room);
@@ -132,6 +132,16 @@ export class MockRoomRepository implements RoomRepository {
       throw new RoomError('not-enough-players', 'Not enough players');
     if (room.status !== 'waiting') throw new RoomError('not-waiting', 'Room is not waiting');
     room.status = 'playing';
+    return this.copy(room);
+  }
+
+  async returnToWaiting(roomId: string, playerId: string): Promise<Room> {
+    await this.wait();
+    const room = this.find(roomId);
+    if (!room.participants.some((participant) => participant.id === playerId)) {
+      throw new RoomError('not-member', 'Player is not a member');
+    }
+    room.status = 'waiting';
     return this.copy(room);
   }
 

@@ -9,12 +9,13 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Direction } from '../../core/game/game.models';
 import { GameFacade } from '../../core/game/game.facade';
 import { GameInputController } from '../../core/game/game-input.controller';
 import { CanvasRenderer } from './canvas-renderer';
 import { ScoreFacade } from '../../core/score/score.facade';
+import { RoomFacade } from '../../core/rooms/room.facade';
 
 @Component({
   selector: 'app-game',
@@ -26,9 +27,11 @@ export class Game implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('board') private board?: ElementRef<HTMLCanvasElement>;
   readonly game = inject(GameFacade);
   readonly scores = inject(ScoreFacade);
+  readonly rooms = inject(RoomFacade);
   private readonly input = inject(GameInputController);
   private readonly renderer = inject(CanvasRenderer);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private viewReady = false;
 
   constructor() {
@@ -70,5 +73,10 @@ export class Game implements OnInit, AfterViewInit, OnDestroy {
   }
   restart(): void {
     this.game.send({ type: 'restart' });
+  }
+
+  async returnToRoom(): Promise<void> {
+    const room = await this.rooms.returnToWaiting();
+    await this.router.navigate(room ? ['/salas', room.id] : ['/menu']);
   }
 }

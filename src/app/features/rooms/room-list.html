@@ -2,9 +2,16 @@
   <header class="rooms-header">
     <a class="back-link" routerLink="/menu">← Menú</a>
     <h1>Salas</h1>
-    <button class="create-toggle" type="button" (click)="toggleCreate()">
-      {{ showCreate() ? 'Cancelar' : 'Crear sala' }}
-    </button>
+    <div class="header-actions">
+      @if (rooms.currentRoom()) {
+        <button class="return-room-button" type="button" (click)="returnToRoom()">
+          Volver a la sala
+        </button>
+      }
+      <button class="create-toggle" type="button" (click)="toggleCreate()">
+        {{ showCreate() ? 'Cancelar' : 'Crear sala' }}
+      </button>
+    </div>
   </header>
 
   <p class="local-note">Estas partidas funcionan solo en este navegador.</p>
@@ -60,7 +67,7 @@
       @for (room of rooms.rooms(); track room.id) {
         <article
           class="room-card"
-          [class.room-card--full]="room.participants.length >= room.maxPlayers"
+          [class.room-card--full]="room.participants.length >= room.maxPlayers && !isMember(room)"
         >
           <div class="room-card__top">
             <span class="status-dot" aria-hidden="true"></span
@@ -74,22 +81,22 @@
           <div class="capacity-bar" aria-hidden="true">
             <span [style.width.%]="(room.participants.length / room.maxPlayers) * 100"></span>
           </div>
-          <button
-            type="button"
-            (click)="join(room)"
-            [disabled]="
-              room.status !== 'waiting' ||
-              (room.participants.length >= room.maxPlayers && !isMember(room))
-            "
-          >
-            {{
-              isMember(room)
-                ? 'Volver a entrar'
-                : room.participants.length >= room.maxPlayers
-                  ? 'Sala llena'
-                  : 'Unirse'
-            }}
-          </button>
+          @if (isMember(room)) {
+            <div class="room-card__actions">
+              <button type="button" (click)="join(room)">Volver a la sala</button>
+              <button class="leave-room-card" type="button" (click)="leave(room)">
+                Salir de la sala
+              </button>
+            </div>
+          } @else {
+            <button
+              type="button"
+              (click)="join(room)"
+              [disabled]="room.status !== 'waiting' || room.participants.length >= room.maxPlayers"
+            >
+              {{ room.participants.length >= room.maxPlayers ? 'Sala llena' : 'Unirse' }}
+            </button>
+          }
         </article>
       }
     </section>

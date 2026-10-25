@@ -11,6 +11,7 @@ export interface RoomRepository {
   addBot(roomId: string, playerId: string): Promise<Room>;
   leave(roomId: string, playerId: string): Promise<void>;
   start(roomId: string, playerId: string): Promise<Room>;
+  returnToWaiting(roomId: string, playerId: string): Promise<Room>;
 }
 
 export const ROOM_REPOSITORY = new InjectionToken<RoomRepository>('ROOM_REPOSITORY');
