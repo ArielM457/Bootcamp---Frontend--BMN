@@ -9,7 +9,7 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Direction } from '../../core/game/game.models';
 import { GameFacade } from '../../core/game/game.facade';
 import { GameInputController } from '../../core/game/game-input.controller';
@@ -28,6 +28,7 @@ export class Game implements OnInit, AfterViewInit, OnDestroy {
   readonly scores = inject(ScoreFacade);
   private readonly input = inject(GameInputController);
   private readonly renderer = inject(CanvasRenderer);
+  private readonly route = inject(ActivatedRoute);
   private viewReady = false;
 
   constructor() {
@@ -41,7 +42,8 @@ export class Game implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.game.start();
+    const arena = this.route.snapshot.queryParamMap.get('arena');
+    this.game.start(arena === 'fortress' ? 'fortress' : 'open');
   }
   ngAfterViewInit(): void {
     this.viewReady = true;

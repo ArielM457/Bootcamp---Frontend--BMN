@@ -14,6 +14,7 @@ export class MockRoomRepository implements RoomRepository {
         status: 'waiting',
         hostPlayerId: 'player-pixel',
         maxPlayers: 4,
+        arenaId: 'open',
         participants: [{ id: 'player-pixel', displayName: 'Pixelina', kind: 'player' }],
       },
     ],
@@ -25,6 +26,7 @@ export class MockRoomRepository implements RoomRepository {
         status: 'waiting',
         hostPlayerId: 'player-shadow',
         maxPlayers: 2,
+        arenaId: 'fortress',
         participants: [
           { id: 'player-shadow', displayName: 'Sombra', kind: 'player' },
           { id: 'player-bomb', displayName: 'Bombita', kind: 'player' },
@@ -56,6 +58,7 @@ export class MockRoomRepository implements RoomRepository {
       status: 'waiting',
       hostPlayerId: player.id,
       maxPlayers: request.maxPlayers,
+      arenaId: request.arenaId ?? 'open',
       participants: [{ ...player, kind: 'player' }],
     };
     this.rooms.set(room.id, room);

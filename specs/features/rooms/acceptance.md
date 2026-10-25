@@ -2,6 +2,7 @@
 
 - El listado muestra estado y plazas reales o señaladas como demostración.
 - Crear una sala válida devuelve su detalle; datos inválidos muestran el campo a corregir.
+- La creación permite elegir una pista abierta o una fortaleza y la partida local aplica su densidad de obstáculos.
 - Unirse agrega al jugador confirmado sin duplicarlo.
 - Una sala llena rechaza la entrada y conserva la pantalla estable.
 - El anfitrión puede iniciar solo cuando se cumplen reglas aprobadas.

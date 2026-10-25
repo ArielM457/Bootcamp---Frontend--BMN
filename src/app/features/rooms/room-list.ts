@@ -26,6 +26,7 @@ export class RoomList implements OnInit {
       nonNullable: true,
       validators: [Validators.required, Validators.min(2), Validators.max(8)],
     }),
+    arenaId: new FormControl<'open' | 'fortress'>('open', { nonNullable: true }),
   });
 
   ngOnInit(): void {

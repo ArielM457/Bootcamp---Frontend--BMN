@@ -7,3 +7,4 @@
 5. Pendiente: conectar HTTP y presencia SignalR tras validar contratos.
 6. Parcial: sala llena, duplicados, permisos y participantes pasan pruebas automatizadas. Falta la revisión en navegador y la prueba con servidor.
 7. Completado: añadir un bot local inmóvil que ocupa una plaza y permite iniciar una partida individual.
+8. Completado: elegir entre pista abierta y fortaleza, conservar la selección y aplicarla al simulador local.

@@ -70,4 +70,26 @@ describe('MockAuthRepository AUTH-01', () => {
     expect(await repository.restoreSession()).toBeNull();
     expect(store.value).toBeNull();
   });
+
+  it('guarda nombre, nickname y personaje en la sesión local', async () => {
+    await repository.register({
+      displayName: 'Ariel',
+      email: 'ariel@juego.com',
+      password: 'bomber123',
+    });
+
+    const session = await repository.updateProfile({
+      fullName: 'Ariel Vargas',
+      nickname: 'BombAriel',
+      avatarId: 'violet',
+    });
+
+    expect(session.player).toMatchObject({
+      displayName: 'BombAriel',
+      fullName: 'Ariel Vargas',
+      nickname: 'BombAriel',
+      avatarId: 'violet',
+    });
+    expect(store.value).toEqual(session);
+  });
 });

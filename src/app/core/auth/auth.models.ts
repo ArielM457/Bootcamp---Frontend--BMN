@@ -1,6 +1,17 @@
 export interface Player {
   id: string;
   displayName: string;
+  fullName?: string;
+  nickname?: string;
+  avatarId?: PlayerAvatarId;
+}
+
+export type PlayerAvatarId = 'azure' | 'violet' | 'coral';
+
+export interface UpdateProfileRequest {
+  fullName: string;
+  nickname: string;
+  avatarId: PlayerAvatarId;
 }
 
 export interface RegisterRequest {

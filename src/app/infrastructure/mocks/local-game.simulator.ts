@@ -5,6 +5,7 @@ import {
   Direction,
   GameCommand,
   GameSnapshot,
+  GameStartOptions,
   PlayerState,
 } from '../../core/game/game.models';
 
@@ -15,10 +16,12 @@ export class LocalGameSimulator {
   private timer: ReturnType<typeof setInterval> | null = null;
   private startedAt = 0;
   private playerId = '';
+  private options: GameStartOptions = {};
 
-  start(playerId: string): void {
+  start(playerId: string, options: GameStartOptions = {}): void {
     this.stop();
     this.playerId = playerId;
+    this.options = options;
     this.startedAt = Date.now();
     this.subject.next(this.initialSnapshot(playerId));
     this.timer = setInterval(() => this.tick(), 100);
@@ -26,7 +29,7 @@ export class LocalGameSimulator {
 
   send(command: GameCommand): void {
     if (command.type === 'restart') {
-      this.start(this.playerId);
+      this.start(this.playerId, this.options);
       return;
     }
     const snapshot = this.subject.value;
@@ -156,7 +159,8 @@ export class LocalGameSimulator {
       for (let x = 0; x < width; x++) {
         const wall =
           x === 0 || y === 0 || x === width - 1 || y === height - 1 || (x % 2 === 0 && y % 2 === 0);
-        const crate = !wall && !safe.has(`${x},${y}`) && (x * 3 + y * 5) % 4 === 0;
+        const crateDivisor = this.options.arenaId === 'fortress' ? 3 : 5;
+        const crate = !wall && !safe.has(`${x},${y}`) && (x * 3 + y * 5) % crateDivisor === 0;
         cells.push({ x, y, kind: wall ? 'wall' : crate ? 'crate' : 'floor' });
       }
     return {
@@ -167,7 +171,14 @@ export class LocalGameSimulator {
       height,
       cells,
       players: [
-        { playerId, x: 1, y: 1, lives: 3, alive: true, color: '#f5a5b8' },
+        {
+          playerId,
+          x: 1,
+          y: 1,
+          lives: 3,
+          alive: true,
+          color: this.options.playerColor ?? '#2f8cff',
+        },
         { playerId: 'local-rival', x: 11, y: 9, lives: 1, alive: true, color: '#c63bc9' },
       ],
       bombs: [],

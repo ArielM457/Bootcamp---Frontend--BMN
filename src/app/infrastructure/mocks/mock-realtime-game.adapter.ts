@@ -5,6 +5,7 @@ import {
   GameCommandRejection,
   GameConnectionState,
   GameSnapshot,
+  GameStartOptions,
 } from '../../core/game/game.models';
 import { GamePort } from '../../core/game/game.port';
 import { LocalGameSimulator } from './local-game.simulator';
@@ -23,14 +24,14 @@ export class MockRealtimeGameAdapter implements GamePort {
   readonly connection$ = this.connectionSubject.asObservable();
   readonly rejections$ = this.rejectionSubject.asObservable();
 
-  start(playerId: string): void {
+  start(playerId: string, options?: GameStartOptions): void {
     this.stop();
     this.connectionSubject.next('connecting');
     this.simulatorSubscription = this.simulator.snapshots$.subscribe((snapshot) => {
       this.lastSnapshot = structuredClone(snapshot);
       if (this.connectionSubject.value === 'connected') this.snapshotSubject.next(snapshot);
     });
-    this.simulator.start(playerId);
+    this.simulator.start(playerId, options);
     this.publishRecoverySnapshot();
     this.connectionSubject.next('connected');
   }

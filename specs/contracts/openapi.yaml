@@ -56,6 +56,22 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Player' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+    patch:
+      tags: [Players]
+      summary: Actualizar perfil propio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateProfileRequest' }
+      responses:
+        '200':
+          description: Perfil actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Player' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
   /api/v1/rooms:
     get:
       tags: [Rooms]
@@ -246,21 +262,33 @@ components:
       properties:
         id: { type: string, format: uuid }
         displayName: { type: string }
+        fullName: { type: string, minLength: 2, maxLength: 60 }
+        nickname: { type: string, minLength: 2, maxLength: 20 }
+        avatarId: { type: string, enum: [azure, violet, coral] }
+    UpdateProfileRequest:
+      type: object
+      required: [fullName, nickname, avatarId]
+      properties:
+        fullName: { type: string, minLength: 2, maxLength: 60 }
+        nickname: { type: string, minLength: 2, maxLength: 20 }
+        avatarId: { type: string, enum: [azure, violet, coral] }
     CreateRoomRequest:
       type: object
-      required: [name, maxPlayers]
+      required: [name, maxPlayers, arenaId]
       properties:
         name: { type: string, minLength: 3, maxLength: 60 }
         maxPlayers: { type: integer, minimum: 2, maximum: 8 }
+        arenaId: { type: string, enum: [open, fortress] }
     Room:
       type: object
-      required: [id, name, status, hostPlayerId, maxPlayers, participants]
+      required: [id, name, status, hostPlayerId, maxPlayers, arenaId, participants]
       properties:
         id: { type: string, format: uuid }
         name: { type: string }
         status: { type: string, enum: [waiting, playing, finished] }
         hostPlayerId: { type: string, format: uuid }
         maxPlayers: { type: integer }
+        arenaId: { type: string, enum: [open, fortress] }
         participants: { type: array, items: { $ref: '#/components/schemas/Player' } }
     GameSummary:
       type: object

@@ -33,7 +33,9 @@ export class RoomWaiting implements OnInit {
 
   async start(): Promise<void> {
     if (await this.rooms.start()) {
-      await this.router.navigate(['/juego']);
+      await this.router.navigate(['/juego'], {
+        queryParams: { arena: this.rooms.currentRoom()?.arenaId ?? 'open' },
+      });
     }
   }
 

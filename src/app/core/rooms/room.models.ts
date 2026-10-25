@@ -1,6 +1,7 @@
 import { Player } from '../auth/auth.models';
 
 export type RoomStatus = 'waiting' | 'playing' | 'finished';
+export type ArenaId = 'open' | 'fortress';
 
 export interface RoomParticipant extends Player {
   kind: 'player' | 'bot';
@@ -12,12 +13,14 @@ export interface Room {
   status: RoomStatus;
   hostPlayerId: string;
   maxPlayers: number;
+  arenaId: ArenaId;
   participants: RoomParticipant[];
 }
 
 export interface CreateRoomRequest {
   name: string;
   maxPlayers: number;
+  arenaId?: ArenaId;
 }
 
 export type RoomErrorCode =

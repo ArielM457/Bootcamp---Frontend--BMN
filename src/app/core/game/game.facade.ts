@@ -32,7 +32,7 @@ export class GameFacade {
   readonly finished = computed(() => this.snapshotState()?.phase === 'finished');
   readonly won = computed(() => this.snapshotState()?.winnerPlayerId === this.auth.player()?.id);
 
-  start(): void {
+  start(arenaId: 'open' | 'fortress' = 'open'): void {
     const player = this.auth.player();
     if (!player) return;
     this.subscriptions.unsubscribe();
@@ -46,7 +46,10 @@ export class GameFacade {
     this.subscriptions.add(
       this.port.rejections$.subscribe((rejection) => this.rejectionState.set(rejection)),
     );
-    this.port.start(player.id);
+    this.port.start(player.id, {
+      arenaId,
+      playerColor: this.avatarColor(player.avatarId),
+    });
   }
 
   send(command: GameCommand): void {
@@ -79,5 +82,11 @@ export class GameFacade {
     return (
       globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`
     );
+  }
+
+  private avatarColor(avatarId: string | undefined): string {
+    if (avatarId === 'violet') return '#8d6bff';
+    if (avatarId === 'coral') return '#ff6f91';
+    return '#2f8cff';
   }
 }

@@ -4,6 +4,11 @@ export type Direction = 'up' | 'down' | 'left' | 'right';
 export type GameConnectionState =
   'disconnected' | 'connecting' | 'connected' | 'reconnecting' | 'failed';
 
+export interface GameStartOptions {
+  arenaId?: 'open' | 'fortress';
+  playerColor?: string;
+}
+
 export interface GameCommandRejection {
   commandId: string;
   message: string;
