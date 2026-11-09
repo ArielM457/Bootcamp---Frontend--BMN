@@ -37,6 +37,12 @@ export class GameFacade {
     );
   });
   readonly powerUpName = computed(() => this.player()?.powerUpName?.trim() || 'Sin poder');
+  readonly powerUpRemainingSeconds = computed(() =>
+    Math.max(0, this.player()?.powerUpRemainingSeconds ?? 0),
+  );
+  readonly powerUpProgress = computed(() =>
+    Math.min(100, (this.powerUpRemainingSeconds() / 8) * 100),
+  );
   readonly finished = computed(() => this.snapshotState()?.phase === 'finished');
   readonly won = computed(() => this.snapshotState()?.winnerPlayerId === this.auth.player()?.id);
 

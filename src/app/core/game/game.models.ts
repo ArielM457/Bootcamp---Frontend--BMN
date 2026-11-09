@@ -27,6 +27,7 @@ export interface PlayerState {
   alive: boolean;
   color: string;
   powerUpName?: string | null;
+  powerUpRemainingSeconds?: number;
 }
 export interface BombState {
   id: string;
@@ -36,6 +37,13 @@ export interface BombState {
   placedAtUtc: string;
   detonatesAtUtc: string;
   range: number;
+  kind?: 'classic' | 'space';
+}
+export interface PowerUpState {
+  id: string;
+  x: number;
+  y: number;
+  kind: 'energy';
 }
 export interface ExplosionState {
   id: string;
@@ -51,6 +59,7 @@ export interface GameSnapshot {
   cells: Cell[];
   players: PlayerState[];
   bombs: BombState[];
+  powerUps?: PowerUpState[];
   explosions: ExplosionState[];
   remainingSeconds: number;
   winnerPlayerId?: string | null;

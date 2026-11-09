@@ -54,6 +54,7 @@ export class Game implements OnInit, AfterViewInit, OnDestroy {
     if (snapshot) this.renderer.render(this.board!.nativeElement, snapshot);
   }
   ngOnDestroy(): void {
+    this.renderer.reset();
     this.game.stop();
   }
 

@@ -107,16 +107,33 @@ header h1 {
 }
 .metric small,
 .metric strong,
-.metric span {
+.metric > span {
   display: block;
 }
 .metric small {
+  display: flex;
+  align-items: center;
+  gap: 0.28rem;
   margin-bottom: 0.2rem;
   color: $pink;
   font:
     900 0.58rem 'Courier New',
     monospace;
   letter-spacing: 0.13em;
+}
+.metric-icon {
+  display: inline-grid;
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: 0 0 auto;
+  place-items: center;
+  color: $pink-light;
+  font-family: Arial, sans-serif;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+.metric-icon--image {
+  object-fit: contain;
 }
 .metric strong {
   overflow: hidden;
@@ -133,6 +150,7 @@ header h1 {
   font-size: 0.62rem;
 }
 .metric--power {
+  --power-progress: 0%;
   box-shadow:
     inset 3px 0 0 $yellow,
     0 0.6rem 1.4rem rgba(#100313, 0.28);
@@ -145,7 +163,16 @@ header h1 {
   white-space: normal;
 }
 .metric--power-active {
-  border-color: rgba($yellow, 0.8);
+  border: 2px solid transparent;
+  background:
+    linear-gradient(135deg, rgba($white, 0.1), transparent 58%),
+    linear-gradient(rgba($purple-dark, 0.96), rgba($purple-dark, 0.96)) padding-box,
+    conic-gradient(
+        from -90deg,
+        $yellow 0 var(--power-progress),
+        rgba($white, 0.16) var(--power-progress) 100%
+      )
+      border-box;
   animation: power-glow 1.6s ease-in-out infinite alternate;
 }
 .arena-column {
@@ -180,6 +207,12 @@ header h1 {
   font-size: 1.55rem;
   line-height: 1;
   text-align: center;
+}
+.timer-icon {
+  display: inline-block;
+  margin-right: 0.16rem;
+  color: $yellow;
+  font-size: 0.8rem;
 }
 .board-shell {
   position: relative;
@@ -304,7 +337,7 @@ canvas {
   gap: 0.7rem;
   margin-bottom: 1.2rem;
 }
-.result-stats span {
+.result-stats > span {
   min-width: 5rem;
   padding: 0.6rem;
   border: 1px solid rgba($pink, 0.45);
@@ -316,11 +349,30 @@ canvas {
   display: block;
 }
 .result-stats small {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.32rem;
   margin-bottom: 0.2rem;
   color: $pink;
   font:
     900 0.55rem 'Courier New',
     monospace;
+}
+.result-stat-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: 0 0 auto;
+  color: $yellow;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+.result-stats > span:first-child .result-stat-icon {
+  fill: currentColor;
+  stroke-width: 1.2;
 }
 .result-actions {
   display: flex;
@@ -393,10 +445,12 @@ button:disabled {
   height: 6.5rem;
   border-radius: 50%;
 }
-.bomb-button span {
+.bomb-button img {
   display: block;
-  margin-bottom: 0.3rem;
-  font-size: 1.8rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: 0 auto 0.15rem;
+  object-fit: contain;
 }
 button:focus-visible,
 a:focus-visible {
