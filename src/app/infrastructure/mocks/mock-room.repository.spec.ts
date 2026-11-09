@@ -12,11 +12,47 @@ describe('MockRoomRepository ROOM-01', () => {
   });
 
   it('crea una sala válida con el creador como anfitrión', async () => {
-    const room = await repository.create({ name: 'Batalla Rosa', maxPlayers: 4 }, ariel);
+    const room = await repository.create(
+      { name: 'Batalla Rosa', maxPlayers: 4, mode: 'local' },
+      ariel,
+    );
 
     expect(room.name).toBe('Batalla Rosa');
     expect(room.hostPlayerId).toBe(ariel.id);
+    expect(room.mode).toBe('local');
     expect(room.participants).toEqual([{ ...ariel, kind: 'player' }]);
+  });
+
+  it('permite al anfitrión configurar la sala y conserva sus participantes', async () => {
+    const room = await repository.create({ name: 'Batalla Rosa', maxPlayers: 4 }, ariel);
+    await repository.join(room.id, luna);
+
+    const updated = await repository.update(
+      room.id,
+      { name: 'Fortaleza local', maxPlayers: 3, arenaId: 'fortress', mode: 'local' },
+      ariel.id,
+    );
+
+    expect(updated).toMatchObject({
+      name: 'Fortaleza local',
+      maxPlayers: 3,
+      arenaId: 'fortress',
+      mode: 'local',
+    });
+    expect(updated.participants).toHaveLength(2);
+  });
+
+  it('rechaza la configuración de otro jugador o una capacidad insuficiente', async () => {
+    const room = await repository.create({ name: 'Batalla Rosa', maxPlayers: 4 }, ariel);
+    await repository.join(room.id, luna);
+
+    await expect(
+      repository.update(room.id, { name: 'Otra sala', maxPlayers: 4 }, luna.id),
+    ).rejects.toMatchObject({ code: 'not-host' });
+    await repository.join(room.id, sol);
+    await expect(
+      repository.update(room.id, { name: 'Otra sala', maxPlayers: 2 }, ariel.id),
+    ).rejects.toMatchObject({ code: 'invalid-data' });
   });
 
   it('permite unirse una vez y rechaza una sala llena', async () => {
@@ -50,18 +86,34 @@ describe('MockRoomRepository ROOM-01', () => {
     const withBot = await repository.addBot(room.id, ariel.id);
 
     expect(withBot.participants).toHaveLength(2);
-    expect(withBot.participants[1]).toMatchObject({ displayName: 'Bombot', kind: 'bot' });
+    expect(withBot.participants[1]).toMatchObject({ displayName: 'Bombot 1', kind: 'bot' });
     expect((await repository.start(room.id, ariel.id)).status).toBe('playing');
   });
 
-  it('no duplica el bot ni permite que otro jugador lo añada', async () => {
+  it('permite añadir varios bots hasta llenar la sala', async () => {
     const room = await repository.create({ name: 'Batalla Rosa', maxPlayers: 4 }, ariel);
     await repository.join(room.id, luna);
     await expect(repository.addBot(room.id, luna.id)).rejects.toMatchObject({ code: 'not-host' });
-    await repository.addBot(room.id, ariel.id);
+    const firstBot = await repository.addBot(room.id, ariel.id);
+    const secondBot = await repository.addBot(room.id, ariel.id);
+
+    expect(firstBot.participants.at(-1)?.displayName).toBe('Bombot 1');
+    expect(secondBot.participants.at(-1)?.displayName).toBe('Bombot 2');
+    expect(secondBot.participants).toHaveLength(4);
     await expect(repository.addBot(room.id, ariel.id)).rejects.toMatchObject({
-      code: 'bot-already-added',
+      code: 'full',
     });
+  });
+
+  it('devuelve la sala al estado de espera al terminar la partida', async () => {
+    const room = await repository.create({ name: 'Batalla Rosa', maxPlayers: 4 }, ariel);
+    await repository.addBot(room.id, ariel.id);
+    await repository.start(room.id, ariel.id);
+
+    const waiting = await repository.returnToWaiting(room.id, ariel.id);
+
+    expect(waiting.status).toBe('waiting');
+    expect(waiting.participants).toHaveLength(2);
   });
 
   it('elimina la sala si al salir el anfitrión solo queda el bot', async () => {

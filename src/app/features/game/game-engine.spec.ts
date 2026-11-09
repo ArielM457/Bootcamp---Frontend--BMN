@@ -9,10 +9,13 @@ import { GameCommandRejection, GameSnapshot } from '../../core/game/game.models'
 import { GAME_PORT, GamePort } from '../../core/game/game.port';
 import { LocalGameSimulator } from '../../infrastructure/mocks/local-game.simulator';
 import { MockRealtimeGameAdapter } from '../../infrastructure/mocks/mock-realtime-game.adapter';
-import { CanvasRenderer } from './canvas-renderer';
+import { CanvasRenderer, ITEM_SPRITES, PLAYER_SPRITES } from './canvas-renderer';
 
 describe('Motor local GAME-01', () => {
-  afterEach(() => vi.useRealTimers());
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
 
   it('mueve al jugador solo hacia celdas libres y confirma la versión', () => {
     const simulator = new LocalGameSimulator();
@@ -31,6 +34,27 @@ describe('Motor local GAME-01', () => {
     subscription.unsubscribe();
   });
 
+  it('acepta como máximo un movimiento cada 360 milisegundos', () => {
+    vi.useFakeTimers();
+    const simulator = new LocalGameSimulator();
+    let latest: GameSnapshot | null = null;
+    simulator.snapshots$.subscribe((snapshot) => (latest = snapshot));
+    simulator.start('player-1');
+
+    simulator.send({ type: 'move', direction: 'right' });
+    expect(latest!.players[0]).toMatchObject({ x: 2, y: 1 });
+    simulator.send({ type: 'move', direction: 'right' });
+    expect(latest!.players[0]).toMatchObject({ x: 2, y: 1 });
+    vi.advanceTimersByTime(359);
+    simulator.send({ type: 'move', direction: 'right' });
+    expect(latest!.players[0]).toMatchObject({ x: 2, y: 1 });
+    vi.advanceTimersByTime(1);
+    simulator.send({ type: 'move', direction: 'right' });
+    expect(latest!.players[0]).toMatchObject({ x: 3, y: 1 });
+
+    simulator.stop();
+  });
+
   it('coloca una bomba y produce una explosión confirmada', () => {
     vi.useFakeTimers();
     const simulator = new LocalGameSimulator();
@@ -40,9 +64,105 @@ describe('Motor local GAME-01', () => {
     simulator.send({ type: 'place-bomb' });
 
     expect(latest!.bombs).toHaveLength(1);
+    expect(latest!.bombs[0].kind).toBe('classic');
     vi.advanceTimersByTime(1600);
     expect(latest!.bombs).toHaveLength(0);
     expect(latest!.explosions.length).toBeGreaterThan(0);
+    simulator.stop();
+  });
+
+  it('no coloca una bomba en una celda ocupada por otro jugador', () => {
+    vi.useFakeTimers();
+    const simulator = new LocalGameSimulator();
+    let latest: GameSnapshot | null = null;
+    simulator.snapshots$.subscribe((snapshot) => (latest = snapshot));
+    simulator.start('player-1');
+
+    for (let step = 0; step < 10; step++) {
+      simulator.send({ type: 'move', direction: 'right' });
+      vi.advanceTimersByTime(360);
+    }
+    expect(latest!.players[0]).toMatchObject({ x: 11, y: 1 });
+    expect(latest!.players[2]).toMatchObject({ x: 11, y: 1 });
+
+    simulator.send({ type: 'place-bomb' });
+    expect(latest!.bombs).toHaveLength(0);
+
+    simulator.stop();
+  });
+
+  it('muestra cuatro jugadores y un poder temporal sin barra en el mapa', () => {
+    const simulator = new LocalGameSimulator();
+    let latest: GameSnapshot | null = null;
+    const subscription = simulator.snapshots$.subscribe((snapshot) => (latest = snapshot));
+
+    simulator.start('player-1');
+
+    expect(latest!.players).toHaveLength(4);
+    expect(latest!.players.filter((player) => player.playerId !== 'player-1')).toHaveLength(3);
+    expect(latest!.powerUps).toHaveLength(1);
+    expect(latest!.powerUps?.[0]).not.toHaveProperty('remainingSeconds');
+
+    simulator.stop();
+    subscription.unsubscribe();
+  });
+
+  it('recoge un poder al entrar en su celda', () => {
+    vi.useFakeTimers();
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const simulator = new LocalGameSimulator();
+    let latest: GameSnapshot | null = null;
+    const subscription = simulator.snapshots$.subscribe((snapshot) => (latest = snapshot));
+    simulator.start('player-1');
+
+    expect(latest!.powerUps?.[0]).toMatchObject({ x: 2, y: 1 });
+    simulator.send({ type: 'move', direction: 'right' });
+
+    expect(latest!.players[0].powerUpName).toBe('Bomba espacial');
+    expect(latest!.players[0].powerUpRemainingSeconds).toBe(8);
+    expect(latest!.powerUps).toHaveLength(0);
+    vi.advanceTimersByTime(1000);
+    expect(latest!.players[0].powerUpRemainingSeconds).toBe(7);
+    vi.advanceTimersByTime(7000);
+    expect(latest!.players[0].powerUpName).toBeNull();
+    expect(latest!.players[0].powerUpRemainingSeconds).toBe(0);
+
+    simulator.stop();
+    subscription.unsubscribe();
+  });
+
+  it('retira el poder del mapa a los ocho segundos y lo crea otra vez', () => {
+    vi.useFakeTimers();
+    const simulator = new LocalGameSimulator();
+    let latest: GameSnapshot | null = null;
+    simulator.snapshots$.subscribe((snapshot) => (latest = snapshot));
+    simulator.start('player-1');
+
+    const firstPosition = { x: latest!.powerUps![0].x, y: latest!.powerUps![0].y };
+    vi.advanceTimersByTime(8000);
+    expect(latest!.powerUps).toHaveLength(0);
+    vi.advanceTimersByTime(2500);
+    expect(latest!.powerUps).toHaveLength(1);
+    expect(latest!.powerUps?.[0]).not.toMatchObject(firstPosition);
+
+    simulator.stop();
+  });
+
+  it('elimina un poder alcanzado por una explosión y lo repone después', () => {
+    vi.useFakeTimers();
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const simulator = new LocalGameSimulator();
+    let latest: GameSnapshot | null = null;
+    simulator.snapshots$.subscribe((snapshot) => (latest = snapshot));
+    simulator.start('player-1');
+
+    expect(latest!.powerUps?.[0]).toMatchObject({ x: 2, y: 1 });
+    simulator.send({ type: 'place-bomb' });
+    vi.advanceTimersByTime(1600);
+    expect(latest!.powerUps).toHaveLength(0);
+    vi.advanceTimersByTime(2500);
+    expect(latest!.powerUps).toHaveLength(1);
+
     simulator.stop();
   });
 
@@ -58,6 +178,57 @@ describe('Motor local GAME-01', () => {
       type: 'place-bomb',
     });
     expect(renderer.cellRect(3, 2)).toEqual({ x: 144, y: 96, size: 48 });
+  });
+
+  it('usa first cuando está quieto y alterna los otros dos sprites al caminar', () => {
+    const renderer = new CanvasRenderer();
+
+    for (const direction of ['up', 'down', 'left', 'right'] as const) {
+      expect(renderer.playerSprite(direction, false)).toBe(PLAYER_SPRITES[direction].idle);
+      expect(renderer.playerSprite(direction, true, 0)).toBe(PLAYER_SPRITES[direction].walking[0]);
+      expect(renderer.playerSprite(direction, true, 180)).toBe(
+        PLAYER_SPRITES[direction].walking[1],
+      );
+      expect(renderer.playerSprite(direction, true, 360)).toBe(
+        PLAYER_SPRITES[direction].walking[0],
+      );
+    }
+    expect(renderer.playerSprite('down', false)).toContain('/up/first.png');
+    expect(renderer.playerSprite('up', false)).toContain('/down/first.png');
+  });
+
+  it('usa recursos normales y brillantes para bombas y poderes', () => {
+    expect(ITEM_SPRITES.classicBomb.normal).toContain('bomb-normal.png');
+    expect(ITEM_SPRITES.classicBomb.glow).toContain('bomb-glow.png');
+    expect(ITEM_SPRITES.spaceBomb.normal).toContain('space-bomb-normal.png');
+    expect(ITEM_SPRITES.spaceBomb.glow).toContain('space-bomb-glow.png');
+    expect(ITEM_SPRITES.power.normal).toContain('power-normal.png');
+    expect(ITEM_SPRITES.power.glow).toContain('power-glow.png');
+  });
+
+  it('deja Enter y Espacio a enlaces y botones de la página', () => {
+    const input = new GameInputController();
+    const keyOn = (target: Element, key: string): KeyboardEvent => {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true });
+      target.dispatchEvent(event);
+      return event;
+    };
+    const link = document.createElement('a');
+    link.href = '/menu';
+    const restart = document.createElement('button');
+    const bombButton = document.createElement('button');
+    bombButton.setAttribute('data-game-control', '');
+    document.body.append(link, restart, bombButton);
+
+    expect(input.fromKey(keyOn(link, 'Enter'))).toBeNull();
+    expect(input.fromKey(keyOn(restart, ' '))).toBeNull();
+    expect(input.fromKey(keyOn(restart, 'ArrowUp'))).toEqual({ type: 'move', direction: 'up' });
+    expect(input.fromKey(keyOn(bombButton, ' '))).toEqual({ type: 'place-bomb' });
+    expect(input.fromKey(keyOn(document.body, ' '))).toEqual({ type: 'place-bomb' });
+
+    link.remove();
+    restart.remove();
+    bombButton.remove();
   });
 
   it('descarta snapshots con una versión anterior', () => {
@@ -86,6 +257,48 @@ describe('Motor local GAME-01', () => {
     facade.applySnapshot(snapshot(4));
 
     expect(facade.snapshot()?.version).toBe(5);
+  });
+
+  it('resume los rivales activos y el poder equipado para el HUD', () => {
+    const port: GamePort = {
+      snapshots$: new Subject<GameSnapshot>().asObservable(),
+      connection$: new BehaviorSubject<'connected'>('connected').asObservable(),
+      rejections$: new Subject<GameCommandRejection>().asObservable(),
+      start: () => undefined,
+      send: () => undefined,
+      reconnect: () => undefined,
+      stop: () => undefined,
+    };
+    const player = signal({ id: 'player-1', displayName: 'Ariel' });
+    TestBed.configureTestingModule({
+      providers: [
+        GameFacade,
+        { provide: GAME_PORT, useValue: port },
+        { provide: AuthFacade, useValue: { player } },
+      ],
+    });
+    const facade = TestBed.inject(GameFacade);
+    const current = snapshot(1);
+    current.players = [
+      {
+        playerId: 'player-1',
+        x: 0,
+        y: 0,
+        lives: 3,
+        alive: true,
+        color: '#2f8cff',
+        powerUpName: 'Doble bomba',
+        powerUpRemainingSeconds: 6,
+      },
+      { playerId: 'rival-1', x: 1, y: 0, lives: 2, alive: true, color: '#c63bc9' },
+      { playerId: 'rival-2', x: 2, y: 0, lives: 0, alive: false, color: '#f5a5b8' },
+    ];
+    facade.applySnapshot(current);
+
+    expect(facade.activeOpponents()).toBe(1);
+    expect(facade.powerUpName()).toBe('Doble bomba');
+    expect(facade.powerUpRemainingSeconds()).toBe(6);
+    expect(facade.powerUpProgress()).toBe(75);
   });
 
   it('recupera el último snapshot antes de volver a habilitar los comandos', () => {

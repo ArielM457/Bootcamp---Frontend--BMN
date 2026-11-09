@@ -5,6 +5,7 @@ import {
   LoginRequest,
   Player,
   RegisterRequest,
+  UpdateProfileRequest,
 } from '../../core/auth/auth.models';
 import { AuthRepository } from '../../core/auth/auth.repository';
 import { AUTH_SESSION_STORE } from '../storage/auth-session.store';
@@ -30,7 +31,13 @@ export class MockAuthRepository implements AuthRepository {
     if (this.accounts.has(email)) {
       throw new AuthError('duplicate-email', 'Duplicate email');
     }
-    const player: Player = { id: this.createId(), displayName };
+    const player: Player = {
+      id: this.createId(),
+      displayName,
+      fullName: displayName,
+      nickname: displayName,
+      avatarId: 'azure',
+    };
     this.accounts.set(email, { email, password: request.password, player });
     return this.createSession(player);
   }
@@ -52,6 +59,35 @@ export class MockAuthRepository implements AuthRepository {
       return null;
     }
     return session;
+  }
+
+  async updateProfile(request: UpdateProfileRequest): Promise<AuthSession> {
+    await this.wait();
+    const session = await this.restoreSession();
+    const fullName = request.fullName.trim();
+    const nickname = request.nickname.trim();
+    if (!session) throw new AuthError('session-expired', 'Session expired');
+    if (
+      fullName.length < 2 ||
+      fullName.length > 60 ||
+      nickname.length < 2 ||
+      nickname.length > 20
+    ) {
+      throw new AuthError('invalid-data', 'Invalid profile data');
+    }
+    const player: Player = {
+      ...session.player,
+      displayName: nickname,
+      fullName,
+      nickname,
+      avatarId: request.avatarId,
+    };
+    for (const account of this.accounts.values()) {
+      if (account.player.id === player.id) account.player = player;
+    }
+    const updated = { ...session, player };
+    this.store.save(updated);
+    return updated;
   }
 
   async logout(): Promise<void> {

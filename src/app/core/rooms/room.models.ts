@@ -1,6 +1,8 @@
 import { Player } from '../auth/auth.models';
 
 export type RoomStatus = 'waiting' | 'playing' | 'finished';
+export type ArenaId = 'open' | 'fortress';
+export type RoomMode = 'local' | 'online';
 
 export interface RoomParticipant extends Player {
   kind: 'player' | 'bot';
@@ -12,12 +14,16 @@ export interface Room {
   status: RoomStatus;
   hostPlayerId: string;
   maxPlayers: number;
+  arenaId: ArenaId;
+  mode: RoomMode;
   participants: RoomParticipant[];
 }
 
 export interface CreateRoomRequest {
   name: string;
   maxPlayers: number;
+  arenaId?: ArenaId;
+  mode?: RoomMode;
 }
 
 export type RoomErrorCode =
@@ -28,7 +34,6 @@ export type RoomErrorCode =
   | 'not-member'
   | 'not-host'
   | 'not-enough-players'
-  | 'bot-already-added'
   | 'invalid-data';
 
 export class RoomError extends Error {

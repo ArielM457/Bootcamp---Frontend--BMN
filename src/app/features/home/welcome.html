@@ -6,50 +6,173 @@
 
       <nav class="game-menu" aria-label="Menú de Bomberman Online">
         <a class="menu-option menu-option--main" routerLink="/entrar">
-          <span class="option-icon" aria-hidden="true">▶</span>
-          <span>Jugar ahora<small>Entra a la partida</small></span>
+          <span class="option-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" focusable="false"><path d="M5 3.5v9l7-4.5z" /></svg>
+          </span>
+          <span class="option-text">Jugar ahora<small>Entra a la partida</small></span>
         </a>
         <a class="menu-option" routerLink="/proximamente" [queryParams]="{ opcion: 'Buscar sala' }">
-          <span class="option-icon" aria-hidden="true">⌂</span>
-          <span>Buscar sala<small>Encuentra una partida</small></span>
+          <span class="option-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" focusable="false">
+              <path d="M5 7V5.5a3 3 0 0 1 6 0V7" fill="none" stroke-width="1.6" />
+              <rect x="3.5" y="7" width="9" height="6.5" rx="1.2" />
+            </svg>
+          </span>
+          <span class="option-text">Buscar sala<small>Encuentra una partida</small></span>
         </a>
         <a class="menu-option" routerLink="/proximamente" [queryParams]="{ opcion: 'Ranking' }">
-          <span class="option-icon" aria-hidden="true">★</span>
-          <span>Ranking<small>Mira a los mejores</small></span>
+          <span class="option-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" focusable="false">
+              <path d="M8 1.8l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.6l-3.8 2 .7-4.3-3.1-3 4.3-.6z" />
+            </svg>
+          </span>
+          <span class="option-text">Ranking<small>Mira a los mejores</small></span>
         </a>
         <a class="menu-option" routerLink="/proximamente" [queryParams]="{ opcion: 'Cómo jugar' }">
-          <span class="option-icon" aria-hidden="true">?</span>
-          <span>Cómo jugar<small>Aprende los controles</small></span>
+          <span class="option-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" focusable="false">
+              <path
+                d="M5.8 6a2.2 2.2 0 1 1 3.3 1.9c-.7.4-1.1.9-1.1 1.7v.4"
+                fill="none"
+                stroke-width="1.6"
+                stroke-linecap="round"
+              />
+              <circle cx="8" cy="12.3" r="1" />
+            </svg>
+          </span>
+          <span class="option-text">Cómo jugar<small>Aprende los controles</small></span>
         </a>
       </nav>
     </div>
   </div>
 
   <div class="game-preview">
-    <div class="arcade-frame" aria-hidden="true">
-      <div class="arcade-screen">
-        <div class="screen-shine"></div>
-        <div class="hud">
-          <span>1P <b>00350</b></span
-          ><span>TIME <b>087</b></span>
-        </div>
-        <div class="maze">
-          <span class="wall wall--1"></span><span class="wall wall--2"></span
-          ><span class="wall wall--3"></span> <span class="wall wall--4"></span
-          ><span class="wall wall--5"></span> <span class="crate crate--1"></span
-          ><span class="crate crate--2"></span> <span class="crate crate--3"></span
-          ><span class="crate crate--4"></span> <span class="bomb bomb--1"></span
-          ><span class="bomb bomb--2"></span> <span class="blast blast--1"></span
-          ><span class="blast blast--2"></span>
-          <span class="bomber"><i class="bomber-head"></i><i class="bomber-body"></i></span>
-          <span class="enemy enemy--1"></span><span class="enemy enemy--2"></span>
-        </div>
-        <div class="screen-caption">NIVEL 01 · LISTO</div>
-      </div>
-      <div class="arcade-controls">
-        <span class="d-pad">✚</span><span class="speaker">•••<br />•••</span>
-        <span class="action-buttons"><i>A</i><i>B</i></span>
-      </div>
-    </div>
+    <span class="shard shard--1" aria-hidden="true"></span>
+    <span class="shard shard--2" aria-hidden="true"></span>
+    <span class="shard shard--3" aria-hidden="true"></span>
+    <span class="shard shard--4" aria-hidden="true"></span>
+
+    <svg class="console" viewBox="0 0 440 500" aria-hidden="true" focusable="false">
+      <defs>
+        <pattern id="welcome-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path class="console-grid" d="M40 0H0V40" fill="none" />
+        </pattern>
+      </defs>
+
+      <rect class="console-shell" x="10" y="10" width="420" height="480" rx="38" />
+      <rect class="console-edge" x="22" y="22" width="396" height="456" rx="30" />
+      <rect class="console-bezel" x="40" y="40" width="360" height="322" rx="18" />
+      <rect class="console-screen" x="52" y="52" width="336" height="298" rx="10" />
+
+      <text class="console-hud" x="62" y="74">
+        <tspan class="console-hud-label">1P</tspan>
+        00350
+      </text>
+      <text class="console-hud" x="378" y="74" text-anchor="end">
+        <tspan class="console-hud-label">TIME</tspan>
+        007
+      </text>
+
+      <g transform="translate(60 85)">
+        <rect class="console-board" width="320" height="240" />
+        <rect width="320" height="240" fill="url(#welcome-grid)" />
+
+        <g class="console-wall">
+          <rect x="44" y="44" width="32" height="32" />
+          <rect x="124" y="44" width="32" height="32" />
+          <rect x="204" y="44" width="32" height="32" />
+          <rect x="84" y="124" width="32" height="32" />
+        </g>
+        <g class="console-brick">
+          <rect x="162" y="2" width="36" height="36" rx="3" />
+          <rect x="282" y="2" width="36" height="36" rx="3" />
+          <rect x="242" y="82" width="36" height="36" rx="3" />
+          <rect x="42" y="202" width="36" height="36" rx="3" />
+          <rect x="242" y="202" width="36" height="36" rx="3" />
+        </g>
+
+        <!-- Simulación decorativa: cada sprite ocupa una celda de 40 × 40 y se mueve con CSS. -->
+        <g class="console-bomb console-bomb--1">
+          <g class="bomb-sprite">
+            <circle class="bomb-body" cx="20" cy="23" r="11" />
+            <path class="bomb-fuse" d="M26 14q3-5 8-4" fill="none" />
+            <circle class="bomb-spark" cx="34" cy="10" r="3" />
+          </g>
+        </g>
+        <g class="console-bomb console-bomb--2">
+          <g class="bomb-sprite">
+            <circle class="bomb-body" cx="20" cy="23" r="11" />
+            <path class="bomb-fuse" d="M26 14q3-5 8-4" fill="none" />
+            <circle class="bomb-spark" cx="34" cy="10" r="3" />
+          </g>
+        </g>
+
+        <g class="console-ghost console-ghost--a">
+          <g class="ghost-sprite">
+            <path d="M6 20a14 14 0 0 1 28 0v16l-5-4-4 4-5-4-5 4-4-4-5 4z" />
+            <rect class="ghost-eye" x="13" y="16" width="4" height="5" />
+            <rect class="ghost-eye" x="23" y="16" width="4" height="5" />
+          </g>
+        </g>
+        <g class="console-ghost console-ghost--b">
+          <g class="ghost-sprite">
+            <path d="M6 20a14 14 0 0 1 28 0v16l-5-4-4 4-5-4-5 4-4-4-5 4z" />
+            <rect class="ghost-eye" x="13" y="16" width="4" height="5" />
+            <rect class="ghost-eye" x="23" y="16" width="4" height="5" />
+          </g>
+        </g>
+
+        <g class="console-bomber">
+          <rect class="bomber-line" x="19" y="1" width="2" height="5" />
+          <circle class="bomber-pompom" cx="20" cy="3" r="3.2" />
+          <rect class="bomber-helmet" x="7" y="6" width="26" height="19" rx="9" />
+          <rect class="bomber-shine" x="11" y="7.5" width="5" height="2" rx="1" />
+          <rect class="bomber-face" x="10.5" y="10.5" width="19" height="11" rx="4" />
+          <rect class="bomber-eye" x="14.5" y="12.5" width="2.6" height="6" rx="1" />
+          <rect class="bomber-eye" x="22.9" y="12.5" width="2.6" height="6" rx="1" />
+          <circle class="bomber-glove" cx="9" cy="28.5" r="3" />
+          <circle class="bomber-glove" cx="31" cy="28.5" r="3" />
+          <rect class="bomber-body" x="12" y="25" width="16" height="8.5" rx="2.5" />
+          <rect class="bomber-belt" x="12" y="28" width="16" height="2.5" />
+          <rect class="bomber-buckle" x="18.5" y="27.5" width="3" height="3.5" />
+          <rect class="bomber-line" x="14.5" y="33" width="4" height="2.5" />
+          <rect class="bomber-line" x="21.5" y="33" width="4" height="2.5" />
+          <rect class="bomber-boot bomber-boot--l" x="10" y="35" width="9" height="4.5" rx="2" />
+          <rect class="bomber-boot bomber-boot--r" x="21" y="35" width="9" height="4.5" rx="2" />
+        </g>
+
+        <!-- Explosiones en cruz con alcance 2; los muros y ladrillos las cortan. -->
+        <g class="console-blast console-blast--1">
+          <rect x="84" y="88" width="152" height="24" rx="12" />
+          <rect x="168" y="44" width="24" height="152" rx="12" />
+          <rect class="blast-core" x="90" y="95" width="140" height="10" rx="5" />
+          <rect class="blast-core" x="175" y="50" width="10" height="140" rx="5" />
+        </g>
+        <g class="console-blast console-blast--2">
+          <rect x="4" y="168" width="192" height="24" rx="12" />
+          <rect x="88" y="164" width="24" height="72" rx="12" />
+          <rect class="blast-core" x="10" y="175" width="180" height="10" rx="5" />
+          <rect class="blast-core" x="95" y="170" width="10" height="60" rx="5" />
+        </g>
+      </g>
+
+      <text class="console-caption" x="220" y="342" text-anchor="middle">NIVEL 01 · LISTO</text>
+
+      <path
+        class="console-dpad"
+        d="M72 400h20v-20h20v20h20v20h-20v20h-20v-20h-20z"
+        transform="translate(-8 0)"
+      />
+      <g class="console-speaker">
+        <circle cx="206" cy="406" r="2.5" />
+        <circle cx="220" cy="406" r="2.5" />
+        <circle cx="234" cy="406" r="2.5" />
+        <circle cx="206" cy="418" r="2.5" />
+        <circle cx="220" cy="418" r="2.5" />
+        <circle cx="234" cy="418" r="2.5" />
+      </g>
+      <circle class="console-button" cx="320" cy="424" r="19" />
+      <circle class="console-button" cx="366" cy="404" r="19" />
+    </svg>
   </div>
 </section>

@@ -6,3 +6,5 @@
 4. Completado: crear controlador de entrada y facade.
 5. Parcial: simulador local conectado. Eventos del servidor pendientes.
 6. Parcial: teclado, movimiento, bombas, explosiones y versiones pasan pruebas automatizadas. Falta revisión visual y prueba táctil en navegador.
+7. Completado: regresar a la sala de espera desde el resultado sin perder participantes.
+8. Completado: reorganizar el HUD con métricas verticales, temporizador sobre el tablero y estado de poder.

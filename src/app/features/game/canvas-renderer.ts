@@ -1,83 +1,496 @@
 import { Injectable } from '@angular/core';
-import { GameSnapshot } from '../../core/game/game.models';
+import {
+  BombState,
+  Direction,
+  GameSnapshot,
+  PlayerState,
+  PowerUpState,
+} from '../../core/game/game.models';
+
+interface PlayerSprites {
+  idle: string;
+  walking: readonly [string, string];
+}
+
+interface PlayerVisualState {
+  fromX: number;
+  fromY: number;
+  toX: number;
+  toY: number;
+  direction: Direction;
+  startedAt: number;
+  moving: boolean;
+}
+
+export const PLAYER_SPRITES: Record<Direction, PlayerSprites> = {
+  down: {
+    idle: '/bomberman/up/first.png',
+    walking: [
+      '/bomberman/up/Imagen de ChatGPT 28 oct 2026, 09_00_29.png',
+      '/bomberman/up/Imagen de ChatGPT 28 oct 2026, 09_00_34.png',
+    ],
+  },
+  left: {
+    idle: '/bomberman/left/first.png',
+    walking: [
+      '/bomberman/left/Imagen de ChatGPT 28 oct 2026, 08_59_07.png',
+      '/bomberman/left/Imagen de ChatGPT 28 oct 2026, 08_59_37.png',
+    ],
+  },
+  right: {
+    idle: '/bomberman/right/first.png',
+    walking: [
+      '/bomberman/right/Imagen de ChatGPT 28 oct 2026, 08_58_59.png',
+      '/bomberman/right/Imagen de ChatGPT 28 oct 2026, 08_59_57.png',
+    ],
+  },
+  up: {
+    idle: '/bomberman/down/first.png',
+    walking: [
+      '/bomberman/down/Imagen de ChatGPT 28 oct 2026, 08_58_41.png',
+      '/bomberman/down/Imagen de ChatGPT 28 oct 2026, 08_58_47.png',
+    ],
+  },
+};
+
+export const ITEM_SPRITES = {
+  classicBomb: {
+    normal: '/game-assets/items/bomb-normal.png',
+    glow: '/game-assets/items/bomb-glow.png',
+  },
+  spaceBomb: {
+    normal: '/game-assets/items/space-bomb-normal.png',
+    glow: '/game-assets/items/space-bomb-glow.png',
+  },
+  power: {
+    normal: '/game-assets/items/power-normal.png',
+    glow: '/game-assets/items/power-glow.png',
+  },
+} as const;
 
 @Injectable({ providedIn: 'root' })
 export class CanvasRenderer {
   readonly cellSize = 48;
+  private readonly movementDuration = 360;
+  private readonly walkingFrameDuration = 180;
+  private readonly playerVisuals = new Map<string, PlayerVisualState>();
+  private readonly spriteImages = new Map<string, HTMLImageElement>();
+  private canvas: HTMLCanvasElement | null = null;
+  private snapshot: GameSnapshot | null = null;
+  private animationFrame: number | null = null;
 
   render(canvas: HTMLCanvasElement, snapshot: GameSnapshot): void {
+    this.canvas = canvas;
+    this.snapshot = snapshot;
+    this.preloadSprites();
     canvas.width = snapshot.width * this.cellSize;
     canvas.height = snapshot.height * this.cellSize;
-    const context = canvas.getContext('2d');
-    if (!context) return;
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    for (const cell of snapshot.cells) this.drawCell(context, cell.x, cell.y, cell.kind);
-    for (const bomb of snapshot.bombs) this.drawBomb(context, bomb.x, bomb.y);
-    for (const explosion of snapshot.explosions)
-      for (const cell of explosion.cells) this.drawExplosion(context, cell.x, cell.y);
-    for (const player of snapshot.players)
-      if (player.alive) this.drawPlayer(context, player.x, player.y, player.color);
+
+    const now = this.now();
+    this.updatePlayerVisuals(snapshot.players, now);
+    this.drawFrame(now);
+    this.scheduleAnimation();
+  }
+
+  reset(): void {
+    if (this.animationFrame !== null && typeof cancelAnimationFrame === 'function') {
+      cancelAnimationFrame(this.animationFrame);
+    }
+    this.animationFrame = null;
+    this.canvas = null;
+    this.snapshot = null;
+    this.playerVisuals.clear();
   }
 
   cellRect(x: number, y: number): { x: number; y: number; size: number } {
     return { x: x * this.cellSize, y: y * this.cellSize, size: this.cellSize };
   }
 
-  private drawCell(context: CanvasRenderingContext2D, x: number, y: number, kind: string): void {
-    const rect = this.cellRect(x, y);
-    context.fillStyle = kind === 'floor' ? '#4f2858' : kind === 'wall' ? '#8d4c91' : '#f5a5b8';
-    context.fillRect(rect.x, rect.y, rect.size, rect.size);
-    context.strokeStyle = kind === 'wall' ? '#c987ca' : '#3b1742';
-    context.lineWidth = 2;
-    context.strokeRect(rect.x + 1, rect.y + 1, rect.size - 2, rect.size - 2);
-    if (kind === 'crate') {
-      context.strokeStyle = '#b94e82';
-      context.lineWidth = 5;
-      context.beginPath();
-      context.moveTo(rect.x + 8, rect.y + 8);
-      context.lineTo(rect.x + rect.size - 8, rect.y + rect.size - 8);
-      context.moveTo(rect.x + rect.size - 8, rect.y + 8);
-      context.lineTo(rect.x + 8, rect.y + rect.size - 8);
-      context.stroke();
+  playerSprite(direction: Direction, moving: boolean, elapsedMs = 0): string {
+    const sprites = PLAYER_SPRITES[direction];
+    if (!moving) return sprites.idle;
+    return sprites.walking[Math.floor(elapsedMs / this.walkingFrameDuration) % 2];
+  }
+
+  private updatePlayerVisuals(players: PlayerState[], now: number): void {
+    const activePlayerIds = new Set(players.map((player) => player.playerId));
+    for (const playerId of this.playerVisuals.keys()) {
+      if (!activePlayerIds.has(playerId)) this.playerVisuals.delete(playerId);
+    }
+
+    for (const player of players) {
+      const visual = this.playerVisuals.get(player.playerId);
+      if (!visual) {
+        this.playerVisuals.set(player.playerId, {
+          fromX: player.x,
+          fromY: player.y,
+          toX: player.x,
+          toY: player.y,
+          direction: 'down',
+          startedAt: now,
+          moving: false,
+        });
+        continue;
+      }
+
+      if (visual.toX === player.x && visual.toY === player.y) continue;
+
+      const current = this.visualPosition(visual, now);
+      visual.fromX = current.x;
+      visual.fromY = current.y;
+      visual.direction = this.directionBetween(visual.toX, visual.toY, player.x, player.y);
+      visual.toX = player.x;
+      visual.toY = player.y;
+      visual.startedAt = now;
+      visual.moving = !this.prefersReducedMotion();
+
+      if (!visual.moving) {
+        visual.fromX = player.x;
+        visual.fromY = player.y;
+      }
     }
   }
 
-  private drawPlayer(context: CanvasRenderingContext2D, x: number, y: number, color: string): void {
-    const { x: px, y: py, size } = this.cellRect(x, y);
+  private drawFrame(now: number): void {
+    if (!this.canvas || !this.snapshot) return;
+    const context = this.canvas.getContext('2d');
+    if (!context) return;
+
+    context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    for (const cell of this.snapshot.cells) this.drawCell(context, cell.x, cell.y, cell.kind);
+    for (const power of this.snapshot.powerUps ?? []) this.drawPower(context, power, now);
+    for (const bomb of this.snapshot.bombs) this.drawBomb(context, bomb, now);
+    for (const explosion of this.snapshot.explosions) {
+      for (const cell of explosion.cells) this.drawExplosion(context, cell.x, cell.y);
+    }
+    for (const player of this.snapshot.players) {
+      if (player.alive) this.drawPlayer(context, player, now);
+    }
+  }
+
+  private drawCell(context: CanvasRenderingContext2D, x: number, y: number, kind: string): void {
+    const rect = this.cellRect(x, y);
+    if (kind === 'wall') {
+      this.drawStoneWall(context, rect.x, rect.y, rect.size);
+    } else if (kind === 'crate') {
+      this.drawFloor(context, rect.x, rect.y, rect.size, x, y);
+      this.drawWoodenCrate(context, rect.x, rect.y, rect.size);
+    } else {
+      this.drawFloor(context, rect.x, rect.y, rect.size, x, y);
+    }
+  }
+
+  private drawFloor(
+    context: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    size: number,
+    cellX: number,
+    cellY: number,
+  ): void {
+    const gradient = context.createLinearGradient(x, y, x + size, y + size);
+    gradient.addColorStop(0, (cellX + cellY) % 2 === 0 ? '#392348' : '#342043');
+    gradient.addColorStop(1, '#24152f');
+    context.fillStyle = gradient;
+    context.fillRect(x, y, size, size);
+    context.strokeStyle = 'rgba(244, 197, 255, 0.08)';
+    context.lineWidth = 1;
+    context.strokeRect(x + 0.5, y + 0.5, size - 1, size - 1);
+  }
+
+  private drawStoneWall(
+    context: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    size: number,
+  ): void {
+    const gradient = context.createLinearGradient(x, y, x + size, y + size);
+    gradient.addColorStop(0, '#9f86ad');
+    gradient.addColorStop(0.48, '#705879');
+    gradient.addColorStop(1, '#44334d');
+    context.fillStyle = gradient;
+    context.fillRect(x, y, size, size);
+
+    context.fillStyle = 'rgba(255, 255, 255, 0.14)';
+    context.fillRect(x + 3, y + 3, size - 6, 3);
+    context.fillRect(x + 3, y + 6, 3, size - 9);
+    context.fillStyle = 'rgba(19, 10, 25, 0.3)';
+    context.fillRect(x + 4, y + size - 6, size - 8, 3);
+    context.fillRect(x + size - 6, y + 6, 3, size - 9);
+
+    context.strokeStyle = '#392740';
+    context.lineWidth = 2;
+    context.beginPath();
+    context.moveTo(x, y + size / 2);
+    context.lineTo(x + size, y + size / 2);
+    context.moveTo(x + size / 2, y);
+    context.lineTo(x + size / 2, y + size / 2);
+    context.moveTo(x + size / 4, y + size / 2);
+    context.lineTo(x + size / 4, y + size);
+    context.moveTo(x + (size * 3) / 4, y + size / 2);
+    context.lineTo(x + (size * 3) / 4, y + size);
+    context.stroke();
+
+    context.strokeStyle = '#bca8c7';
+    context.lineWidth = 2;
+    context.strokeRect(x + 2, y + 2, size - 4, size - 4);
+  }
+
+  private drawWoodenCrate(
+    context: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    size: number,
+  ): void {
+    const margin = 4;
+    const crateSize = size - margin * 2;
+    const gradient = context.createLinearGradient(x, y, x + size, y + size);
+    gradient.addColorStop(0, '#d99a51');
+    gradient.addColorStop(0.52, '#a85f2d');
+    gradient.addColorStop(1, '#693719');
+    context.fillStyle = gradient;
+    context.fillRect(x + margin, y + margin, crateSize, crateSize);
+
+    context.strokeStyle = '#4b2513';
+    context.lineWidth = 5;
+    context.strokeRect(x + margin + 1, y + margin + 1, crateSize - 2, crateSize - 2);
+    context.beginPath();
+    context.moveTo(x + 9, y + 9);
+    context.lineTo(x + size - 9, y + size - 9);
+    context.moveTo(x + size - 9, y + 9);
+    context.lineTo(x + 9, y + size - 9);
+    context.stroke();
+
+    context.strokeStyle = 'rgba(255, 218, 151, 0.5)';
+    context.lineWidth = 2;
+    context.beginPath();
+    context.moveTo(x + 8, y + 7);
+    context.lineTo(x + size - 8, y + 7);
+    context.moveTo(x + 7, y + 8);
+    context.lineTo(x + 7, y + size - 8);
+    context.stroke();
+
+    context.fillStyle = '#e0bd78';
+    for (const [nailX, nailY] of [
+      [x + 9, y + 9],
+      [x + size - 9, y + 9],
+      [x + 9, y + size - 9],
+      [x + size - 9, y + size - 9],
+    ]) {
+      context.beginPath();
+      context.arc(nailX, nailY, 1.8, 0, Math.PI * 2);
+      context.fill();
+    }
+  }
+
+  private drawPlayer(context: CanvasRenderingContext2D, player: PlayerState, now: number): void {
+    const visual = this.playerVisuals.get(player.playerId);
+    if (!visual) return;
+    const elapsed = now - visual.startedAt;
+    if (visual.moving && elapsed >= this.movementDuration) {
+      visual.moving = false;
+      visual.fromX = visual.toX;
+      visual.fromY = visual.toY;
+    }
+
+    const position = this.visualPosition(visual, now);
+    const path = this.playerSprite(visual.direction, visual.moving, elapsed);
+    const image = this.spriteImage(path);
+    const idleImage = visual.moving
+      ? this.spriteImage(PLAYER_SPRITES[visual.direction].idle)
+      : null;
+    const visibleImage = this.isImageReady(image) ? image : idleImage;
+    const px = position.x * this.cellSize;
+    const py = position.y * this.cellSize;
+
+    context.save();
+    context.fillStyle = player.color;
+    context.globalAlpha = 0.55;
+    context.beginPath();
+    context.ellipse(px + 24, py + this.cellSize + 9, 18, 5, 0, 0, Math.PI * 2);
+    context.fill();
+    context.restore();
+
+    if (this.isImageReady(visibleImage)) {
+      const scale = Math.min(58 / visibleImage.naturalWidth, 62 / visibleImage.naturalHeight);
+      const width = visibleImage.naturalWidth * scale;
+      const height = visibleImage.naturalHeight * scale;
+      context.drawImage(
+        visibleImage,
+        px + (this.cellSize - width) / 2,
+        py + this.cellSize + 6 - height,
+        width,
+        height,
+      );
+      return;
+    }
+
+    this.drawPlayerFallback(context, px, py, player.color);
+  }
+
+  private drawPlayerFallback(
+    context: CanvasRenderingContext2D,
+    px: number,
+    py: number,
+    color: string,
+  ): void {
     context.fillStyle = color;
     context.strokeStyle = '#ffffff';
     context.lineWidth = 3;
     context.beginPath();
-    context.arc(px + size / 2, py + size / 2, size * 0.32, 0, Math.PI * 2);
+    context.arc(px + 24, py + 24, 18, 0, Math.PI * 2);
     context.fill();
     context.stroke();
-    context.fillStyle = '#2b0d31';
-    context.fillRect(px + 16, py + 19, 4, 6);
-    context.fillRect(px + 28, py + 19, 4, 6);
   }
 
-  private drawBomb(context: CanvasRenderingContext2D, x: number, y: number): void {
-    const { x: px, y: py, size } = this.cellRect(x, y);
-    context.fillStyle = '#16081c';
+  private spriteImage(path: string): HTMLImageElement | null {
+    const cached = this.spriteImages.get(path);
+    if (cached) return cached;
+    if (typeof Image === 'undefined') return null;
+
+    const image = new Image();
+    image.onload = () => this.drawFrame(this.now());
+    image.src = path;
+    this.spriteImages.set(path, image);
+    return image;
+  }
+
+  private preloadSprites(): void {
+    for (const sprites of Object.values(PLAYER_SPRITES)) {
+      this.spriteImage(sprites.idle);
+      for (const path of sprites.walking) this.spriteImage(path);
+    }
+    for (const sprites of Object.values(ITEM_SPRITES)) {
+      this.spriteImage(sprites.normal);
+      this.spriteImage(sprites.glow);
+    }
+  }
+
+  private isImageReady(image: HTMLImageElement | null): image is HTMLImageElement {
+    return image?.complete === true && image.naturalWidth > 0;
+  }
+
+  private visualPosition(visual: PlayerVisualState, now: number): { x: number; y: number } {
+    if (!visual.moving) return { x: visual.toX, y: visual.toY };
+    const progress = Math.min(1, Math.max(0, (now - visual.startedAt) / this.movementDuration));
+    return {
+      x: visual.fromX + (visual.toX - visual.fromX) * progress,
+      y: visual.fromY + (visual.toY - visual.fromY) * progress,
+    };
+  }
+
+  private directionBetween(fromX: number, fromY: number, toX: number, toY: number): Direction {
+    const deltaX = toX - fromX;
+    const deltaY = toY - fromY;
+    if (Math.abs(deltaX) > Math.abs(deltaY)) return deltaX < 0 ? 'left' : 'right';
+    return deltaY < 0 ? 'up' : 'down';
+  }
+
+  private scheduleAnimation(): void {
+    if (
+      this.animationFrame !== null ||
+      (!this.hasMovingPlayers() && !this.hasAnimatedItems()) ||
+      typeof requestAnimationFrame !== 'function'
+    ) {
+      return;
+    }
+
+    this.animationFrame = requestAnimationFrame((time) => {
+      this.animationFrame = null;
+      this.drawFrame(time);
+      this.scheduleAnimation();
+    });
+  }
+
+  private prefersReducedMotion(): boolean {
+    return (
+      typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
+  }
+
+  private now(): number {
+    return typeof performance === 'undefined' ? Date.now() : performance.now();
+  }
+
+  private hasMovingPlayers(): boolean {
+    return [...this.playerVisuals.values()].some((visual) => visual.moving);
+  }
+
+  private hasAnimatedItems(): boolean {
+    return Boolean(this.snapshot?.bombs.length || this.snapshot?.powerUps?.length);
+  }
+
+  private drawBomb(context: CanvasRenderingContext2D, bomb: BombState, now: number): void {
+    const { x: px, y: py, size } = this.cellRect(bomb.x, bomb.y);
+    const remaining = Date.parse(bomb.detonatesAtUtc) - Date.now();
+    const charged = remaining <= 550 && !this.prefersReducedMotion();
+    const sprites = bomb.kind === 'space' ? ITEM_SPRITES.spaceBomb : ITEM_SPRITES.classicBomb;
+    const image = this.spriteImage(charged ? sprites.glow : sprites.normal);
+    if (this.isImageReady(image)) {
+      const pulse = charged ? 1 + Math.sin(now / 70) * 0.04 : 1;
+      const renderSize = (charged ? 54 : 44) * pulse;
+      context.drawImage(
+        image,
+        px + (size - renderSize) / 2,
+        py + (size - renderSize) / 2,
+        renderSize,
+        renderSize,
+      );
+      return;
+    }
+
+    const gradient = context.createRadialGradient(px + 19, py + 18, 2, px + 24, py + 27, 17);
+    gradient.addColorStop(0, '#62536b');
+    gradient.addColorStop(0.35, '#24172c');
+    gradient.addColorStop(1, '#09060c');
+    context.fillStyle = gradient;
     context.strokeStyle = '#ffffff';
-    context.lineWidth = 3;
+    context.lineWidth = 2;
     context.beginPath();
     context.arc(px + size / 2, py + size / 2 + 3, size * 0.28, 0, Math.PI * 2);
     context.fill();
     context.stroke();
     context.strokeStyle = '#ffe66d';
+    context.lineWidth = 3;
     context.beginPath();
     context.moveTo(px + 28, py + 14);
     context.quadraticCurveTo(px + 38, py + 7, px + 37, py + 2);
     context.stroke();
   }
 
+  private drawPower(context: CanvasRenderingContext2D, power: PowerUpState, now: number): void {
+    const { x: px, y: py, size } = this.cellRect(power.x, power.y);
+    const glowing = !this.prefersReducedMotion() && Math.floor(now / 650) % 2 === 1;
+    const image = this.spriteImage(glowing ? ITEM_SPRITES.power.glow : ITEM_SPRITES.power.normal);
+    if (this.isImageReady(image)) {
+      const renderSize = glowing ? 48 : 39;
+      context.drawImage(
+        image,
+        px + (size - renderSize) / 2,
+        py + (size - renderSize) / 2 - 3,
+        renderSize,
+        renderSize,
+      );
+    } else {
+      context.fillStyle = '#22d3ee';
+      context.strokeStyle = '#f5a5ff';
+      context.lineWidth = 3;
+      context.beginPath();
+      context.arc(px + size / 2, py + size / 2 - 3, 12, 0, Math.PI * 2);
+      context.fill();
+      context.stroke();
+    }
+  }
+
   private drawExplosion(context: CanvasRenderingContext2D, x: number, y: number): void {
     const { x: px, y: py, size } = this.cellRect(x, y);
-    context.fillStyle = '#ffe66d';
-    context.fillRect(px + 5, py + size * 0.35, size - 10, size * 0.3);
-    context.fillRect(px + size * 0.35, py + 5, size * 0.3, size - 10);
-    context.fillStyle = '#c63bc9';
-    context.fillRect(px + size * 0.35, py + size * 0.35, size * 0.3, size * 0.3);
+    const glow = context.createRadialGradient(px + 24, py + 24, 3, px + 24, py + 24, 23);
+    glow.addColorStop(0, '#ffffff');
+    glow.addColorStop(0.25, '#ffe66d');
+    glow.addColorStop(0.68, '#ff6b35');
+    glow.addColorStop(1, 'rgba(198, 59, 201, 0.15)');
+    context.fillStyle = glow;
+    context.fillRect(px + 3, py + size * 0.3, size - 6, size * 0.4);
+    context.fillRect(px + size * 0.3, py + 3, size * 0.4, size - 6);
   }
 }

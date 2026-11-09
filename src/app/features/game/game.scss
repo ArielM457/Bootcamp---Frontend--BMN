@@ -7,7 +7,14 @@
   min-height: 100vh;
   padding: 1rem clamp(0.8rem, 3vw, 2rem) 2rem;
   color: $white;
-  background: radial-gradient(circle at 50% 20%, #713477, $purple-dark 65%);
+  background:
+    linear-gradient(rgba($pink, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba($pink, 0.055) 1px, transparent 1px),
+    radial-gradient(circle at 50% 20%, $purple-soft, $purple-deep 65%);
+  background-size:
+    48px 48px,
+    48px 48px,
+    auto;
 }
 header {
   display: grid;
@@ -27,48 +34,185 @@ header a {
 }
 header h1 {
   margin: 0;
-  font:
-    900 clamp(1.1rem, 3vw, 1.6rem) 'Courier New',
-    monospace;
+  color: $pink-light;
+  font-family: 'Arial Black', 'Arial Bold', Arial, sans-serif;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  text-shadow:
+    0.04em 0.04em 0 $pink-shadow,
+    0.08em 0.08em 0 rgba($purple-deep, 0.9);
 }
-header > span {
+.match-status {
   justify-self: end;
   color: $pink;
   font:
-    900 1.1rem 'Courier New',
+    900 0.68rem 'Courier New',
     monospace;
+  letter-spacing: 0.12em;
+}
+.game-stage {
+  display: grid;
+  grid-template-columns: minmax(9rem, 11rem) minmax(0, 46rem);
+  justify-content: center;
+  align-items: center;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  max-width: 60rem;
+  margin: 1.25rem auto 0;
 }
 .hud {
-  display: flex;
-  justify-content: center;
-  gap: 0.7rem;
-  max-width: 40rem;
-  margin: 1rem auto;
+  display: grid;
+  gap: 0.65rem;
 }
-.hud div {
-  min-width: 6rem;
-  padding: 0.55rem 0.8rem;
-  border: 1px solid rgba($pink, 0.35);
-  border-radius: 0.8rem;
-  background: rgba($purple-dark, 0.7);
+.hud-title {
+  margin: 0 0 0.1rem;
+  color: rgba($white, 0.55);
+  font:
+    900 0.62rem 'Courier New',
+    monospace;
+  letter-spacing: 0.2em;
   text-align: center;
 }
-.hud small,
-.hud strong {
+.metric {
+  position: relative;
+  min-width: 0;
+  padding: 0.75rem 0.85rem 0.7rem 1rem;
+  overflow: hidden;
+  border: 1px solid rgba($pink, 0.45);
+  border-radius: 0.9rem;
+  background: linear-gradient(135deg, rgba($white, 0.1), transparent 58%), rgba($purple-dark, 0.84);
+  box-shadow:
+    inset 3px 0 0 $pink,
+    0 0.6rem 1.4rem rgba(#100313, 0.28);
+  animation: metric-enter 420ms both;
+}
+.metric:nth-of-type(3) {
+  animation-delay: 70ms;
+}
+.metric:nth-of-type(4) {
+  animation-delay: 140ms;
+}
+.metric:nth-of-type(5) {
+  animation-delay: 210ms;
+}
+.metric::after {
+  position: absolute;
+  top: -1.5rem;
+  right: -1.1rem;
+  width: 3.8rem;
+  height: 3.8rem;
+  border: 1px solid rgba($pink, 0.2);
+  border-radius: 50%;
+  content: '';
+}
+.metric small,
+.metric strong,
+.metric > span {
   display: block;
 }
-.hud small {
+.metric small {
+  display: flex;
+  align-items: center;
+  gap: 0.28rem;
   margin-bottom: 0.2rem;
   color: $pink;
   font:
     900 0.58rem 'Courier New',
     monospace;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.13em;
 }
-.hud strong {
+.metric-icon {
+  display: inline-grid;
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: 0 0 auto;
+  place-items: center;
+  color: $pink-light;
+  font-family: Arial, sans-serif;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+.metric-icon--image {
+  object-fit: contain;
+}
+.metric strong {
+  overflow: hidden;
+  font-family: 'Arial Black', 'Arial Bold', Arial, sans-serif;
+  font-size: clamp(1.25rem, 2vw, 1.65rem);
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.metric span {
+  margin-top: 0.18rem;
+  color: rgba($white, 0.52);
+  font-size: 0.62rem;
+}
+.metric--power {
+  --power-progress: 0%;
+  box-shadow:
+    inset 3px 0 0 $yellow,
+    0 0.6rem 1.4rem rgba(#100313, 0.28);
+}
+.metric--power small {
+  color: $yellow;
+}
+.metric--power strong {
+  font-size: 0.82rem;
+  white-space: normal;
+}
+.metric--power-active {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(135deg, rgba($white, 0.1), transparent 58%),
+    linear-gradient(rgba($purple-dark, 0.96), rgba($purple-dark, 0.96)) padding-box,
+    conic-gradient(
+        from -90deg,
+        $yellow 0 var(--power-progress),
+        rgba($white, 0.16) var(--power-progress) 100%
+      )
+      border-box;
+  animation: power-glow 1.6s ease-in-out infinite alternate;
+}
+.arena-column {
+  min-width: 0;
+}
+.timer {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.55rem;
+  width: fit-content;
+  min-width: 12rem;
+  margin: 0 auto 0.8rem;
+  padding: 0.45rem 1.2rem;
+  border: 1px solid rgba($pink, 0.55);
+  border-radius: 999px;
+  background: rgba($purple-dark, 0.82);
+  box-shadow: 0 0 1.4rem rgba($magenta, 0.28);
+}
+.timer small,
+.timer span {
+  color: $pink;
   font:
-    900 0.85rem 'Courier New',
+    900 0.56rem 'Courier New',
     monospace;
+  letter-spacing: 0.12em;
+}
+.timer strong {
+  min-width: 2.5ch;
+  color: $white;
+  font-family: 'Arial Black', 'Arial Bold', Arial, sans-serif;
+  font-size: 1.55rem;
+  line-height: 1;
+  text-align: center;
+}
+.timer-icon {
+  display: inline-block;
+  margin-right: 0.16rem;
+  color: $yellow;
+  font-size: 0.8rem;
 }
 .board-shell {
   position: relative;
@@ -77,10 +221,23 @@ header > span {
   padding: clamp(0.45rem, 1.2vw, 0.8rem);
   border: 0.3rem solid $pink;
   border-radius: 1.2rem;
-  background: #1a081f;
+  background: $purple-deep;
   box-shadow:
-    0.7rem 0.8rem 0 $magenta,
+    0.7rem 0.8rem 0 $pink-shadow,
     0 2rem 4rem rgba(#100313, 0.45);
+}
+@keyframes metric-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-0.8rem);
+  }
+}
+@keyframes power-glow {
+  to {
+    box-shadow:
+      inset 3px 0 0 $yellow,
+      0 0 1.3rem rgba($yellow, 0.32);
+  }
 }
 canvas {
   display: block;
@@ -133,7 +290,7 @@ canvas {
   border: 2px solid $pink;
   border-radius: 1rem;
   color: $white;
-  background: $magenta;
+  background: $magenta-action;
   font:
     900 0.75rem 'Courier New',
     monospace;
@@ -164,7 +321,7 @@ canvas {
   border: 2px solid $pink;
   border-radius: 1rem;
   color: $white;
-  background: $magenta;
+  background: $magenta-action;
   box-shadow: 0.25rem 0.25rem 0 $pink;
   cursor: pointer;
   font:
@@ -180,7 +337,7 @@ canvas {
   gap: 0.7rem;
   margin-bottom: 1.2rem;
 }
-.result-stats span {
+.result-stats > span {
   min-width: 5rem;
   padding: 0.6rem;
   border: 1px solid rgba($pink, 0.45);
@@ -192,11 +349,30 @@ canvas {
   display: block;
 }
 .result-stats small {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.32rem;
   margin-bottom: 0.2rem;
   color: $pink;
   font:
     900 0.55rem 'Courier New',
     monospace;
+}
+.result-stat-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: 0 0 auto;
+  color: $yellow;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+.result-stats > span:first-child .result-stat-icon {
+  fill: currentColor;
+  stroke-width: 1.2;
 }
 .result-actions {
   display: flex;
@@ -269,10 +445,12 @@ button:disabled {
   height: 6.5rem;
   border-radius: 50%;
 }
-.bomb-button span {
+.bomb-button img {
   display: block;
-  margin-bottom: 0.3rem;
-  font-size: 1.8rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: 0 auto 0.15rem;
+  object-fit: contain;
 }
 button:focus-visible,
 a:focus-visible {
@@ -283,13 +461,35 @@ a:focus-visible {
   .game-page {
     padding-inline: 0.45rem;
   }
-  .hud {
-    gap: 0.35rem;
+  header {
+    padding-inline: 0.35rem;
   }
-  .hud div {
-    min-width: 0;
-    flex: 1;
-    padding-inline: 0.3rem;
+  .match-status {
+    font-size: 0.54rem;
+  }
+  .game-stage {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+  .arena-column {
+    display: contents;
+  }
+  .timer {
+    grid-row: 1;
+    margin-bottom: 0;
+  }
+  .board-shell {
+    grid-row: 2;
+  }
+  .hud {
+    grid-row: 3;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .hud-title {
+    grid-column: 1 / -1;
+  }
+  .metric {
+    padding: 0.65rem 0.75rem 0.6rem 0.9rem;
   }
   .board-shell {
     border-width: 0.2rem;
@@ -300,5 +500,12 @@ a:focus-visible {
   }
   .controls p {
     max-width: 19rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .metric,
+  .metric--power-active,
+  .connection-loader {
+    animation: none;
   }
 }

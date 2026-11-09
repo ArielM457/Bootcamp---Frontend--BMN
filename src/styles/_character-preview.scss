@@ -1,0 +1,126 @@
+@use './tokens' as *;
+
+.character-stage .character-platform {
+  position: absolute;
+  z-index: 0;
+  width: 78%;
+  height: 5.4rem;
+  bottom: 2.5%;
+  border: 0.28rem solid $purple-dark;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 50% 35%, rgba($white, 0.48), transparent 45%),
+    conic-gradient(from 210deg, $pink-shadow, $pink-light, $lilac, $purple-soft, $pink-shadow);
+  box-shadow:
+    0 1.15rem 0 $purple,
+    0 1.45rem 0 $purple-dark,
+    0 2rem 2.2rem rgba($purple-dark, 0.32),
+    inset 0 0.35rem 0 rgba($white, 0.5);
+  transform: rotateX(68deg) translateZ(-1.5rem);
+  transform-style: preserve-3d;
+}
+
+.character-stage .character-platform span {
+  position: absolute;
+  inset: 16%;
+  border: 0.16rem solid rgba($white, 0.48);
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba($purple-deep, 0.22), transparent 68%);
+  box-shadow: inset 0 0 1.1rem rgba($purple-deep, 0.3);
+}
+
+.character-stage .character-shadow {
+  position: absolute;
+  z-index: 1;
+  width: 48%;
+  height: 8%;
+  bottom: 11%;
+  border-radius: 50%;
+  background: rgba($purple-deep, 0.42);
+  filter: blur(0.6rem);
+  transform: rotateX(68deg) translateZ(0.2rem);
+  animation: character-shadow 8s linear infinite;
+}
+
+@keyframes character-shadow {
+  0%,
+  50%,
+  100% {
+    opacity: 0.78;
+    scale: 1;
+  }
+  25%,
+  75% {
+    opacity: 0.55;
+    scale: 0.72 0.9;
+  }
+}
+
+@keyframes character-turntable {
+  0%,
+  12.49% {
+    background-position: 0 0;
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+
+  12.5%,
+  24.99% {
+    background-position: 33.333% 0;
+    -webkit-mask-position: 33.333% 0;
+    mask-position: 33.333% 0;
+  }
+
+  25%,
+  37.49% {
+    background-position: 66.667% 0;
+    -webkit-mask-position: 66.667% 0;
+    mask-position: 66.667% 0;
+  }
+
+  37.5%,
+  49.99% {
+    background-position: 100% 0;
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+
+  50%,
+  62.49% {
+    background-position: 0 100%;
+    -webkit-mask-position: 0 100%;
+    mask-position: 0 100%;
+  }
+
+  62.5%,
+  74.99% {
+    background-position: 33.333% 100%;
+    -webkit-mask-position: 33.333% 100%;
+    mask-position: 33.333% 100%;
+  }
+
+  75%,
+  87.49% {
+    background-position: 66.667% 100%;
+    -webkit-mask-position: 66.667% 100%;
+    mask-position: 66.667% 100%;
+  }
+
+  87.5%,
+  100% {
+    background-position: 100% 100%;
+    -webkit-mask-position: 100% 100%;
+    mask-position: 100% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .character-stage .character-shadow {
+    animation: none;
+  }
+
+  .character-stage .character-sprite,
+  .character-stage .character-sprite::after {
+    animation: none;
+  }
+}

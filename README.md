@@ -18,6 +18,8 @@ npm start
 
 Abre `http://localhost:4200`.
 
+La aplicación arranca en modo `demo`, con adaptadores locales. El modo `api` (`npx ng serve --configuration api`) existe, pero falla al iniciar hasta que haya adaptadores HTTP y SignalR. Lee `specs/architecture/decisions/0002-adapter-selection.md`.
+
 ## **Validación**
 
 ```bash
@@ -53,11 +55,13 @@ Pendiente:
 - Validación táctil en un dispositivo real.
 
 ## Cambios
+
 - Rediseño de la pantalla de bienvenida según referencia visual (specs/features/welcome)
 - Selección de adaptadores mock/api por configuración (ADR 0002)
 - Revisión de accesibilidad en todas las pantallas (specs/features/quality)
 
 ## Validación
+
 npm run validate en verde.
 
 ## **Documentación**

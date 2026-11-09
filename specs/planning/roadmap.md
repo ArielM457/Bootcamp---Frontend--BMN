@@ -36,6 +36,6 @@ Objetivo: cerrar partidas y mostrar progreso. Funciones: victoria, derrota, punt
 
 ## **Fase 6 · Calidad y entrega**
 
-Estado: accesibilidad base, prueba de flujo y guía de integración implementadas el 18 de octubre de 2026. Revisión manual final y backend real pendientes.
+Estado: accesibilidad base, prueba de flujo y guía de integración implementadas el 18 de octubre de 2026. Selección de adaptadores por modo `demo` o `api` implementada el 22 de octubre de 2026 (ADR 0002). Revisión manual final y backend real pendientes.
 
 Objetivo: preparar uso por estudiantes. Funciones: pruebas de flujo, accesibilidad, rendimiento, documentación y guía de integración. Dependencias: Fases 1 a 5. Entregables: versión validada y guía. Aceptación: criterios de funciones aprobadas pasan; guía permite conectar backend sin cambiar componentes. Riesgo: diferencias entre implementaciones backend. Esfuerzo: M. Orden: auditoría → correcciones → pruebas completas → documentación.

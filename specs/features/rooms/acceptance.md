@@ -1,10 +1,17 @@
 # **Aceptación ROOM-01**
 
 - El listado muestra estado y plazas reales o señaladas como demostración.
+- Si el jugador pertenece a una sala, el listado ofrece Volver a la sala y su tarjeta permite entrar o salir.
 - Crear una sala válida devuelve su detalle; datos inválidos muestran el campo a corregir.
+- Partida local y Crear sala crean la sala, unen al creador y abren directamente la sala de espera.
+- La creación permite elegir una pista abierta o una fortaleza y la partida aplica su densidad de obstáculos.
+- El anfitrión puede abrir Configurar sala, guardar los cambios y volver a la misma sala sin perder participantes.
 - Unirse agrega al jugador confirmado sin duplicarlo.
 - Una sala llena rechaza la entrada y conserva la pantalla estable.
 - El anfitrión puede iniciar solo cuando se cumplen reglas aprobadas.
-- El anfitrión puede añadir un bot cuando existe una plaza libre.
-- El bot aparece identificado, no se duplica y cuenta para iniciar la partida.
+- Con un solo participante, el botón principal muestra Esperando jugadores y permanece deshabilitado.
+- Desde 2 participantes, el botón muestra Iniciar partida y queda habilitado para el anfitrión.
+- El anfitrión puede añadir varios bots hasta llenar las plazas disponibles.
+- Cada bot aparece identificado por separado y cuenta para iniciar la partida.
 - Un bot no puede convertirse en anfitrión ni conservar una sala sin jugadores humanos.
+- La sala de espera presenta, en orden, el nombre, la cantidad de participantes y las tarjetas de jugadores.
