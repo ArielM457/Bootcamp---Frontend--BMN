@@ -1,5 +1,9 @@
 # **Diseño ROOM-01**
 
-`RoomFacade` usa `RoomRepository`. El repositorio local consulta, crea, configura, une, añade bots, permite salir, inicia una partida y devuelve una partida terminada al estado de espera. `RoomParticipant` distingue jugadores humanos y bots sin cambiar el modelo global de autenticación. Cada bot recibe un identificador y nombre distintos. `Room` conserva `mode` y `arenaId` para mantener el tipo de sala y usar la pista abierta o la fortaleza al iniciar. La futura integración usará HTTP y `RoomRealtimePort` para actualizar participantes. La sala de espera muestra primero el nombre, luego la cantidad y después las tarjetas. Configurar, añadir bots e iniciar son acciones exclusivas del anfitrión. El formulario de configuración se abre en `/menu?configurarSala=:roomId`, actualiza la sala por medio de la facade y regresa a `/salas/:roomId`. El inicio se habilita con al menos 2 participantes. Los componentes solo leen Signals y llaman a la facade.
+`HttpRoomRepository` conecta el listado, consulta, creación, unión e inicio de salas. `RoomFacade` expone el estado mediante Signals y los componentes no llaman directamente a HTTP.
 
-La lista y la sala de espera usan el fondo cuadriculado, el degradado morado, las tarjetas de cristal y los acentos rosas del inicio. La cabecera del listado recupera la sala activa. Su tarjeta separa Volver a la sala de Salir de la sala para evitar una salida accidental. El cambio visual no modifica los estados de carga, error, sala vacía ni los permisos del anfitrión.
+El modelo contiene únicamente los datos entregados por el backend: identificador, nombre, estado, capacidad y participantes. No contiene anfitrión, pista, modo, bots ni tipo de participante.
+
+La sala de espera habilita el inicio cuando el jugador autenticado pertenece a la sala y existen al menos dos participantes. El jugador que inicia recibe el `gameId` y navega a la partida.
+
+El backend no ofrece configuración, abandono, sala actual, retorno a espera ni una notificación de inicio que entregue el `gameId` al resto de participantes. Esas acciones no tienen reemplazo local.

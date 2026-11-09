@@ -1,13 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { AUTH_REPOSITORY } from './auth.repository';
-import {
-  AuthError,
-  AuthSession,
-  AuthStatus,
-  LoginRequest,
-  RegisterRequest,
-  UpdateProfileRequest,
-} from './auth.models';
+import { AuthError, AuthSession, AuthStatus, LoginRequest, RegisterRequest } from './auth.models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthFacade {
@@ -38,21 +31,6 @@ export class AuthFacade {
 
   async register(request: RegisterRequest): Promise<boolean> {
     return this.authenticate(() => this.repository.register(request));
-  }
-
-  async updateProfile(request: UpdateProfileRequest): Promise<boolean> {
-    this.statusState.set('loading');
-    this.errorState.set(null);
-    try {
-      const session = await this.repository.updateProfile(request);
-      this.sessionState.set(session);
-      this.statusState.set('authenticated');
-      return true;
-    } catch (error: unknown) {
-      this.statusState.set('error');
-      this.errorState.set(this.messageFor(error));
-      return false;
-    }
   }
 
   async logout(): Promise<void> {

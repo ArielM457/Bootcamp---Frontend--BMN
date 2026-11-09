@@ -8,12 +8,6 @@ export interface Player {
 
 export type PlayerAvatarId = 'azure' | 'violet' | 'coral';
 
-export interface UpdateProfileRequest {
-  fullName: string;
-  nickname: string;
-  avatarId: PlayerAvatarId;
-}
-
 export interface RegisterRequest {
   displayName: string;
   email: string;

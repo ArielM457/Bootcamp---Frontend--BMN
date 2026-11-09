@@ -9,55 +9,18 @@
     <div class="game-stage">
       <section class="hud" aria-label="Estado del jugador">
         <p class="hud-title">ESTADO</p>
-        <div class="metric metric--lives">
-          <small><span class="metric-icon" aria-hidden="true">♥</span> VIDAS</small
-          ><strong>{{ game.player()?.lives ?? 0 }}</strong>
-          <span>restantes</span>
-        </div>
         <div class="metric metric--rivals">
           <small><span class="metric-icon" aria-hidden="true">⚔</span> RIVALES</small
           ><strong>{{ game.activeOpponents() }}</strong>
           <span>en juego</span>
         </div>
-        <div class="metric metric--bombs">
-          <small
-            ><img
-              class="metric-icon metric-icon--image"
-              src="/game-assets/items/bomb-normal.png"
-              alt=""
-            />
-            BOMBAS</small
-          ><strong>{{ snapshot.bombs.length }}</strong>
-          <span>activas</span>
-        </div>
-        <div
-          class="metric metric--power"
-          [class.metric--power-active]="game.player()?.powerUpName"
-          [style.--power-progress]="game.powerUpProgress() + '%'"
-        >
-          <small
-            ><img
-              class="metric-icon metric-icon--image"
-              src="/game-assets/items/power-normal.png"
-              alt=""
-            />
-            PODER</small
-          ><strong>{{ game.powerUpName() }}</strong>
-          <span>
-            {{
-              game.player()?.powerUpName
-                ? game.powerUpRemainingSeconds() + ' s restantes'
-                : 'busca una mejora'
-            }}
-          </span>
-        </div>
       </section>
 
       <div class="arena-column">
-        <div class="timer" role="timer" aria-label="Tiempo restante">
-          <small><span class="timer-icon" aria-hidden="true">◷</span> TIEMPO</small>
-          <strong>{{ snapshot.remainingSeconds }}</strong>
-          <span>SEGUNDOS</span>
+        <div class="timer" role="status" aria-label="Estado de la partida">
+          <small><span class="timer-icon" aria-hidden="true">●</span> SERVIDOR</small>
+          <strong>EN LÍNEA</strong>
+          <span>TIEMPO REAL</span>
         </div>
 
         <section class="board-shell">
@@ -86,48 +49,10 @@
           @if (game.finished()) {
             <div class="result-card" role="status">
               <p>PARTIDA TERMINADA</p>
-              <h2>{{ game.won() ? '¡Ganaste!' : 'Inténtalo de nuevo' }}</h2>
-              @if (scores.resultFor(snapshot.gameId); as result) {
-                <div class="result-stats">
-                  <span>
-                    <small>
-                      <svg class="result-stat-icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path
-                          d="m12 3 2.7 5.47 6.03.88-4.36 4.25 1.03 6-5.4-2.84L6.6 19.6l1.03-6-4.36-4.25 6.03-.88L12 3Z"
-                        />
-                      </svg>
-                      PUNTOS
-                    </small>
-                    <strong>+{{ result.earnedPoints }}</strong>
-                  </span>
-                  <span>
-                    <small>
-                      <svg class="result-stat-icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path
-                          d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"
-                        />
-                      </svg>
-                      VIDAS
-                    </small>
-                    <strong>{{ result.remainingLives }}</strong>
-                  </span>
-                  <span>
-                    <small>
-                      <svg class="result-stat-icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <circle cx="12" cy="12" r="9" />
-                        <path d="M12 7v5l3 2" />
-                      </svg>
-                      TIEMPO
-                    </small>
-                    <strong>{{ result.remainingSeconds }} s</strong>
-                  </span>
-                </div>
-              } @else if (scores.error()) {
-                <p class="result-error" role="alert">{{ scores.error() }}</p>
-              }
+              <h2>La partida finalizó</h2>
+              <p class="result-error">El backend todavía no ofrece puntuaciones de partida.</p>
               <div class="result-actions">
-                <button type="button" (click)="returnToRoom()">Volver a la sala</button>
-                <button type="button" (click)="restart()">Jugar otra vez</button>
+                <button type="button" (click)="returnToMenu()">Volver al menú</button>
                 <a routerLink="/ranking">Ver ranking</a>
               </div>
             </div>
@@ -179,16 +104,10 @@
           ▶
         </button>
       </div>
-      <button
-        class="bomb-button"
-        data-game-control
-        type="button"
-        [disabled]="!game.controlsEnabled()"
-        (click)="bomb()"
-      >
-        <img src="/game-assets/items/bomb-normal.png" alt="" /> Bomba
+      <button class="bomb-button" data-game-control type="button" disabled>
+        <img src="/game-assets/items/bomb-normal.png" alt="" /> Sin backend
       </button>
-      <p>Flechas o WASD para moverte · Espacio para colocar una bomba</p>
+      <p>Flechas o WASD para moverte</p>
       @if (game.rejection(); as rejection) {
         <p class="command-message" role="status">{{ rejection.message }}</p>
       }

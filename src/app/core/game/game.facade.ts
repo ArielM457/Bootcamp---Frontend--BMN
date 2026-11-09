@@ -31,24 +31,13 @@ export class GameFacade {
   );
   readonly activeOpponents = computed(() => {
     const playerId = this.auth.player()?.id;
-    return (
-      this.snapshotState()?.players.filter((item) => item.playerId !== playerId && item.alive)
-        .length ?? 0
-    );
+    return this.snapshotState()?.players.filter((item) => item.playerId !== playerId).length ?? 0;
   });
-  readonly powerUpName = computed(() => this.player()?.powerUpName?.trim() || 'Sin poder');
-  readonly powerUpRemainingSeconds = computed(() =>
-    Math.max(0, this.player()?.powerUpRemainingSeconds ?? 0),
-  );
-  readonly powerUpProgress = computed(() =>
-    Math.min(100, (this.powerUpRemainingSeconds() / 8) * 100),
-  );
   readonly finished = computed(() => this.snapshotState()?.phase === 'finished');
-  readonly won = computed(() => this.snapshotState()?.winnerPlayerId === this.auth.player()?.id);
 
-  start(arenaId: 'open' | 'fortress' = 'open'): void {
+  start(gameId: string): void {
     const player = this.auth.player();
-    if (!player) return;
+    if (!player || !gameId) return;
     this.subscriptions.unsubscribe();
     this.subscriptions = new Subscription();
     this.subscriptions.add(
@@ -60,15 +49,12 @@ export class GameFacade {
     this.subscriptions.add(
       this.port.rejections$.subscribe((rejection) => this.rejectionState.set(rejection)),
     );
-    this.port.start(player.id, {
-      arenaId,
-      playerColor: this.avatarColor(player.avatarId),
-    });
+    this.port.start(gameId);
   }
 
   send(command: GameCommand): void {
     if (this.connectionState() !== 'connected') return;
-    if (command.type === 'restart' || this.snapshotState()?.phase === 'running') {
+    if (this.snapshotState()?.phase === 'running') {
       this.rejectionState.set(null);
       this.port.send(command, this.commandId());
     }
@@ -96,11 +82,5 @@ export class GameFacade {
     return (
       globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`
     );
-  }
-
-  private avatarColor(avatarId: string | undefined): string {
-    if (avatarId === 'violet') return '#8d6bff';
-    if (avatarId === 'coral') return '#ff6f91';
-    return '#2f8cff';
   }
 }

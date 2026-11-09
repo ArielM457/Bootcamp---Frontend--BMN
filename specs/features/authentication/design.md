@@ -1,5 +1,7 @@
 # **Diseño AUTH-01**
 
-Pantallas standalone de registro y login con formularios reactivos y controles accesibles adaptados al estilo visual del juego. `AuthFacade` expone sesión y estado de carga mediante Signals. `AuthRepository` tiene un adaptador local y tendrá un adaptador HTTP cuando el backend esté validado. Un guard lee la facade. Un interceptor añadirá el token solo a la API acordada. Las contraseñas no se guardan ni se registran en logs. La interfaz informa que los datos se guardan solo en el navegador.
+`HttpAuthRepository` usa `POST /api/auth/register`, `POST /api/auth/login` y `GET /api/auth/me`. `AuthFacade` expone la sesión y el estado de carga mediante Signals. El guard protege las rutas privadas.
 
-Las tarjetas usan el degradado, el cristal oscuro, los bordes rosas y el relieve visual definidos en la pantalla de inicio. Los formularios conservan foco visible, etiquetas y mensajes de error legibles.
+El JWT se conserva en `AuthSessionStore` y se envía únicamente a las operaciones reales del backend. SignalR obtiene el mismo token mediante `accessTokenFactory`. Las contraseñas no se guardan ni se registran en logs.
+
+El backend no ofrece consulta ni actualización del perfil completo. El formulario permanece deshabilitado y no guarda datos locales.

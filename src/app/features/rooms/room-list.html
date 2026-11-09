@@ -14,7 +14,7 @@
     </div>
   </header>
 
-  <p class="local-note">Estas partidas funcionan solo en este navegador.</p>
+  <p class="local-note">Las salas y los jugadores se cargan desde el servidor.</p>
 
   @if (showCreate()) {
     <section class="create-room" aria-labelledby="create-title">
@@ -84,9 +84,6 @@
           @if (isMember(room)) {
             <div class="room-card__actions">
               <button type="button" (click)="join(room)">Volver a la sala</button>
-              <button class="leave-room-card" type="button" (click)="leave(room)">
-                Salir de la sala
-              </button>
             </div>
           } @else {
             <button

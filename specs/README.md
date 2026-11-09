@@ -9,7 +9,7 @@ Este directorio es la fuente de verdad del proyecto. Cada función sigue requisi
 - `lobby`: menú del jugador.
 - `rooms`: salas, participantes y bot inmóvil.
 - `gameplay`: partida Canvas local.
-- `realtime`: recuperación simulada mediante snapshots.
+- `realtime`: conexión SignalR, eventos y reconexión a la partida.
 - `leaderboard`: resultado y ranking durante la sesión.
 - `quality`: accesibilidad, pruebas de flujo y documentación.
 

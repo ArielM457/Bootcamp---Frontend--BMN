@@ -1,10 +1,10 @@
 # **Tareas GAME-01**
 
-1. Completado: tablero 13 × 11, 3 vidas, bombas de 1.5 segundos, alcance 2 y partida de 120 segundos.
-2. Completado: definir modelos y snapshots tipados.
-3. Completado: crear renderer Canvas por capas y comprobar posiciones.
-4. Completado: crear controlador de entrada y facade.
-5. Parcial: simulador local conectado. Eventos del servidor pendientes.
-6. Parcial: teclado, movimiento, bombas, explosiones y versiones pasan pruebas automatizadas. Falta revisión visual y prueba táctil en navegador.
-7. Completado: regresar a la sala de espera desde el resultado sin perder participantes.
-8. Completado: reorganizar el HUD con métricas verticales, temporizador sobre el tablero y estado de poder.
+1. Completado: conectar `SignalRGameAdapter` con JWT.
+2. Completado: ejecutar `JoinGame` y recibir `GameStateUpdated`.
+3. Completado: enviar movimientos con `MovePlayer`.
+4. Completado: renderizar mapa y posiciones confirmadas en Canvas.
+5. Completado: reconectar y volver a unirse a la partida.
+6. Completado: retirar simulador, bombas, resultados y datos no ofrecidos por el backend.
+7. Completado: comprobar dos jugadores en una sala y aislamiento entre salas.
+8. Pendiente de backend: avisar el inicio y entregar el `gameId` a los demás participantes.

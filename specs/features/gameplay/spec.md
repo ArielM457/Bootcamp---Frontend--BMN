@@ -1,5 +1,16 @@
 # **GAME-01 · Partida y tablero**
 
-Estado: aprobado para implementación local el 18 de octubre de 2026. Como jugador quiero moverme, colocar bombas y ver el resultado de mis acciones en un tablero 2D.
+Estado: integrado con el backend de las sesiones 05 a 08.
 
-Requisitos: tablero local de 13 × 11, 3 vidas, 120 segundos, bombas con espera de 1.5 segundos y alcance de 2 celdas. Las paredes detienen la explosión y no se destruyen. Las cajas se destruyen y detienen el alcance. Entrada por teclado y controles visibles. Canvas dibuja `GameSnapshot`; el simulador local confirma colisiones, daño y ganador. El HUD muestra a la izquierda vidas, rivales activos, bombas activas y el poder equipado; el temporizador aparece centrado sobre el tablero. El servidor será la autoridad al conectar multijugador. Contratos: modelos del juego, partida HTTP y comandos/eventos SignalR. Errores: comando rechazado, evento fuera de orden, desconexión y estado incompleto. Depende de ROOM-01.
+Como jugador autenticado quiero entrar a una partida y moverme en el tablero con el estado confirmado por el servidor.
+
+Requisitos actuales:
+
+- Recibir mapa y posiciones mediante `GameStateUpdated`.
+- Enviar únicamente direcciones válidas mediante `MovePlayer`.
+- Mostrar solo movimientos aceptados por el servidor.
+- Mantener los eventos aislados por sala.
+- Volver a unirse a la partida después de una reconexión.
+- No simular vidas, bombas, explosiones, tiempo, ganador ni puntuación.
+
+Depende de AUTH-01, ROOM-01 y el contrato de SignalR.

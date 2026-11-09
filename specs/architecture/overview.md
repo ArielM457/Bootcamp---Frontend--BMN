@@ -1,7 +1,7 @@
 # **Vista general**
 
-El navegador muestra el shell, las pantallas de cada función y el tablero Canvas. Los servicios de aplicación coordinan estado local y repositorios. Los adaptadores HTTP y SignalR hablan con el backend. Un conjunto de adaptadores simulados permitirá demostración sin servidor.
+El navegador muestra el shell, las pantallas de cada función y el tablero Canvas. Los servicios de aplicación coordinan el estado de presentación y los repositorios. Los adaptadores HTTP y SignalR hablan con el backend. No existe un modo simulado ni datos de demostración.
 
-El backend .NET 10 será autoridad de colisiones, estado compartido, resultados y puntuación. El frontend enviará intención y renderizará confirmaciones. El modo demostración ejecutará reglas locales explícitamente separadas y nunca se presentará como partida en línea.
+El backend .NET 10 es la autoridad de autenticación, salas, colisiones, mapa y posiciones. El frontend envía intenciones de movimiento y renderiza el estado confirmado. Resultados, puntuación, perfil completo, bombas y otros datos no se muestran como disponibles porque el backend actual no los ofrece.
 
 Consulta [frontend-architecture.md](frontend-architecture.md), [data-flow.md](data-flow.md) y los [contratos](../contracts/).

@@ -1,11 +1,10 @@
 import { InjectionToken } from '@angular/core';
-import { AuthSession, LoginRequest, RegisterRequest, UpdateProfileRequest } from './auth.models';
+import { AuthSession, LoginRequest, RegisterRequest } from './auth.models';
 
 export interface AuthRepository {
   register(request: RegisterRequest): Promise<AuthSession>;
   login(request: LoginRequest): Promise<AuthSession>;
   restoreSession(): Promise<AuthSession | null>;
-  updateProfile(request: UpdateProfileRequest): Promise<AuthSession>;
   logout(): Promise<void>;
 }
 

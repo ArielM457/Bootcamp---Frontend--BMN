@@ -20,7 +20,6 @@ export class GameInputController {
       d: { type: 'move', direction: 'right' },
     };
     if (directions[key]) return directions[key];
-    if ((key === ' ' || key === 'enter') && !event.repeat) return { type: 'place-bomb' };
     return null;
   }
 

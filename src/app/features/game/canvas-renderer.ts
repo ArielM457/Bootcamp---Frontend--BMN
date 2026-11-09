@@ -1,11 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  BombState,
-  Direction,
-  GameSnapshot,
-  PlayerState,
-  PowerUpState,
-} from '../../core/game/game.models';
+import { Direction, GameSnapshot, PlayerState } from '../../core/game/game.models';
 
 interface PlayerSprites {
   idle: string;
@@ -52,21 +46,6 @@ export const PLAYER_SPRITES: Record<Direction, PlayerSprites> = {
     ],
   },
 };
-
-export const ITEM_SPRITES = {
-  classicBomb: {
-    normal: '/game-assets/items/bomb-normal.png',
-    glow: '/game-assets/items/bomb-glow.png',
-  },
-  spaceBomb: {
-    normal: '/game-assets/items/space-bomb-normal.png',
-    glow: '/game-assets/items/space-bomb-glow.png',
-  },
-  power: {
-    normal: '/game-assets/items/power-normal.png',
-    glow: '/game-assets/items/power-glow.png',
-  },
-} as const;
 
 @Injectable({ providedIn: 'root' })
 export class CanvasRenderer {
@@ -158,14 +137,7 @@ export class CanvasRenderer {
 
     context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     for (const cell of this.snapshot.cells) this.drawCell(context, cell.x, cell.y, cell.kind);
-    for (const power of this.snapshot.powerUps ?? []) this.drawPower(context, power, now);
-    for (const bomb of this.snapshot.bombs) this.drawBomb(context, bomb, now);
-    for (const explosion of this.snapshot.explosions) {
-      for (const cell of explosion.cells) this.drawExplosion(context, cell.x, cell.y);
-    }
-    for (const player of this.snapshot.players) {
-      if (player.alive) this.drawPlayer(context, player, now);
-    }
+    for (const player of this.snapshot.players) this.drawPlayer(context, player, now);
   }
 
   private drawCell(context: CanvasRenderingContext2D, x: number, y: number, kind: string): void {
@@ -304,7 +276,8 @@ export class CanvasRenderer {
     const py = position.y * this.cellSize;
 
     context.save();
-    context.fillStyle = player.color;
+    const playerColor = this.playerColor(player.playerId);
+    context.fillStyle = playerColor;
     context.globalAlpha = 0.55;
     context.beginPath();
     context.ellipse(px + 24, py + this.cellSize + 9, 18, 5, 0, 0, Math.PI * 2);
@@ -325,7 +298,7 @@ export class CanvasRenderer {
       return;
     }
 
-    this.drawPlayerFallback(context, px, py, player.color);
+    this.drawPlayerFallback(context, px, py, playerColor);
   }
 
   private drawPlayerFallback(
@@ -360,10 +333,6 @@ export class CanvasRenderer {
       this.spriteImage(sprites.idle);
       for (const path of sprites.walking) this.spriteImage(path);
     }
-    for (const sprites of Object.values(ITEM_SPRITES)) {
-      this.spriteImage(sprites.normal);
-      this.spriteImage(sprites.glow);
-    }
   }
 
   private isImageReady(image: HTMLImageElement | null): image is HTMLImageElement {
@@ -389,7 +358,7 @@ export class CanvasRenderer {
   private scheduleAnimation(): void {
     if (
       this.animationFrame !== null ||
-      (!this.hasMovingPlayers() && !this.hasAnimatedItems()) ||
+      !this.hasMovingPlayers() ||
       typeof requestAnimationFrame !== 'function'
     ) {
       return;
@@ -416,81 +385,10 @@ export class CanvasRenderer {
     return [...this.playerVisuals.values()].some((visual) => visual.moving);
   }
 
-  private hasAnimatedItems(): boolean {
-    return Boolean(this.snapshot?.bombs.length || this.snapshot?.powerUps?.length);
-  }
-
-  private drawBomb(context: CanvasRenderingContext2D, bomb: BombState, now: number): void {
-    const { x: px, y: py, size } = this.cellRect(bomb.x, bomb.y);
-    const remaining = Date.parse(bomb.detonatesAtUtc) - Date.now();
-    const charged = remaining <= 550 && !this.prefersReducedMotion();
-    const sprites = bomb.kind === 'space' ? ITEM_SPRITES.spaceBomb : ITEM_SPRITES.classicBomb;
-    const image = this.spriteImage(charged ? sprites.glow : sprites.normal);
-    if (this.isImageReady(image)) {
-      const pulse = charged ? 1 + Math.sin(now / 70) * 0.04 : 1;
-      const renderSize = (charged ? 54 : 44) * pulse;
-      context.drawImage(
-        image,
-        px + (size - renderSize) / 2,
-        py + (size - renderSize) / 2,
-        renderSize,
-        renderSize,
-      );
-      return;
-    }
-
-    const gradient = context.createRadialGradient(px + 19, py + 18, 2, px + 24, py + 27, 17);
-    gradient.addColorStop(0, '#62536b');
-    gradient.addColorStop(0.35, '#24172c');
-    gradient.addColorStop(1, '#09060c');
-    context.fillStyle = gradient;
-    context.strokeStyle = '#ffffff';
-    context.lineWidth = 2;
-    context.beginPath();
-    context.arc(px + size / 2, py + size / 2 + 3, size * 0.28, 0, Math.PI * 2);
-    context.fill();
-    context.stroke();
-    context.strokeStyle = '#ffe66d';
-    context.lineWidth = 3;
-    context.beginPath();
-    context.moveTo(px + 28, py + 14);
-    context.quadraticCurveTo(px + 38, py + 7, px + 37, py + 2);
-    context.stroke();
-  }
-
-  private drawPower(context: CanvasRenderingContext2D, power: PowerUpState, now: number): void {
-    const { x: px, y: py, size } = this.cellRect(power.x, power.y);
-    const glowing = !this.prefersReducedMotion() && Math.floor(now / 650) % 2 === 1;
-    const image = this.spriteImage(glowing ? ITEM_SPRITES.power.glow : ITEM_SPRITES.power.normal);
-    if (this.isImageReady(image)) {
-      const renderSize = glowing ? 48 : 39;
-      context.drawImage(
-        image,
-        px + (size - renderSize) / 2,
-        py + (size - renderSize) / 2 - 3,
-        renderSize,
-        renderSize,
-      );
-    } else {
-      context.fillStyle = '#22d3ee';
-      context.strokeStyle = '#f5a5ff';
-      context.lineWidth = 3;
-      context.beginPath();
-      context.arc(px + size / 2, py + size / 2 - 3, 12, 0, Math.PI * 2);
-      context.fill();
-      context.stroke();
-    }
-  }
-
-  private drawExplosion(context: CanvasRenderingContext2D, x: number, y: number): void {
-    const { x: px, y: py, size } = this.cellRect(x, y);
-    const glow = context.createRadialGradient(px + 24, py + 24, 3, px + 24, py + 24, 23);
-    glow.addColorStop(0, '#ffffff');
-    glow.addColorStop(0.25, '#ffe66d');
-    glow.addColorStop(0.68, '#ff6b35');
-    glow.addColorStop(1, 'rgba(198, 59, 201, 0.15)');
-    context.fillStyle = glow;
-    context.fillRect(px + 3, py + size * 0.3, size - 6, size * 0.4);
-    context.fillRect(px + size * 0.3, py + 3, size * 0.4, size - 6);
+  private playerColor(playerId: string): string {
+    const colors = ['#2f8cff', '#8d6bff', '#ff6f91', '#22d3ee'];
+    let value = 0;
+    for (const character of playerId) value += character.charCodeAt(0);
+    return colors[value % colors.length];
   }
 }

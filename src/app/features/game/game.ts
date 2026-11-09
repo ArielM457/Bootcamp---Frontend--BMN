@@ -14,8 +14,6 @@ import { Direction } from '../../core/game/game.models';
 import { GameFacade } from '../../core/game/game.facade';
 import { GameInputController } from '../../core/game/game-input.controller';
 import { CanvasRenderer } from './canvas-renderer';
-import { ScoreFacade } from '../../core/score/score.facade';
-import { RoomFacade } from '../../core/rooms/room.facade';
 
 @Component({
   selector: 'app-game',
@@ -26,8 +24,6 @@ import { RoomFacade } from '../../core/rooms/room.facade';
 export class Game implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('board') private board?: ElementRef<HTMLCanvasElement>;
   readonly game = inject(GameFacade);
-  readonly scores = inject(ScoreFacade);
-  readonly rooms = inject(RoomFacade);
   private readonly input = inject(GameInputController);
   private readonly renderer = inject(CanvasRenderer);
   private readonly route = inject(ActivatedRoute);
@@ -39,14 +35,13 @@ export class Game implements OnInit, AfterViewInit, OnDestroy {
       const snapshot = this.game.snapshot();
       if (snapshot) {
         if (this.viewReady) this.renderer.render(this.board!.nativeElement, snapshot);
-        if (snapshot.phase === 'finished') void this.scores.record(snapshot);
       }
     });
   }
 
   ngOnInit(): void {
-    const arena = this.route.snapshot.queryParamMap.get('arena');
-    this.game.start(arena === 'fortress' ? 'fortress' : 'open');
+    const gameId = this.route.snapshot.queryParamMap.get('gameId') ?? '';
+    this.game.start(gameId);
   }
   ngAfterViewInit(): void {
     this.viewReady = true;
@@ -69,15 +64,8 @@ export class Game implements OnInit, AfterViewInit, OnDestroy {
   move(direction: Direction): void {
     this.game.send({ type: 'move', direction });
   }
-  bomb(): void {
-    this.game.send({ type: 'place-bomb' });
-  }
-  restart(): void {
-    this.game.send({ type: 'restart' });
-  }
 
-  async returnToRoom(): Promise<void> {
-    const room = await this.rooms.returnToWaiting();
-    await this.router.navigate(room ? ['/salas', room.id] : ['/menu']);
+  async returnToMenu(): Promise<void> {
+    await this.router.navigate(['/menu']);
   }
 }

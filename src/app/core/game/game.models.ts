@@ -4,11 +4,6 @@ export type Direction = 'up' | 'down' | 'left' | 'right';
 export type GameConnectionState =
   'disconnected' | 'connecting' | 'connected' | 'reconnecting' | 'failed';
 
-export interface GameStartOptions {
-  arenaId?: 'open' | 'fortress';
-  playerColor?: string;
-}
-
 export interface GameCommandRejection {
   commandId: string;
   message: string;
@@ -23,32 +18,6 @@ export interface PlayerState {
   playerId: string;
   x: number;
   y: number;
-  lives: number;
-  alive: boolean;
-  color: string;
-  powerUpName?: string | null;
-  powerUpRemainingSeconds?: number;
-}
-export interface BombState {
-  id: string;
-  ownerId: string;
-  x: number;
-  y: number;
-  placedAtUtc: string;
-  detonatesAtUtc: string;
-  range: number;
-  kind?: 'classic' | 'space';
-}
-export interface PowerUpState {
-  id: string;
-  x: number;
-  y: number;
-  kind: 'energy';
-}
-export interface ExplosionState {
-  id: string;
-  cells: Cell[];
-  endsAtUtc: string;
 }
 export interface GameSnapshot {
   gameId: string;
@@ -58,12 +27,6 @@ export interface GameSnapshot {
   height: number;
   cells: Cell[];
   players: PlayerState[];
-  bombs: BombState[];
-  powerUps?: PowerUpState[];
-  explosions: ExplosionState[];
-  remainingSeconds: number;
-  winnerPlayerId?: string | null;
 }
 
-export type GameCommand =
-  { type: 'move'; direction: Direction } | { type: 'place-bomb' } | { type: 'restart' };
+export type GameCommand = { type: 'move'; direction: Direction };

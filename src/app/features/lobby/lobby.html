@@ -37,7 +37,7 @@
 
       <section class="detail-view" [attr.aria-hidden]="view() === 'main'">
         @if (view() === 'profile') {
-          <form class="detail-form" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+          <form class="detail-form" [formGroup]="profileForm">
             <button class="back-button" type="button" (click)="backToMenu()">← Volver atrás</button>
             <p class="section-label">MI PERFIL</p>
             <h2>Tu jugador</h2>
@@ -92,59 +92,29 @@
               <button class="secondary-action" type="button" (click)="backToMenu()">
                 Cancelar
               </button>
-              <button class="primary-action" type="submit" [disabled]="auth.isLoading()">
-                {{ auth.isLoading() ? 'Guardando…' : 'Guardar' }}
+              <button class="primary-action" type="button" disabled>
+                Perfil pendiente en backend
               </button>
             </div>
           </form>
         } @else if (view() === 'create') {
           <form class="detail-form" [formGroup]="roomForm" (ngSubmit)="saveRoom()">
             <button class="back-button" type="button" (click)="cancelRoomConfiguration()">
-              ← {{ isEditingRoom() ? 'Volver a la sala' : 'Volver atrás' }}
+              ← Volver atrás
             </button>
-            <p class="section-label">
-              {{ isEditingRoom() ? 'CONFIGURACIÓN DE SALA' : 'NUEVA PARTIDA' }}
-            </p>
+            <p class="section-label">NUEVA PARTIDA</p>
             <h2>Configura tu sala</h2>
 
-            <fieldset class="mode-picker">
-              <legend>Tipo de partida</legend>
-              <label [class.selected]="roomForm.controls.mode.value === 'local'">
-                <input type="radio" formControlName="mode" value="local" />
-                <strong>Partida local</strong><span>Juega ahora en este equipo</span>
-              </label>
-              <label [class.selected]="roomForm.controls.mode.value === 'online'">
-                <input type="radio" formControlName="mode" value="online" />
-                <strong>Crear sala</strong><span>Invita a otros jugadores</span>
-              </label>
-            </fieldset>
-
-            @if (roomForm.controls.mode.value === 'online') {
-              <div class="field-grid field-grid--room">
-                <label
-                  ><span>Nombre de la sala</span
-                  ><input type="text" formControlName="name" maxlength="60"
-                /></label>
-                <label
-                  ><span>Jugadores</span
-                  ><input type="number" formControlName="maxPlayers" min="2" max="8"
-                /></label>
-              </div>
-            }
-
-            <fieldset class="arena-picker">
-              <legend>Elige una pista</legend>
-              <label [class.selected]="roomForm.controls.arenaId.value === 'open'">
-                <input type="radio" formControlName="arenaId" value="open" />
-                <span class="arena-thumb arena-thumb--open" aria-hidden="true"></span>
-                <strong>Pista abierta</strong><span>Pocos obstáculos</span>
-              </label>
-              <label [class.selected]="roomForm.controls.arenaId.value === 'fortress'">
-                <input type="radio" formControlName="arenaId" value="fortress" />
-                <span class="arena-thumb arena-thumb--fortress" aria-hidden="true"></span>
-                <strong>La fortaleza</strong><span>Muchos obstáculos</span>
-              </label>
-            </fieldset>
+            <div class="field-grid field-grid--room">
+              <label
+                ><span>Nombre de la sala</span
+                ><input type="text" formControlName="name" maxlength="60"
+              /></label>
+              <label
+                ><span>Jugadores</span
+                ><input type="number" formControlName="maxPlayers" min="2" max="8"
+              /></label>
+            </div>
 
             @if (rooms.error()) {
               <p class="form-error" role="alert">{{ rooms.error() }}</p>
@@ -155,11 +125,7 @@
                 Cancelar
               </button>
               <button class="primary-action" type="submit" [disabled]="rooms.isLoading()">
-                @if (rooms.isLoading()) {
-                  {{ isEditingRoom() ? 'Guardando…' : 'Creando…' }}
-                } @else {
-                  {{ isEditingRoom() ? 'Guardar y volver a la sala' : 'Crear y unirse a la sala' }}
-                }
+                {{ rooms.isLoading() ? 'Creando…' : 'Crear y unirse a la sala' }}
               </button>
             </div>
           </form>
@@ -185,23 +151,14 @@
       <p class="preview-caption">Tu personaje dentro del juego</p>
     } @else {
       <div class="arena-stage" aria-hidden="true">
-        <div
-          class="arena-board"
-          [class.arena-board--fortress]="roomForm.controls.arenaId.value === 'fortress'"
-        >
+        <div class="arena-board">
           @for (cell of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; track cell) {
             <i></i>
           }
           <span class="arena-player"></span><span class="arena-bomb"></span>
         </div>
       </div>
-      <p class="preview-caption">
-        {{
-          roomForm.controls.arenaId.value === 'open'
-            ? 'Pista abierta · pocos obstáculos'
-            : 'La fortaleza · muchos obstáculos'
-        }}
-      </p>
+      <p class="preview-caption">Mapa confirmado por el servidor</p>
     }
   </aside>
 

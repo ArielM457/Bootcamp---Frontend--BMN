@@ -4,7 +4,7 @@
 
 **2. Contract First.** Definimos DTO, errores y eventos antes de consumir servicios.
 
-**3. Backend Independence.** La UI debe poder ejecutarse en modo demostración sin backend.
+**3. Backend Authority.** La UI usa datos del backend e informa las operaciones que el contrato todavía no ofrece.
 
 **4. Separation of Concerns.** Separamos interfaz, estado, comunicación y reglas.
 

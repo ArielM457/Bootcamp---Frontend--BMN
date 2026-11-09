@@ -23,26 +23,9 @@ export class RoomWaiting implements OnInit {
     void this.load();
   }
 
-  async leave(): Promise<void> {
-    if (await this.rooms.leave()) await this.router.navigate(['/salas']);
-  }
-
-  async addBot(): Promise<void> {
-    await this.rooms.addBot();
-  }
-
-  async configure(): Promise<void> {
-    const room = this.rooms.currentRoom();
-    if (!room || !this.rooms.isHost()) return;
-    await this.router.navigate(['/menu'], { queryParams: { configurarSala: room.id } });
-  }
-
   async start(): Promise<void> {
-    if (await this.rooms.start()) {
-      await this.router.navigate(['/juego'], {
-        queryParams: { arena: this.rooms.currentRoom()?.arenaId ?? 'open' },
-      });
-    }
+    const gameId = await this.rooms.start();
+    if (gameId) await this.router.navigate(['/juego'], { queryParams: { gameId } });
   }
 
   private async load(): Promise<void> {

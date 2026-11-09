@@ -1,171 +1,14 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { vi } from 'vitest';
 import { AuthFacade } from '../../core/auth/auth.facade';
 import { GameFacade } from '../../core/game/game.facade';
 import { GameInputController } from '../../core/game/game-input.controller';
 import { GameCommandRejection, GameSnapshot } from '../../core/game/game.models';
 import { GAME_PORT, GamePort } from '../../core/game/game.port';
-import { LocalGameSimulator } from '../../infrastructure/mocks/local-game.simulator';
-import { MockRealtimeGameAdapter } from '../../infrastructure/mocks/mock-realtime-game.adapter';
-import { CanvasRenderer, ITEM_SPRITES, PLAYER_SPRITES } from './canvas-renderer';
+import { CanvasRenderer, PLAYER_SPRITES } from './canvas-renderer';
 
-describe('Motor local GAME-01', () => {
-  afterEach(() => {
-    vi.useRealTimers();
-    vi.restoreAllMocks();
-  });
-
-  it('mueve al jugador solo hacia celdas libres y confirma la versión', () => {
-    const simulator = new LocalGameSimulator();
-    let latest: GameSnapshot | null = null;
-    const subscription = simulator.snapshots$.subscribe((snapshot) => (latest = snapshot));
-    simulator.start('player-1');
-    const initialVersion = latest!.version;
-
-    simulator.send({ type: 'move', direction: 'up' });
-    expect(latest!.version).toBe(initialVersion);
-    simulator.send({ type: 'move', direction: 'right' });
-    expect(latest!.players[0]).toMatchObject({ x: 2, y: 1 });
-    expect(latest!.version).toBeGreaterThan(initialVersion);
-
-    simulator.stop();
-    subscription.unsubscribe();
-  });
-
-  it('acepta como máximo un movimiento cada 360 milisegundos', () => {
-    vi.useFakeTimers();
-    const simulator = new LocalGameSimulator();
-    let latest: GameSnapshot | null = null;
-    simulator.snapshots$.subscribe((snapshot) => (latest = snapshot));
-    simulator.start('player-1');
-
-    simulator.send({ type: 'move', direction: 'right' });
-    expect(latest!.players[0]).toMatchObject({ x: 2, y: 1 });
-    simulator.send({ type: 'move', direction: 'right' });
-    expect(latest!.players[0]).toMatchObject({ x: 2, y: 1 });
-    vi.advanceTimersByTime(359);
-    simulator.send({ type: 'move', direction: 'right' });
-    expect(latest!.players[0]).toMatchObject({ x: 2, y: 1 });
-    vi.advanceTimersByTime(1);
-    simulator.send({ type: 'move', direction: 'right' });
-    expect(latest!.players[0]).toMatchObject({ x: 3, y: 1 });
-
-    simulator.stop();
-  });
-
-  it('coloca una bomba y produce una explosión confirmada', () => {
-    vi.useFakeTimers();
-    const simulator = new LocalGameSimulator();
-    let latest: GameSnapshot | null = null;
-    simulator.snapshots$.subscribe((snapshot) => (latest = snapshot));
-    simulator.start('player-1');
-    simulator.send({ type: 'place-bomb' });
-
-    expect(latest!.bombs).toHaveLength(1);
-    expect(latest!.bombs[0].kind).toBe('classic');
-    vi.advanceTimersByTime(1600);
-    expect(latest!.bombs).toHaveLength(0);
-    expect(latest!.explosions.length).toBeGreaterThan(0);
-    simulator.stop();
-  });
-
-  it('no coloca una bomba en una celda ocupada por otro jugador', () => {
-    vi.useFakeTimers();
-    const simulator = new LocalGameSimulator();
-    let latest: GameSnapshot | null = null;
-    simulator.snapshots$.subscribe((snapshot) => (latest = snapshot));
-    simulator.start('player-1');
-
-    for (let step = 0; step < 10; step++) {
-      simulator.send({ type: 'move', direction: 'right' });
-      vi.advanceTimersByTime(360);
-    }
-    expect(latest!.players[0]).toMatchObject({ x: 11, y: 1 });
-    expect(latest!.players[2]).toMatchObject({ x: 11, y: 1 });
-
-    simulator.send({ type: 'place-bomb' });
-    expect(latest!.bombs).toHaveLength(0);
-
-    simulator.stop();
-  });
-
-  it('muestra cuatro jugadores y un poder temporal sin barra en el mapa', () => {
-    const simulator = new LocalGameSimulator();
-    let latest: GameSnapshot | null = null;
-    const subscription = simulator.snapshots$.subscribe((snapshot) => (latest = snapshot));
-
-    simulator.start('player-1');
-
-    expect(latest!.players).toHaveLength(4);
-    expect(latest!.players.filter((player) => player.playerId !== 'player-1')).toHaveLength(3);
-    expect(latest!.powerUps).toHaveLength(1);
-    expect(latest!.powerUps?.[0]).not.toHaveProperty('remainingSeconds');
-
-    simulator.stop();
-    subscription.unsubscribe();
-  });
-
-  it('recoge un poder al entrar en su celda', () => {
-    vi.useFakeTimers();
-    vi.spyOn(Math, 'random').mockReturnValue(0);
-    const simulator = new LocalGameSimulator();
-    let latest: GameSnapshot | null = null;
-    const subscription = simulator.snapshots$.subscribe((snapshot) => (latest = snapshot));
-    simulator.start('player-1');
-
-    expect(latest!.powerUps?.[0]).toMatchObject({ x: 2, y: 1 });
-    simulator.send({ type: 'move', direction: 'right' });
-
-    expect(latest!.players[0].powerUpName).toBe('Bomba espacial');
-    expect(latest!.players[0].powerUpRemainingSeconds).toBe(8);
-    expect(latest!.powerUps).toHaveLength(0);
-    vi.advanceTimersByTime(1000);
-    expect(latest!.players[0].powerUpRemainingSeconds).toBe(7);
-    vi.advanceTimersByTime(7000);
-    expect(latest!.players[0].powerUpName).toBeNull();
-    expect(latest!.players[0].powerUpRemainingSeconds).toBe(0);
-
-    simulator.stop();
-    subscription.unsubscribe();
-  });
-
-  it('retira el poder del mapa a los ocho segundos y lo crea otra vez', () => {
-    vi.useFakeTimers();
-    const simulator = new LocalGameSimulator();
-    let latest: GameSnapshot | null = null;
-    simulator.snapshots$.subscribe((snapshot) => (latest = snapshot));
-    simulator.start('player-1');
-
-    const firstPosition = { x: latest!.powerUps![0].x, y: latest!.powerUps![0].y };
-    vi.advanceTimersByTime(8000);
-    expect(latest!.powerUps).toHaveLength(0);
-    vi.advanceTimersByTime(2500);
-    expect(latest!.powerUps).toHaveLength(1);
-    expect(latest!.powerUps?.[0]).not.toMatchObject(firstPosition);
-
-    simulator.stop();
-  });
-
-  it('elimina un poder alcanzado por una explosión y lo repone después', () => {
-    vi.useFakeTimers();
-    vi.spyOn(Math, 'random').mockReturnValue(0);
-    const simulator = new LocalGameSimulator();
-    let latest: GameSnapshot | null = null;
-    simulator.snapshots$.subscribe((snapshot) => (latest = snapshot));
-    simulator.start('player-1');
-
-    expect(latest!.powerUps?.[0]).toMatchObject({ x: 2, y: 1 });
-    simulator.send({ type: 'place-bomb' });
-    vi.advanceTimersByTime(1600);
-    expect(latest!.powerUps).toHaveLength(0);
-    vi.advanceTimersByTime(2500);
-    expect(latest!.powerUps).toHaveLength(1);
-
-    simulator.stop();
-  });
-
+describe('Motor de presentación GAME-01', () => {
   it('traduce teclado a comandos y calcula celdas del Canvas', () => {
     const input = new GameInputController();
     const renderer = new CanvasRenderer();
@@ -174,76 +17,23 @@ describe('Motor local GAME-01', () => {
       type: 'move',
       direction: 'left',
     });
-    expect(input.fromKey(new KeyboardEvent('keydown', { key: ' ' }))).toEqual({
-      type: 'place-bomb',
-    });
+    expect(input.fromKey(new KeyboardEvent('keydown', { key: ' ' }))).toBeNull();
     expect(renderer.cellRect(3, 2)).toEqual({ x: 144, y: 96, size: 48 });
   });
 
-  it('usa first cuando está quieto y alterna los otros dos sprites al caminar', () => {
+  it('usa los sprites configurados para movimiento', () => {
     const renderer = new CanvasRenderer();
 
     for (const direction of ['up', 'down', 'left', 'right'] as const) {
       expect(renderer.playerSprite(direction, false)).toBe(PLAYER_SPRITES[direction].idle);
       expect(renderer.playerSprite(direction, true, 0)).toBe(PLAYER_SPRITES[direction].walking[0]);
-      expect(renderer.playerSprite(direction, true, 180)).toBe(
-        PLAYER_SPRITES[direction].walking[1],
-      );
-      expect(renderer.playerSprite(direction, true, 360)).toBe(
-        PLAYER_SPRITES[direction].walking[0],
-      );
     }
-    expect(renderer.playerSprite('down', false)).toContain('/up/first.png');
-    expect(renderer.playerSprite('up', false)).toContain('/down/first.png');
-  });
-
-  it('usa recursos normales y brillantes para bombas y poderes', () => {
-    expect(ITEM_SPRITES.classicBomb.normal).toContain('bomb-normal.png');
-    expect(ITEM_SPRITES.classicBomb.glow).toContain('bomb-glow.png');
-    expect(ITEM_SPRITES.spaceBomb.normal).toContain('space-bomb-normal.png');
-    expect(ITEM_SPRITES.spaceBomb.glow).toContain('space-bomb-glow.png');
-    expect(ITEM_SPRITES.power.normal).toContain('power-normal.png');
-    expect(ITEM_SPRITES.power.glow).toContain('power-glow.png');
-  });
-
-  it('deja Enter y Espacio a enlaces y botones de la página', () => {
-    const input = new GameInputController();
-    const keyOn = (target: Element, key: string): KeyboardEvent => {
-      const event = new KeyboardEvent('keydown', { key, bubbles: true });
-      target.dispatchEvent(event);
-      return event;
-    };
-    const link = document.createElement('a');
-    link.href = '/menu';
-    const restart = document.createElement('button');
-    const bombButton = document.createElement('button');
-    bombButton.setAttribute('data-game-control', '');
-    document.body.append(link, restart, bombButton);
-
-    expect(input.fromKey(keyOn(link, 'Enter'))).toBeNull();
-    expect(input.fromKey(keyOn(restart, ' '))).toBeNull();
-    expect(input.fromKey(keyOn(restart, 'ArrowUp'))).toEqual({ type: 'move', direction: 'up' });
-    expect(input.fromKey(keyOn(bombButton, ' '))).toEqual({ type: 'place-bomb' });
-    expect(input.fromKey(keyOn(document.body, ' '))).toEqual({ type: 'place-bomb' });
-
-    link.remove();
-    restart.remove();
-    bombButton.remove();
   });
 
   it('descarta snapshots con una versión anterior', () => {
     const snapshots = new Subject<GameSnapshot>();
-    const connection = new BehaviorSubject<'connected'>('connected');
-    const port: GamePort = {
-      snapshots$: snapshots.asObservable(),
-      connection$: connection.asObservable(),
-      rejections$: new Subject<GameCommandRejection>().asObservable(),
-      start: () => undefined,
-      send: () => undefined,
-      reconnect: () => undefined,
-      stop: () => undefined,
-    };
-    const player = signal({ id: 'player-1', displayName: 'Ariel' });
+    const port = createPort(snapshots);
+    const player = signal({ id: '1', displayName: 'Ariel' });
     TestBed.configureTestingModule({
       providers: [
         GameFacade,
@@ -252,24 +42,15 @@ describe('Motor local GAME-01', () => {
       ],
     });
     const facade = TestBed.inject(GameFacade);
-    const current = snapshot(5);
-    facade.applySnapshot(current);
+    facade.applySnapshot(snapshot(5));
     facade.applySnapshot(snapshot(4));
 
     expect(facade.snapshot()?.version).toBe(5);
   });
 
-  it('resume los rivales activos y el poder equipado para el HUD', () => {
-    const port: GamePort = {
-      snapshots$: new Subject<GameSnapshot>().asObservable(),
-      connection$: new BehaviorSubject<'connected'>('connected').asObservable(),
-      rejections$: new Subject<GameCommandRejection>().asObservable(),
-      start: () => undefined,
-      send: () => undefined,
-      reconnect: () => undefined,
-      stop: () => undefined,
-    };
-    const player = signal({ id: 'player-1', displayName: 'Ariel' });
+  it('resume los rivales activos para el HUD', () => {
+    const port = createPort(new Subject<GameSnapshot>());
+    const player = signal({ id: '1', displayName: 'Ariel' });
     TestBed.configureTestingModule({
       providers: [
         GameFacade,
@@ -280,91 +61,35 @@ describe('Motor local GAME-01', () => {
     const facade = TestBed.inject(GameFacade);
     const current = snapshot(1);
     current.players = [
-      {
-        playerId: 'player-1',
-        x: 0,
-        y: 0,
-        lives: 3,
-        alive: true,
-        color: '#2f8cff',
-        powerUpName: 'Doble bomba',
-        powerUpRemainingSeconds: 6,
-      },
-      { playerId: 'rival-1', x: 1, y: 0, lives: 2, alive: true, color: '#c63bc9' },
-      { playerId: 'rival-2', x: 2, y: 0, lives: 0, alive: false, color: '#f5a5b8' },
+      { playerId: '1', x: 1, y: 1 },
+      { playerId: '2', x: 7, y: 7 },
     ];
     facade.applySnapshot(current);
 
     expect(facade.activeOpponents()).toBe(1);
-    expect(facade.powerUpName()).toBe('Doble bomba');
-    expect(facade.powerUpRemainingSeconds()).toBe(6);
-    expect(facade.powerUpProgress()).toBe(75);
-  });
-
-  it('recupera el último snapshot antes de volver a habilitar los comandos', () => {
-    vi.useFakeTimers();
-    const adapter = new MockRealtimeGameAdapter();
-    const events: string[] = [];
-    adapter.snapshots$.subscribe((value) => events.push(`snapshot-${value.version}`));
-    adapter.connection$.subscribe((value) => events.push(value));
-    adapter.start('player-1');
-    events.length = 0;
-
-    adapter.simulateDisconnect();
-    vi.advanceTimersByTime(600);
-
-    expect(events[0]).toBe('reconnecting');
-    expect(events.at(-2)).toMatch(/^snapshot-/);
-    expect(events.at(-1)).toBe('connected');
-    adapter.stop();
-  });
-
-  it('rechaza comandos sin conexión y conserva el tablero', () => {
-    vi.useFakeTimers();
-    const adapter = new MockRealtimeGameAdapter();
-    let latest: GameSnapshot | null = null;
-    let rejection = '';
-    adapter.snapshots$.subscribe((value) => (latest = value));
-    adapter.rejections$.subscribe((value) => (rejection = value.message));
-    adapter.start('player-1');
-    const version = latest!.version;
-    adapter.simulateDisconnect();
-    adapter.send({ type: 'move', direction: 'right' }, 'command-1');
-
-    expect(rejection).toContain('no se aplicó');
-    expect(latest!.version).toBe(version);
-    adapter.stop();
-  });
-
-  it('informa una reconexión fallida y permite reintentar', () => {
-    vi.useFakeTimers();
-    const adapter = new MockRealtimeGameAdapter();
-    let state = '';
-    adapter.connection$.subscribe((value) => (state = value));
-    adapter.start('player-1');
-    adapter.simulateDisconnect(true);
-    vi.advanceTimersByTime(600);
-    expect(state).toBe('failed');
-
-    adapter.reconnect();
-    vi.advanceTimersByTime(600);
-    expect(state).toBe('connected');
-    adapter.stop();
   });
 });
+
+function createPort(snapshots: Subject<GameSnapshot>): GamePort {
+  return {
+    snapshots$: snapshots.asObservable(),
+    connection$: new BehaviorSubject<'connected'>('connected').asObservable(),
+    rejections$: new Subject<GameCommandRejection>().asObservable(),
+    start: () => undefined,
+    send: () => undefined,
+    reconnect: () => undefined,
+    stop: () => undefined,
+  };
+}
 
 function snapshot(version: number): GameSnapshot {
   return {
     gameId: 'game-1',
     version,
     phase: 'running',
-    width: 1,
-    height: 1,
-    cells: [{ x: 0, y: 0, kind: 'floor' }],
+    width: 9,
+    height: 9,
+    cells: [{ x: 0, y: 0, kind: 'wall' }],
     players: [],
-    bombs: [],
-    explosions: [],
-    remainingSeconds: 100,
-    winnerPlayerId: null,
   };
 }

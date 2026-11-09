@@ -2,7 +2,7 @@
 
 Fecha: 18 de octubre de 2026.
 
-Estado: resultado y ranking local implementados y comprobados manualmente por el usuario el 18 de octubre de 2026. Integración con servidor pendiente.
+Estado histórico: esta validación corresponde al modo local eliminado. El frontend actual no conserva puntuaciones ni ranking porque el backend no ofrece esas operaciones.
 
 Implementamos puntuación para victoria y derrota, acumulación por jugador, registro único por partida, orden del ranking y estado vacío. Al terminar una partida se muestran puntos, vidas y tiempo restante. El menú abre el ranking local y destaca al jugador actual.
 
