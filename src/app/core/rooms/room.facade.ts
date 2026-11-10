@@ -19,14 +19,25 @@ export class RoomFacade {
   readonly status = this.statusState.asReadonly();
   readonly error = this.errorState.asReadonly();
   readonly isLoading = computed(() => this.statusState() === 'loading');
+  readonly isHost = computed(() => {
+    const room = this.currentRoomState();
+    return !!room && room.hostPlayerId === this.auth.player()?.id;
+  });
+  readonly currentParticipant = computed(() => {
+    const playerId = this.auth.player()?.id;
+    return this.currentRoomState()?.participants.find((item) => item.id === playerId) ?? null;
+  });
   readonly canStart = computed(() => {
     const room = this.currentRoomState();
     const playerId = this.auth.player()?.id;
     return (
       !!room &&
+      room.hostPlayerId === playerId &&
       room.status === 'waiting' &&
       room.participants.length >= 2 &&
-      room.participants.some((participant) => participant.id === playerId)
+      room.participants
+        .filter((participant) => participant.id !== room.hostPlayerId)
+        .every((participant) => participant.isReady)
     );
   });
 
@@ -72,7 +83,18 @@ export class RoomFacade {
     if (!player) return null;
     let joined: Room | null = null;
     await this.run(async () => {
-      joined = await this.repository.join(roomId);
+      joined = await this.repository.joinById(roomId);
+      this.currentRoomState.set(joined);
+    });
+    return joined;
+  }
+
+  async joinByCode(code: string): Promise<Room | null> {
+    const player = this.auth.player();
+    if (!player) return null;
+    let joined: Room | null = null;
+    await this.run(async () => {
+      joined = await this.repository.joinByCode(code);
       this.currentRoomState.set(joined);
     });
     return joined;
@@ -89,6 +111,15 @@ export class RoomFacade {
       gameId = startedRoom.gameId ?? null;
     });
     return gameId;
+  }
+
+  async setReady(isReady: boolean): Promise<boolean> {
+    const room = this.currentRoomState();
+    const player = this.auth.player();
+    if (!room || !player || room.hostPlayerId === player.id) return false;
+    return this.run(async () => {
+      this.currentRoomState.set(await this.repository.setReady(room.id, isReady));
+    });
   }
 
   clearError(): void {
@@ -127,6 +158,8 @@ export class RoomFacade {
         return 'Solo el anfitrión puede cambiar o iniciar la sala.';
       case 'not-enough-players':
         return 'Se necesitan al menos 2 jugadores para comenzar.';
+      case 'players-not-ready':
+        return 'Todos los demás jugadores deben estar listos.';
       case 'invalid-data':
         return 'Revisa el nombre y la cantidad de jugadores.';
       case 'unavailable':

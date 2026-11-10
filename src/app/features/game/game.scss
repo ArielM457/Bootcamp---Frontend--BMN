@@ -261,6 +261,27 @@ canvas {
 .connection-card {
   z-index: 2;
 }
+.game-loading {
+  display: grid;
+  min-height: min(70vh, 36rem);
+  place-items: center;
+  align-content: center;
+  gap: 0.8rem;
+  text-align: center;
+}
+.game-loading h2,
+.game-loading p {
+  margin: 0;
+}
+.game-loading h2 {
+  font:
+    900 clamp(1.5rem, 5vw, 2.8rem) 'Courier New',
+    monospace;
+  text-transform: uppercase;
+}
+.game-loading p {
+  color: rgba($white, 0.72);
+}
 .connection-card h2 {
   margin: 0.7rem 0;
   font:

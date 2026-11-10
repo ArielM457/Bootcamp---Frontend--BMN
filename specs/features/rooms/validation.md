@@ -32,6 +32,23 @@ Las salas precargadas y los cambios viven en memoria. No afirmamos sincronizaci�
 
 El usuario confirmó en navegador que el flujo de sala, bot e inicio de partida funciona correctamente.
 
+## **Código e inicio compartido del 9 de noviembre de 2026**
+
+Implementamos en el backend un código único persistido de 8 caracteres, la unión por código y la entrega de `gameId` en el detalle cuando la partida ya comenzó. El creador ve el código en la sala de espera. Los demás participantes actualizan el detalle cada segundo y entran al juego cuando reciben el inicio.
+
+La migración asigna también códigos únicos a las salas existentes. La integración conserva HTTP para la espera y SignalR para el estado y los movimientos dentro de la partida.
+
+Comprobaciones realizadas:
+
+- `dotnet build --configuration Release`: correcto, con la advertencia previa de nulabilidad en `PlayerService.cs`.
+- `dotnet ef database update --no-build --configuration Release`: migración aplicada correctamente en PostgreSQL.
+- Prueba HTTP real con dos usuarios: código de 8 caracteres, unión correcta, 2 participantes, estado `playing` y el mismo `gameId` para el segundo usuario.
+- `npm run build`: correcto, con el aviso conocido de 110 bytes en `lobby.scss`.
+- ESLint de los archivos TypeScript modificados: correcto.
+- Vitest no ejecutó pruebas porque sus workers agotaron el tiempo tanto con procesos como con hilos. No hubo fallos de aserción.
+
+Falta la revisión visual en navegador y confirmar la navegación automática con dos ventanas reales. La prueba HTTP dejó una sala y dos usuarios temporales identificados con el sufijo `68c0c11f9d` porque el proyecto no ofrece un flujo de eliminación para esos registros.
+
 ## **Creación y configuración del 25 de octubre de 2026**
 
 Partida local y Crear sala crean primero una sala de espera y unen al creador. El anfitrión dispone de Configurar sala, que abre el mismo formulario del menú con los datos actuales. Guardar conserva los participantes y regresa a la sala.
@@ -57,3 +74,13 @@ Comprobaciones realizadas:
 - Pruebas del repositorio local para añadir bots hasta completar la sala y devolver una partida terminada al estado de espera.
 - `npm test -- --watch=false`: correcto, 9 archivos y 40 pruebas.
 - `npm run lint`, `npm run build` y `npm run format:check`: correctos. El build conserva el aviso conocido de 110 bytes en `lobby.scss`.
+
+## **Creador y jugadores listos del 9 de noviembre de 2026**
+
+Implementamos `hostPlayerId` en la sala e `isReady` en cada participante. Solo el creador puede iniciar. Los invitados pueden cambiar únicamente su propio estado entre Listo y No listo. El backend exige al menos dos participantes y que todos los invitados estén listos antes de crear la partida.
+
+La prueba HTTP real confirmó que el invitado recibe `403` al intentar iniciar, el creador recibe `409` antes de que el invitado esté listo y el inicio funciona después de marcarlo como listo. La partida creada incluyó dos jugadores y ambos recibieron el mismo `gameId`.
+
+La migración `AddRoomHostAndReady` se aplicó correctamente en PostgreSQL. Las salas anteriores asignan como creador al participante con menor identificador y lo dejan listo.
+
+Las pruebas del frontend terminaron con 7 archivos y 15 pruebas aprobadas. Incluyen una prueba enfocada que comprueba que solo el creador puede iniciar y que el invitado puede cambiar su estado listo.

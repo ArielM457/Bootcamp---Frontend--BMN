@@ -5,7 +5,9 @@ export interface RoomRepository {
   list(): Promise<Room[]>;
   get(roomId: string): Promise<Room>;
   create(request: CreateRoomRequest): Promise<Room>;
-  join(roomId: string): Promise<Room>;
+  joinById(roomId: string): Promise<Room>;
+  joinByCode(code: string): Promise<Room>;
+  setReady(roomId: string, isReady: boolean): Promise<Room>;
   start(roomId: string): Promise<Room>;
 }
 

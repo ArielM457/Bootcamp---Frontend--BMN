@@ -24,6 +24,7 @@ describe('Lobby LOBBY-01', () => {
     restoreCurrentRoom: vi.fn().mockResolvedValue(true),
     create: vi.fn(),
     join: vi.fn(),
+    joinByCode: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -45,10 +46,12 @@ describe('Lobby LOBBY-01', () => {
   it('crea una sala usando solo los datos aceptados por el backend', async () => {
     const room: Room = {
       id: '10',
+      code: 'K7M9Q2PX',
+      hostPlayerId: '1',
       name: 'Sala online',
       status: 'waiting',
       maxPlayers: 4,
-      participants: [{ id: '1', displayName: 'Ariel' }],
+      participants: [{ id: '1', displayName: 'Ariel', isReady: true }],
     };
     rooms.create.mockResolvedValueOnce(room);
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
@@ -63,13 +66,35 @@ describe('Lobby LOBBY-01', () => {
   it('muestra volver a la sala cuando la API devuelve una membresía', async () => {
     rooms.currentRoom.set({
       id: '11',
+      code: 'P8X4M7QK',
+      hostPlayerId: '1',
       name: 'Sala activa',
       status: 'waiting',
       maxPlayers: 4,
-      participants: [{ id: '1', displayName: 'Ariel' }],
+      participants: [{ id: '1', displayName: 'Ariel', isReady: true }],
     });
     fixture.detectChanges();
 
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Volver a la sala');
+  });
+
+  it('se une usando el código de invitación y navega a la sala devuelta', async () => {
+    const room: Room = {
+      id: '12',
+      code: 'K7M9Q2PX',
+      hostPlayerId: '1',
+      name: 'Sala con código',
+      status: 'waiting',
+      maxPlayers: 4,
+      participants: [{ id: '1', displayName: 'Ariel', isReady: true }],
+    };
+    rooms.joinByCode.mockResolvedValueOnce(room);
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    fixture.componentInstance.joinCode.setValue('k7m9q2px');
+
+    await fixture.componentInstance.joinRoom();
+
+    expect(rooms.joinByCode).toHaveBeenCalledWith('k7m9q2px');
+    expect(navigate).toHaveBeenCalledWith(['/salas', '12']);
   });
 });

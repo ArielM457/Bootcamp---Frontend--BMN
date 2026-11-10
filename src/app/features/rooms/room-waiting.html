@@ -15,13 +15,23 @@
       <span>{{ room.participants.length }} de {{ room.maxPlayers }} jugadores</span>
     </section>
 
+    <section class="room-code" aria-label="Código de invitación">
+      <span>Código para invitar</span>
+      <strong>{{ room.code }}</strong>
+      <small>Compártelo con los demás jugadores.</small>
+    </section>
+
     <section class="players-grid" aria-label="Jugadores en la sala">
       @for (slot of slots(); track slot) {
         @if (room.participants[slot]; as player) {
           <article class="player-slot player-slot--filled">
             <div>{{ player.displayName.charAt(0).toUpperCase() }}</div>
             <h2>{{ player.displayName }}</h2>
-            <p>Listo</p>
+            @if (player.id === room.hostPlayerId) {
+              <p>Anfitrión</p>
+            } @else {
+              <p>{{ player.isReady ? 'Listo' : 'No listo' }}</p>
+            }
           </article>
         } @else {
           <article class="player-slot player-slot--empty">
@@ -35,14 +45,25 @@
 
     <section class="start-area">
       <div class="waiting-actions">
-        <button
-          class="primary-button start-button"
-          type="button"
-          (click)="start()"
-          [disabled]="!rooms.canStart() || rooms.isLoading()"
-        >
-          {{ rooms.canStart() ? 'Iniciar partida' : 'Esperando jugadores' }}
-        </button>
+        @if (rooms.isHost()) {
+          <button
+            class="primary-button start-button"
+            type="button"
+            (click)="start()"
+            [disabled]="!rooms.canStart() || rooms.isLoading()"
+          >
+            {{ rooms.canStart() ? 'Iniciar partida' : 'Esperando jugadores listos' }}
+          </button>
+        } @else {
+          <button
+            class="primary-button start-button"
+            type="button"
+            (click)="toggleReady()"
+            [disabled]="rooms.isLoading()"
+          >
+            {{ rooms.currentParticipant()?.isReady ? 'No estoy listo' : 'Estoy listo' }}
+          </button>
+        }
       </div>
     </section>
   } @else if (rooms.isLoading()) {

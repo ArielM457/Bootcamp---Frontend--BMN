@@ -105,6 +105,56 @@ Comprobaciones realizadas:
 - `npm run build`: correcto, con el aviso conocido de 110 bytes del presupuesto de `lobby.scss`.
 - `npm run format:check` y `git diff --check`: correctos.
 
+## **Bloqueos controlados y sprite más lento del 9 de noviembre de 2026**
+
+Los movimientos bloqueados ya no lanzan una excepción desde `MovePlayer`. El Hub envía `CommandRejected` con el identificador del comando y el frontend muestra el mensaje sin registrar `Failed to invoke hub method`. Las excepciones permanecen para errores reales de conexión, identidad o acceso a otra partida.
+
+El movimiento continúa cada 220 milisegundos, pero cada sprite de caminata se mantiene durante 180 milisegundos para que el cambio de pie sea más fácil de ver.
+
+Comprobaciones realizadas:
+
+- La integración real confirmó rechazos por límite de movimiento y dirección inválida mediante `CommandRejected`.
+- El registro de la instancia temporal no mostró fallos de `MovePlayer` durante esos rechazos.
+- `npm test -- --watch=false`: correcto, 7 archivos y 16 pruebas aprobadas.
+- `npm run lint`, `npm run build` y la compilación Release del backend: correctos.
+
+## **Tres vidas y movimiento mantenido del 9 de noviembre de 2026**
+
+Cada jugador inicia la sesión con tres vidas. Una explosión resta una sola vida y la eliminación ocurre al llegar a cero. El snapshot entrega las vidas al frontend y el HUD muestra el valor confirmado por el servidor.
+
+Reemplazamos la repetición automática del navegador por un control propio. La primera pulsación mueve de inmediato y, si la tecla sigue presionada, envía otra casilla cada 220 milisegundos. El backend rechaza movimientos separados por menos de 180 milisegundos.
+
+Comprobaciones realizadas:
+
+- La prueba del componente confirmó un movimiento inmediato, ningún segundo movimiento antes de 220 milisegundos, un nuevo movimiento al cumplir el tiempo y la detención al soltar la tecla.
+- La integración con dos clientes confirmó que una ráfaga enviada al backend se rechaza.
+- Tres explosiones consecutivas dejaron las vidas en 2, 1 y 0. La partida terminó solo con la tercera.
+- `npm test -- --watch=false`: correcto, 7 archivos y 16 pruebas aprobadas.
+- `npm run lint` y `npm run build`: correctos. Continúa el aviso conocido de 110 bytes del presupuesto de `lobby.scss`.
+- `dotnet build Bomberman.Api.csproj -c Release`: correcto. Continúa la advertencia nullable preexistente de `PlayerService.cs`.
+
+## **Bombas multijugador y pasos continuos del 9 de noviembre de 2026**
+
+La bomba ya forma parte del estado real de la partida. SignalR permite colocarla y el backend controla una bomba activa por jugador, fusible de dos segundos, alcance de dos celdas, paredes, cadenas, eliminación y ganador. El frontend recibe y dibuja bombas y explosiones sin decidir el resultado.
+
+La animación conserva el tiempo de caminata entre posiciones consecutivas. Mantener una dirección ya no reinicia siempre el mismo sprite: los dos pies cambian cada 180 milisegundos. Las pulsaciones separadas también alternan el primer paso.
+
+Comprobaciones realizadas:
+
+- `dotnet build Bomberman.Api.csproj -c Release`: correcto, con una advertencia nullable preexistente en `PlayerService.cs`.
+- `npm test -- --watch=false`: correcto, 7 archivos y 16 pruebas aprobadas.
+- `npm run verify:backend` contra una instancia temporal: correcto; ambos clientes recibieron la bomba, la explosión, la eliminación, el ganador y la limpieza del fuego.
+
+Queda pendiente una revisión manual en navegador para confirmar visualmente los controles mantenidos.
+
+## **Carga segura del Canvas del 9 de noviembre de 2026**
+
+Corregimos el acceso prematuro a `nativeElement`. El Canvas ahora se entrega al renderer mediante el setter de `ViewChild` y solo se dibuja cuando existen el elemento y un snapshot confirmado. Antes del primer snapshot, la pantalla muestra un spinner con el estado Preparando partida.
+
+El cambio elimina la condición que producía `Cannot read properties of undefined` en `game.ts`. La revisión visual con una partida real en dos navegadores sigue pendiente.
+
+La prueba enfocada confirmó que primero aparece el spinner, que el renderer no se ejecuta sin snapshot y que después recibe un `HTMLCanvasElement` válido. La ejecución completa terminó con 7 archivos y 15 pruebas aprobadas.
+
 No hicimos una revisión visual nueva en navegador para este ajuste. La velocidad y la regla de la bomba quedaron comprobadas en el simulador local.
 
 ## **Iconos del resultado del 28 de octubre de 2026**

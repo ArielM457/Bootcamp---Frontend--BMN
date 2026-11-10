@@ -3,10 +3,13 @@ export type RoomStatus = 'waiting' | 'playing' | 'finished';
 export interface RoomParticipant {
   id: string;
   displayName: string;
+  isReady: boolean;
 }
 
 export interface Room {
   id: string;
+  code: string;
+  hostPlayerId: string;
   name: string;
   status: RoomStatus;
   maxPlayers: number;
@@ -27,6 +30,7 @@ export type RoomErrorCode =
   | 'not-member'
   | 'not-host'
   | 'not-enough-players'
+  | 'players-not-ready'
   | 'invalid-data'
   | 'unavailable';
 

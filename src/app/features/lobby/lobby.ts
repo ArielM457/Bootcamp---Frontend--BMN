@@ -48,7 +48,7 @@ export class Lobby implements OnInit {
 
   readonly joinCode = new FormControl('', {
     nonNullable: true,
-    validators: [Validators.required, Validators.minLength(3)],
+    validators: [Validators.required, Validators.pattern(/^[A-Za-z2-9]{8}$/)],
   });
 
   ngOnInit(): void {
@@ -107,7 +107,7 @@ export class Lobby implements OnInit {
       this.joinCode.markAsTouched();
       return;
     }
-    const room = await this.rooms.join(this.joinCode.value.trim());
+    const room = await this.rooms.joinByCode(this.joinCode.value.trim());
     if (room) {
       this.joinOpen.set(false);
       await this.router.navigate(['/salas', room.id]);

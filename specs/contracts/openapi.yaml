@@ -106,6 +106,44 @@ paths:
         '401': { description: JWT ausente o inválido }
         '404': { description: Sala inexistente }
         '409': { description: Sala llena, iniciada o jugador repetido }
+  /api/rooms/{roomId}/ready:
+    put:
+      summary: Cambiar el estado listo del jugador autenticado
+      parameters:
+        - $ref: '#/components/parameters/RoomId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SetRoomReadyRequest' }
+      responses:
+        '200':
+          description: Estado listo actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Room' }
+        '401': { description: JWT ausente o inválido }
+        '403': { description: Jugador ajeno a la sala }
+        '404': { description: Sala inexistente }
+        '409': { description: Creador o sala que ya no está esperando }
+  /api/rooms/join:
+    post:
+      summary: Unir al jugador autenticado mediante código de invitación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JoinRoomByCodeRequest' }
+      responses:
+        '200':
+          description: Sala actualizada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Room' }
+        '400': { description: Código inválido }
+        '401': { description: JWT ausente o inválido }
+        '404': { description: Código de sala inexistente }
+        '409': { description: Sala llena, iniciada o jugador repetido }
   /api/games/{roomId}/start:
     post:
       summary: Iniciar la partida de una sala
@@ -194,20 +232,38 @@ components:
       properties:
         name: { type: string, minLength: 3, maxLength: 60 }
         maxPlayers: { type: integer, minimum: 2, maximum: 8 }
+    JoinRoomByCodeRequest:
+      type: object
+      required: [code]
+      properties:
+        code:
+          type: string
+          minLength: 8
+          maxLength: 8
+          pattern: '^[A-Za-z2-9]{8}$'
+    SetRoomReadyRequest:
+      type: object
+      required: [isReady]
+      properties:
+        isReady: { type: boolean }
     RoomParticipant:
       type: object
-      required: [playerId, name]
+      required: [playerId, name, isReady]
       properties:
         playerId: { type: integer }
         name: { type: string }
+        isReady: { type: boolean }
     Room:
       type: object
-      required: [id, name, maxPlayers, status, participants]
+      required: [id, code, hostPlayerId, name, maxPlayers, status, participants]
       properties:
         id: { type: integer }
+        code: { type: string, minLength: 8, maxLength: 8 }
+        hostPlayerId: { type: integer }
         name: { type: string }
         maxPlayers: { type: integer }
         status: { type: string, enum: [waiting, playing, finished] }
+        gameId: { type: string, format: uuid, nullable: true }
         participants:
           type: array
           items: { $ref: '#/components/schemas/RoomParticipant' }

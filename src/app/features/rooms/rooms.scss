@@ -332,6 +332,32 @@ button:focus-visible,
 .waiting-heading > span {
   color: rgba($white, 0.65);
 }
+.room-code {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  width: min(100%, 28rem);
+  margin: 0 auto 2rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 1rem;
+  text-align: center;
+  background: rgba(18, 3, 23, 0.55);
+}
+
+.room-code span,
+.room-code small {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.room-code strong {
+  color: #ffdf5d;
+  font:
+    900 clamp(1.7rem, 6vw, 2.5rem) / 1 'Courier New',
+    monospace;
+  letter-spacing: 0.14em;
+}
+
 .players-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

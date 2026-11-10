@@ -17,7 +17,9 @@ describe('Motor de presentación GAME-01', () => {
       type: 'move',
       direction: 'left',
     });
-    expect(input.fromKey(new KeyboardEvent('keydown', { key: ' ' }))).toBeNull();
+    expect(input.fromKey(new KeyboardEvent('keydown', { key: ' ' }))).toEqual({
+      type: 'place-bomb',
+    });
     expect(renderer.cellRect(3, 2)).toEqual({ x: 144, y: 96, size: 48 });
   });
 
@@ -27,6 +29,9 @@ describe('Motor de presentación GAME-01', () => {
     for (const direction of ['up', 'down', 'left', 'right'] as const) {
       expect(renderer.playerSprite(direction, false)).toBe(PLAYER_SPRITES[direction].idle);
       expect(renderer.playerSprite(direction, true, 0)).toBe(PLAYER_SPRITES[direction].walking[0]);
+      expect(renderer.playerSprite(direction, true, 180)).toBe(
+        PLAYER_SPRITES[direction].walking[1],
+      );
     }
   });
 
@@ -61,12 +66,12 @@ describe('Motor de presentación GAME-01', () => {
     const facade = TestBed.inject(GameFacade);
     const current = snapshot(1);
     current.players = [
-      { playerId: '1', x: 1, y: 1 },
-      { playerId: '2', x: 7, y: 7 },
+      { playerId: '1', x: 1, y: 1, lives: 3, isAlive: true },
+      { playerId: '2', x: 7, y: 7, lives: 0, isAlive: false },
     ];
     facade.applySnapshot(current);
 
-    expect(facade.activeOpponents()).toBe(1);
+    expect(facade.activeOpponents()).toBe(0);
   });
 });
 
@@ -91,5 +96,7 @@ function snapshot(version: number): GameSnapshot {
     height: 9,
     cells: [{ x: 0, y: 0, kind: 'wall' }],
     players: [],
+    bombs: [],
+    explosions: [],
   };
 }

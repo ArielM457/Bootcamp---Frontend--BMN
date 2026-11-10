@@ -49,7 +49,7 @@ connection.on('PlayerMoved', (playerId, x, y) => {
 
 await connection.start();
 await connection.invoke('JoinGame', gameId);
-await connection.invoke('MovePlayer', 'right');
+await connection.invoke('MovePlayer', 'right', crypto.randomUUID());
 ```
 
 El cliente envía una dirección, no una posición. El servidor valida el movimiento y recién entonces publica el estado al grupo de la sala.

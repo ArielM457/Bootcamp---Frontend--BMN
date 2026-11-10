@@ -22,7 +22,10 @@ export class GameFacade {
   readonly connection = this.connectionState.asReadonly();
   readonly rejection = this.rejectionState.asReadonly();
   readonly controlsEnabled = computed(
-    () => this.connectionState() === 'connected' && this.snapshotState()?.phase === 'running',
+    () =>
+      this.connectionState() === 'connected' &&
+      this.snapshotState()?.phase === 'running' &&
+      this.player()?.isAlive === true,
   );
   readonly player = computed(
     () =>
@@ -31,13 +34,26 @@ export class GameFacade {
   );
   readonly activeOpponents = computed(() => {
     const playerId = this.auth.player()?.id;
-    return this.snapshotState()?.players.filter((item) => item.playerId !== playerId).length ?? 0;
+    return (
+      this.snapshotState()?.players.filter((item) => item.playerId !== playerId && item.isAlive)
+        .length ?? 0
+    );
   });
   readonly finished = computed(() => this.snapshotState()?.phase === 'finished');
+  readonly resultMessage = computed(() => {
+    const winnerId = this.snapshotState()?.winnerPlayerId;
+    if (!winnerId) return 'Todos los jugadores fueron alcanzados.';
+    return winnerId === this.auth.player()?.id ? '¡Ganaste la partida!' : 'Otro jugador ganó.';
+  });
 
   start(gameId: string): void {
     const player = this.auth.player();
-    if (!player || !gameId) return;
+    this.snapshotState.set(null);
+    this.rejectionState.set(null);
+    if (!player || !gameId) {
+      this.connectionState.set('failed');
+      return;
+    }
     this.subscriptions.unsubscribe();
     this.subscriptions = new Subscription();
     this.subscriptions.add(
@@ -69,6 +85,9 @@ export class GameFacade {
     this.port.stop();
     this.subscriptions.unsubscribe();
     this.subscriptions = new Subscription();
+    this.snapshotState.set(null);
+    this.connectionState.set('disconnected');
+    this.rejectionState.set(null);
   }
 
   applySnapshot(snapshot: GameSnapshot): void {

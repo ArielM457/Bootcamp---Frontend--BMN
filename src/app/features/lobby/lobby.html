@@ -183,7 +183,8 @@
             [formControl]="joinCode"
             type="text"
             autocomplete="off"
-            placeholder="Ejemplo: room-pink"
+            maxlength="8"
+            placeholder="Ejemplo: K7M9Q2PX"
             (keyup.enter)="joinRoom()"
           />
           @if (joinCode.touched && joinCode.invalid) {

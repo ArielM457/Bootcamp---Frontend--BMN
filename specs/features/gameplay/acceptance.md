@@ -1,9 +1,17 @@
 # **Aceptación GAME-01**
 
+- Antes del primer snapshot, la pantalla muestra un indicador de carga visible.
+- El Canvas se renderiza solo después de que Angular haya creado su elemento y exista un snapshot confirmado.
+- Entrar a la partida no produce errores por intentar leer `nativeElement` antes de tiempo.
+
 - Un snapshot válido se dibuja con todos sus elementos en celdas correctas.
 - El movimiento y la bomba envían comandos; la UI aplica el estado confirmado.
-- El modo local confirma como máximo un movimiento cada 360 milisegundos y la animación lineal usa esa misma duración.
-- Los dos pasos del sprite duran 180 milisegundos cada uno y acompañan el avance de una celda.
+- Mantener una dirección envía como máximo un movimiento cada 220 milisegundos y el backend rechaza comandos separados por menos de 180 milisegundos.
+- La animación lineal dura 220 milisegundos y cada sprite de caminata se mantiene durante 180 milisegundos.
+- Los pasos siguen alternándose al mantener una tecla o recibir movimientos consecutivos.
+- Cada jugador empieza con tres vidas y cada explosión recibida resta solo una.
+- El jugador queda eliminado al llegar a cero vidas.
+- Chocar con una pared, una bomba o el borde envía `CommandRejected` y no registra un fallo del Hub.
 - Las paredes y bloques se muestran según el snapshot, sin cálculo de colisiones en Canvas.
 - El jugador quieto muestra `first.png` de la última dirección y, al caminar, alterna las otras dos imágenes de esa dirección.
 - Las paredes tienen acabado de piedra y los bloques destructibles se distinguen como cajas de madera con volumen.

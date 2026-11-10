@@ -9,6 +9,11 @@
     <div class="game-stage">
       <section class="hud" aria-label="Estado del jugador">
         <p class="hud-title">ESTADO</p>
+        <div class="metric metric--lives">
+          <small><span class="metric-icon" aria-hidden="true">♥</span> VIDAS</small
+          ><strong>{{ game.player()?.lives ?? 0 }}</strong>
+          <span>disponibles</span>
+        </div>
         <div class="metric metric--rivals">
           <small><span class="metric-icon" aria-hidden="true">⚔</span> RIVALES</small
           ><strong>{{ game.activeOpponents() }}</strong>
@@ -49,8 +54,7 @@
           @if (game.finished()) {
             <div class="result-card" role="status">
               <p>PARTIDA TERMINADA</p>
-              <h2>La partida finalizó</h2>
-              <p class="result-error">El backend todavía no ofrece puntuaciones de partida.</p>
+              <h2>{{ game.resultMessage() }}</h2>
               <div class="result-actions">
                 <button type="button" (click)="returnToMenu()">Volver al menú</button>
                 <a routerLink="/ranking">Ver ranking</a>
@@ -104,13 +108,37 @@
           ▶
         </button>
       </div>
-      <button class="bomb-button" data-game-control type="button" disabled>
-        <img src="/game-assets/items/bomb-normal.png" alt="" /> Sin backend
+      <button
+        class="bomb-button"
+        data-game-control
+        type="button"
+        aria-label="Colocar bomba"
+        [disabled]="!game.controlsEnabled()"
+        (click)="placeBomb()"
+      >
+        <img src="/game-assets/items/bomb-normal.png" alt="" /> Bomba
       </button>
-      <p>Flechas o WASD para moverte</p>
+      <p>Flechas o WASD para moverte · Espacio para colocar una bomba</p>
       @if (game.rejection(); as rejection) {
         <p class="command-message" role="status">{{ rejection.message }}</p>
       }
     </section>
+  } @else {
+    @if (game.connection() === 'failed') {
+      <section class="game-loading" role="alert">
+        <h2>No se pudo cargar la partida</h2>
+        <p>Revisa la conexión con el servidor e inténtalo nuevamente.</p>
+        <div class="connection-actions">
+          <button type="button" (click)="game.reconnect()">Reintentar</button>
+          <a routerLink="/menu">Salir</a>
+        </div>
+      </section>
+    } @else {
+      <section class="game-loading" role="status" aria-live="polite">
+        <span class="connection-loader" aria-hidden="true"></span>
+        <h2>Preparando partida</h2>
+        <p>Conectando con el servidor y cargando el tablero.</p>
+      </section>
+    }
   }
 </main>

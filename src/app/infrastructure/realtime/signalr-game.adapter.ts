@@ -17,6 +17,24 @@ interface BackendPlayerPosition {
   playerId: number;
   x: number;
   y: number;
+  lives: number;
+  isAlive: boolean;
+}
+
+interface BackendBomb {
+  id: string;
+  ownerPlayerId: number;
+  x: number;
+  y: number;
+  range: number;
+  placedAtUtc: string;
+  explodesAtUtc: string;
+}
+
+interface BackendExplosion {
+  id: string;
+  cells: { x: number; y: number }[];
+  endsAtUtc: string;
 }
 
 interface BackendGameState {
@@ -25,6 +43,9 @@ interface BackendGameState {
   status: string;
   map: number[][];
   players: BackendPlayerPosition[];
+  bombs: BackendBomb[];
+  explosions: BackendExplosion[];
+  winnerPlayerId?: number | null;
 }
 
 @Injectable()
@@ -56,9 +77,11 @@ export class SignalRGameAdapter implements GamePort {
       return;
     }
 
-    void this.connection
-      .invoke('MovePlayer', command.direction)
-      .catch((error: unknown) => this.reject(commandId, this.errorMessage(error)));
+    const invocation =
+      command.type === 'move'
+        ? this.connection.invoke('MovePlayer', command.direction, commandId)
+        : this.connection.invoke('PlaceBomb', commandId);
+    void invocation.catch((error: unknown) => this.reject(commandId, this.errorMessage(error)));
   }
 
   reconnect(): void {
@@ -96,6 +119,9 @@ export class SignalRGameAdapter implements GamePort {
     connection.on('GameStateUpdated', (state: BackendGameState) => {
       this.version += 1;
       this.snapshotSubject.next(this.toSnapshot(state, this.version));
+    });
+    connection.on('CommandRejected', (commandId: string, message: string) => {
+      this.reject(commandId, message);
     });
     connection.onreconnecting(() => this.connectionSubject.next('reconnecting'));
     connection.onreconnected(() => {
@@ -143,7 +169,15 @@ export class SignalRGameAdapter implements GamePort {
         playerId: player.playerId.toString(),
         x: player.x,
         y: player.y,
+        lives: player.lives,
+        isAlive: player.isAlive,
       })),
+      bombs: (state.bombs ?? []).map((bomb) => ({
+        ...bomb,
+        ownerPlayerId: bomb.ownerPlayerId.toString(),
+      })),
+      explosions: state.explosions ?? [],
+      winnerPlayerId: state.winnerPlayerId?.toString(),
     };
   }
 

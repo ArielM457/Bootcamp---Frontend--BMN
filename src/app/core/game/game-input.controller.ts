@@ -9,6 +9,7 @@ export class GameInputController {
   fromKey(event: KeyboardEvent): GameCommand | null {
     const key = event.key.toLowerCase();
     if ((key === ' ' || key === 'enter') && this.activatesNatively(event.target)) return null;
+    if (key === ' ') return { type: 'place-bomb' };
     const directions: Record<string, GameCommand> = {
       arrowup: { type: 'move', direction: 'up' },
       w: { type: 'move', direction: 'up' },
