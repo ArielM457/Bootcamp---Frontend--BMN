@@ -1,19 +1,17 @@
 openapi: 3.0.3
 info:
   title: Bomberman Online API
-  version: 0.1.0
-  description: Propuesta inicial pendiente de validar con el backend del bootcamp.
+  version: 0.2.0
+  description: Contrato validado contra el backend de las sesiones 05 a 08.
 servers:
-  - url: http://localhost:5000
-    description: Ejemplo local; no indica que exista un servicio activo.
+  - url: http://localhost:5271
 security:
   - bearerAuth: []
 paths:
-  /api/v1/auth/register:
+  /api/auth/register:
     post:
-      tags: [Auth]
-      summary: Registrar jugador
       security: []
+      summary: Registrar usuario y jugador
       requestBody:
         required: true
         content:
@@ -21,17 +19,16 @@ paths:
             schema: { $ref: '#/components/schemas/RegisterRequest' }
       responses:
         '201':
-          description: Jugador registrado
+          description: Sesión creada
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Player' }
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '409': { $ref: '#/components/responses/Conflict' }
-  /api/v1/auth/login:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '400': { description: Datos inválidos }
+        '409': { description: Correo duplicado }
+  /api/auth/login:
     post:
-      tags: [Auth]
-      summary: Iniciar sesión
       security: []
+      summary: Iniciar sesión
       requestBody:
         required: true
         content:
@@ -42,56 +39,32 @@ paths:
           description: Sesión iniciada
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/TokenResponse' }
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-  /api/v1/players/me:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '400': { description: Datos inválidos }
+        '401': { description: Credenciales incorrectas }
+  /api/auth/me:
     get:
-      tags: [Players]
-      summary: Consultar perfil propio
+      summary: Validar sesión actual
       responses:
         '200':
-          description: Perfil
+          description: Identidad autenticada
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Player' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-    patch:
-      tags: [Players]
-      summary: Actualizar perfil propio
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/UpdateProfileRequest' }
-      responses:
-        '200':
-          description: Perfil actualizado
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Player' }
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-  /api/v1/rooms:
+              schema: { $ref: '#/components/schemas/CurrentUser' }
+        '401': { description: JWT ausente o inválido }
+  /api/rooms:
     get:
-      tags: [Rooms]
-      summary: Listar salas
-      parameters:
-        - {
-            name: status,
-            in: query,
-            required: false,
-            schema: { type: string, enum: [waiting, playing, finished] },
-          }
+      summary: Listar salas disponibles
       responses:
         '200':
-          description: Salas
+          description: Salas en espera con espacio
           content:
             application/json:
-              schema: { type: array, items: { $ref: '#/components/schemas/Room' } }
-        '401': { $ref: '#/components/responses/Unauthorized' }
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Room' }
+        '401': { description: JWT ausente o inválido }
     post:
-      tags: [Rooms]
       summary: Crear sala
       requestBody:
         required: true
@@ -104,285 +77,215 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Room' }
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-  /api/v1/rooms/{roomId}:
+        '400': { description: Datos inválidos }
+        '401': { description: JWT ausente o inválido }
+  /api/rooms/{roomId}:
     get:
-      tags: [Rooms]
-      summary: Consultar sala y participantes
-      parameters: [{ $ref: '#/components/parameters/RoomId' }]
+      summary: Consultar sala
+      parameters:
+        - $ref: '#/components/parameters/RoomId'
       responses:
         '200':
-          description: Sala
+          description: Sala encontrada
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Room' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-    patch:
-      tags: [Rooms]
-      summary: Configurar una sala como anfitrión
-      parameters: [{ $ref: '#/components/parameters/RoomId' }]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/CreateRoomRequest' }
-      responses:
-        '200':
-          description: Sala configurada
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Room' }
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/Conflict' }
-  /api/v1/rooms/{roomId}/participants:
+        '401': { description: JWT ausente o inválido }
+        '404': { description: Sala inexistente }
+  /api/rooms/{roomId}/join:
     post:
-      tags: [Rooms]
-      summary: Unirse a sala usando el jugador autenticado
-      parameters: [{ $ref: '#/components/parameters/RoomId' }]
+      summary: Unir al jugador autenticado
+      parameters:
+        - $ref: '#/components/parameters/RoomId'
       responses:
         '200':
           description: Sala actualizada
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Room' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/Conflict' }
-  /api/v1/rooms/{roomId}/games:
+        '401': { description: JWT ausente o inválido }
+        '404': { description: Sala inexistente }
+        '409': { description: Sala llena, iniciada o jugador repetido }
+  /api/rooms/{roomId}/ready:
+    put:
+      summary: Cambiar el estado listo del jugador autenticado
+      parameters:
+        - $ref: '#/components/parameters/RoomId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SetRoomReadyRequest' }
+      responses:
+        '200':
+          description: Estado listo actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Room' }
+        '401': { description: JWT ausente o inválido }
+        '403': { description: Jugador ajeno a la sala }
+        '404': { description: Sala inexistente }
+        '409': { description: Creador o sala que ya no está esperando }
+  /api/rooms/join:
     post:
-      tags: [Games]
-      summary: Iniciar partida como anfitrión
-      parameters: [{ $ref: '#/components/parameters/RoomId' }]
+      summary: Unir al jugador autenticado mediante código de invitación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JoinRoomByCodeRequest' }
+      responses:
+        '200':
+          description: Sala actualizada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Room' }
+        '400': { description: Código inválido }
+        '401': { description: JWT ausente o inválido }
+        '404': { description: Código de sala inexistente }
+        '409': { description: Sala llena, iniciada o jugador repetido }
+  /api/games/{roomId}/start:
+    post:
+      summary: Iniciar la partida de una sala
+      parameters:
+        - $ref: '#/components/parameters/RoomId'
       responses:
         '201':
           description: Partida iniciada
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/GameSummary' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/Conflict' }
-  /api/v1/games/{gameId}:
+              schema: { $ref: '#/components/schemas/GameState' }
+        '401': { description: JWT ausente o inválido }
+        '403': { description: Jugador ajeno a la sala }
+        '404': { description: Sala inexistente }
+        '409': { description: La sala ya inició o terminó }
+  /api/games/{gameId}:
     get:
-      tags: [Games]
-      summary: Consultar estado confirmado para entrar o reconectar
-      parameters: [{ $ref: '#/components/parameters/GameId' }]
-      responses:
-        '200':
-          description: Estado de partida
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/GameSnapshot' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-  /api/v1/games/{gameId}/scores:
-    get:
-      tags: [Scores]
-      summary: Consultar puntuaciones de una partida
-      parameters: [{ $ref: '#/components/parameters/GameId' }]
-      responses:
-        '200':
-          description: Puntuaciones
-          content:
-            application/json:
-              schema: { type: array, items: { $ref: '#/components/schemas/Score' } }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-  /api/v1/leaderboard:
-    get:
-      tags: [Scores]
-      summary: Consultar ranking
-      security: []
+      summary: Consultar estado de partida
       parameters:
-        - {
-            name: limit,
-            in: query,
-            required: false,
-            schema: { type: integer, minimum: 1, maximum: 100, default: 20 },
-          }
+        - $ref: '#/components/parameters/GameId'
       responses:
         '200':
-          description: Ranking
+          description: Estado actual
           content:
             application/json:
-              schema: { type: array, items: { $ref: '#/components/schemas/LeaderboardEntry' } }
-        '400': { $ref: '#/components/responses/BadRequest' }
+              schema: { $ref: '#/components/schemas/GameState' }
+        '401': { description: JWT ausente o inválido }
+        '403': { description: Jugador ajeno a la partida }
+        '404': { description: Partida inexistente }
 components:
   securitySchemes:
-    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   parameters:
-    RoomId: { name: roomId, in: path, required: true, schema: { type: string, format: uuid } }
-    GameId: { name: gameId, in: path, required: true, schema: { type: string, format: uuid } }
-  responses:
-    BadRequest:
-      {
-        description: Datos no válidos,
-        content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } },
-      }
-    Unauthorized:
-      {
-        description: Sesión ausente o no válida,
-        content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } },
-      }
-    Forbidden:
-      {
-        description: Permiso insuficiente,
-        content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } },
-      }
-    NotFound:
-      {
-        description: Recurso no encontrado,
-        content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } },
-      }
-    Conflict:
-      {
-        description: Estado incompatible,
-        content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } },
-      }
+    RoomId:
+      name: roomId
+      in: path
+      required: true
+      schema: { type: integer }
+    GameId:
+      name: gameId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
   schemas:
-    Problem:
-      type: object
-      required: [type, title, status]
-      properties:
-        type: { type: string }
-        title: { type: string }
-        status: { type: integer }
-        detail: { type: string }
-        traceId: { type: string }
     RegisterRequest:
       type: object
-      required: [displayName, email, password]
+      required: [nombre, correo, password]
       properties:
-        displayName: { type: string, minLength: 2, maxLength: 40 }
-        email: { type: string, format: email }
-        password: { type: string, minLength: 8 }
+        nombre: { type: string }
+        correo: { type: string, format: email }
+        password: { type: string, minLength: 6 }
     LoginRequest:
       type: object
-      required: [email, password]
+      required: [correo, password]
       properties:
-        email: { type: string, format: email }
+        correo: { type: string, format: email }
         password: { type: string }
-    TokenResponse:
+    Usuario:
       type: object
-      required: [accessToken, expiresAtUtc, player]
+      required: [id, nombre, correo, playerId]
+      properties:
+        id: { type: integer }
+        nombre: { type: string }
+        correo: { type: string, format: email }
+        playerId: { type: integer }
+    AuthResponse:
+      type: object
+      required: [accessToken, expiresAtUtc, usuario]
       properties:
         accessToken: { type: string }
         expiresAtUtc: { type: string, format: date-time }
-        player: { $ref: '#/components/schemas/Player' }
-    Player:
+        usuario: { $ref: '#/components/schemas/Usuario' }
+    CurrentUser:
       type: object
-      required: [id, displayName]
+      required: [usuarioId, playerId, nombre]
       properties:
-        id: { type: string, format: uuid }
-        displayName: { type: string }
-        fullName: { type: string, minLength: 2, maxLength: 60 }
-        nickname: { type: string, minLength: 2, maxLength: 20 }
-        avatarId: { type: string, enum: [azure, violet, coral] }
-    UpdateProfileRequest:
-      type: object
-      required: [fullName, nickname, avatarId]
-      properties:
-        fullName: { type: string, minLength: 2, maxLength: 60 }
-        nickname: { type: string, minLength: 2, maxLength: 20 }
-        avatarId: { type: string, enum: [azure, violet, coral] }
+        usuarioId: { type: string }
+        playerId: { type: string }
+        nombre: { type: string }
     CreateRoomRequest:
       type: object
-      required: [name, maxPlayers, arenaId, mode]
+      required: [name, maxPlayers]
       properties:
         name: { type: string, minLength: 3, maxLength: 60 }
         maxPlayers: { type: integer, minimum: 2, maximum: 8 }
-        arenaId: { type: string, enum: [open, fortress] }
-        mode: { type: string, enum: [local, online] }
+    JoinRoomByCodeRequest:
+      type: object
+      required: [code]
+      properties:
+        code:
+          type: string
+          minLength: 8
+          maxLength: 8
+          pattern: '^[A-Za-z2-9]{8}$'
+    SetRoomReadyRequest:
+      type: object
+      required: [isReady]
+      properties:
+        isReady: { type: boolean }
+    RoomParticipant:
+      type: object
+      required: [playerId, name, isReady]
+      properties:
+        playerId: { type: integer }
+        name: { type: string }
+        isReady: { type: boolean }
     Room:
       type: object
-      required: [id, name, status, hostPlayerId, maxPlayers, arenaId, mode, participants]
+      required: [id, code, hostPlayerId, name, maxPlayers, status, participants]
       properties:
-        id: { type: string, format: uuid }
+        id: { type: integer }
+        code: { type: string, minLength: 8, maxLength: 8 }
+        hostPlayerId: { type: integer }
         name: { type: string }
-        status: { type: string, enum: [waiting, playing, finished] }
-        hostPlayerId: { type: string, format: uuid }
         maxPlayers: { type: integer }
-        arenaId: { type: string, enum: [open, fortress] }
-        mode: { type: string, enum: [local, online] }
-        participants: { type: array, items: { $ref: '#/components/schemas/Player' } }
-    GameSummary:
+        status: { type: string, enum: [waiting, playing, finished] }
+        gameId: { type: string, format: uuid, nullable: true }
+        participants:
+          type: array
+          items: { $ref: '#/components/schemas/RoomParticipant' }
+    PlayerPosition:
       type: object
-      required: [id, roomId, phase, startedAtUtc]
+      required: [playerId, x, y]
+      properties:
+        playerId: { type: integer }
+        x: { type: integer }
+        y: { type: integer }
+    GameState:
+      type: object
+      required: [id, roomId, status, map, players]
       properties:
         id: { type: string, format: uuid }
-        roomId: { type: string, format: uuid }
-        phase: { type: string, enum: [waiting, running, finished] }
-        startedAtUtc: { type: string, format: date-time }
-    Cell:
-      type: object
-      required: [x, y, kind]
-      properties:
-        x: { type: integer, minimum: 0 }
-        y: { type: integer, minimum: 0 }
-        kind: { type: string, enum: [floor, wall, crate] }
-    PlayerState:
-      type: object
-      required: [playerId, x, y, lives, alive, color]
-      properties:
-        playerId: { type: string, format: uuid }
-        x: { type: integer, minimum: 0 }
-        y: { type: integer, minimum: 0 }
-        lives: { type: integer, minimum: 0 }
-        alive: { type: boolean }
-        color: { type: string }
-    BombState:
-      type: object
-      required: [id, ownerId, x, y, placedAtUtc, detonatesAtUtc, range]
-      properties:
-        id: { type: string, format: uuid }
-        ownerId: { type: string, format: uuid }
-        x: { type: integer, minimum: 0 }
-        y: { type: integer, minimum: 0 }
-        placedAtUtc: { type: string, format: date-time }
-        detonatesAtUtc: { type: string, format: date-time }
-        range: { type: integer, minimum: 1 }
-    ExplosionState:
-      type: object
-      required: [id, cells, endsAtUtc]
-      properties:
-        id: { type: string, format: uuid }
-        cells: { type: array, items: { $ref: '#/components/schemas/Cell' } }
-        endsAtUtc: { type: string, format: date-time }
-    GameSnapshot:
-      type: object
-      required:
-        [gameId, version, phase, width, height, cells, players, bombs, explosions, remainingSeconds]
-      properties:
-        gameId: { type: string, format: uuid }
-        version: { type: integer, minimum: 0 }
-        phase: { type: string, enum: [waiting, running, finished] }
-        width: { type: integer, minimum: 1 }
-        height: { type: integer, minimum: 1 }
-        cells: { type: array, items: { $ref: '#/components/schemas/Cell' } }
-        players: { type: array, items: { $ref: '#/components/schemas/PlayerState' } }
-        bombs: { type: array, items: { $ref: '#/components/schemas/BombState' } }
-        explosions: { type: array, items: { $ref: '#/components/schemas/ExplosionState' } }
-        remainingSeconds: { type: integer, minimum: 0 }
-        winnerPlayerId: { type: string, format: uuid, nullable: true }
-    Score:
-      type: object
-      required: [playerId, points, rank]
-      properties:
-        playerId: { type: string, format: uuid }
-        points: { type: integer, minimum: 0 }
-        rank: { type: integer, minimum: 1 }
-    LeaderboardEntry:
-      type: object
-      required: [player, points, wins, rank]
-      properties:
-        player: { $ref: '#/components/schemas/Player' }
-        points: { type: integer, minimum: 0 }
-        wins: { type: integer, minimum: 0 }
-        rank: { type: integer, minimum: 1 }
+        roomId: { type: integer }
+        status: { type: string, enum: [playing, finished] }
+        map:
+          type: array
+          items:
+            type: array
+            items: { type: integer, enum: [0, 1] }
+        players:
+          type: array
+          items: { $ref: '#/components/schemas/PlayerPosition' }

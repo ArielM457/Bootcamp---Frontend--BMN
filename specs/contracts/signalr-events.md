@@ -1,27 +1,21 @@
-# **Contrato SignalR propuesto**
+# **Contrato SignalR validado**
 
-Estado: pendiente de validar. Hub propuesto: `/hubs/game`. El cliente presenta JWT en la conexión según el mecanismo acordado con ASP.NET Core. Ningún evento sustituye la autorización del servidor.
+Estado: validado contra el backend de la sesión 08. Ruta: `/hubs/game`. La conexión presenta el JWT mediante `accessTokenFactory`.
 
-## **Comandos del cliente**
+## **Métodos disponibles**
 
-- `JoinRoom` con `{ roomId, commandId }`. El servidor comprueba membresía y añade la conexión al grupo de sala.
-- `LeaveRoom` con `{ roomId, commandId }`. Sale del grupo; la política de salida de la partida queda por definir.
-- `Move` con `{ gameId, commandId, direction }`, donde `direction` es `up`, `down`, `left` o `right`. El cliente no envía coordenadas definitivas.
-- `PlaceBomb` con `{ gameId, commandId }`. El servidor decide posición, límite y detonación.
-- `RequestSnapshot` con `{ gameId }` para recuperar estado tras conectar o reconectar.
+- `JoinGame(gameId)`: valida el JWT y la pertenencia del jugador antes de agregar la conexión al grupo de la sala.
+- `MovePlayer(direction, commandId)`: acepta `up`, `down`, `left` o `right`. El servidor calcula y valida la posición.
+- `PlaceBomb(commandId)`: coloca una bomba en la posición confirmada del jugador. Solo admite una bomba activa por jugador.
 
-`commandId` es UUID para correlacionar confirmación o rechazo. La conexión y desconexión son eventos de transporte; no se aceptan como prueba de presencia o resultado de juego.
+## **Eventos disponibles**
 
-## **Eventos del servidor**
+- `PlayerConnected(playerId)`.
+- `PlayerDisconnected(playerId)`.
+- `PlayerMoved(playerId, x, y)`.
+- `GameStateUpdated(gameState)`, con `id`, `roomId`, `status`, `winnerPlayerId`, `map`, `players`, `bombs` y `explosions`.
+- `CommandRejected(commandId, message)`: informa al cliente que una acción normal no pudo aplicarse. Chocar con paredes, bombas o bordes no genera una excepción del Hub.
 
-- `RoomJoined` con `{ roomId, participants }`.
-- `ParticipantConnected` y `ParticipantDisconnected` con `{ roomId, playerId }`.
-- `GameStarted` con `{ gameId, snapshot }`.
-- `MoveConfirmed` con `{ gameId, commandId, playerId, x, y, version }`.
-- `BombPlaced` con `{ gameId, commandId, bomb, version }`.
-- `BombExploded` con `{ gameId, bombId, explosion, destroyedCells, version }`.
-- `GameStateUpdated` con `{ snapshot }`.
-- `GameFinished` con `{ gameId, snapshot, scores }`.
-- `CommandRejected` con `{ commandId, code, message }`.
+## **Límites actuales**
 
-`snapshot` sigue [game-models.md](game-models.md). Todos los eventos de partida confirmados incluyen versión o snapshot versionado. Se descartan versiones anteriores a la última aplicada. Tras reconectar, el cliente pide snapshot antes de reanudar controles. Debemos acordar frecuencia, orden garantizado, idempotencia, tiempos y códigos de rechazo antes de integrar SignalR.
+El backend no ofrece `RequestSnapshot` ni `RestartGame`. Tampoco envía puntuaciones ni tiempo total dentro de `GameStateUpdated`. Al reconectar, el cliente vuelve a ejecutar `JoinGame`, que envía el estado actual disponible.

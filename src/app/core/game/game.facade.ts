@@ -22,7 +22,10 @@ export class GameFacade {
   readonly connection = this.connectionState.asReadonly();
   readonly rejection = this.rejectionState.asReadonly();
   readonly controlsEnabled = computed(
-    () => this.connectionState() === 'connected' && this.snapshotState()?.phase === 'running',
+    () =>
+      this.connectionState() === 'connected' &&
+      this.snapshotState()?.phase === 'running' &&
+      this.player()?.isAlive === true,
   );
   readonly player = computed(
     () =>
@@ -32,23 +35,25 @@ export class GameFacade {
   readonly activeOpponents = computed(() => {
     const playerId = this.auth.player()?.id;
     return (
-      this.snapshotState()?.players.filter((item) => item.playerId !== playerId && item.alive)
+      this.snapshotState()?.players.filter((item) => item.playerId !== playerId && item.isAlive)
         .length ?? 0
     );
   });
-  readonly powerUpName = computed(() => this.player()?.powerUpName?.trim() || 'Sin poder');
-  readonly powerUpRemainingSeconds = computed(() =>
-    Math.max(0, this.player()?.powerUpRemainingSeconds ?? 0),
-  );
-  readonly powerUpProgress = computed(() =>
-    Math.min(100, (this.powerUpRemainingSeconds() / 8) * 100),
-  );
   readonly finished = computed(() => this.snapshotState()?.phase === 'finished');
-  readonly won = computed(() => this.snapshotState()?.winnerPlayerId === this.auth.player()?.id);
+  readonly resultMessage = computed(() => {
+    const winnerId = this.snapshotState()?.winnerPlayerId;
+    if (!winnerId) return 'Todos los jugadores fueron alcanzados.';
+    return winnerId === this.auth.player()?.id ? '¡Ganaste la partida!' : 'Otro jugador ganó.';
+  });
 
-  start(arenaId: 'open' | 'fortress' = 'open'): void {
+  start(gameId: string): void {
     const player = this.auth.player();
-    if (!player) return;
+    this.snapshotState.set(null);
+    this.rejectionState.set(null);
+    if (!player || !gameId) {
+      this.connectionState.set('failed');
+      return;
+    }
     this.subscriptions.unsubscribe();
     this.subscriptions = new Subscription();
     this.subscriptions.add(
@@ -60,15 +65,12 @@ export class GameFacade {
     this.subscriptions.add(
       this.port.rejections$.subscribe((rejection) => this.rejectionState.set(rejection)),
     );
-    this.port.start(player.id, {
-      arenaId,
-      playerColor: this.avatarColor(player.avatarId),
-    });
+    this.port.start(gameId);
   }
 
   send(command: GameCommand): void {
     if (this.connectionState() !== 'connected') return;
-    if (command.type === 'restart' || this.snapshotState()?.phase === 'running') {
+    if (this.snapshotState()?.phase === 'running') {
       this.rejectionState.set(null);
       this.port.send(command, this.commandId());
     }
@@ -83,6 +85,9 @@ export class GameFacade {
     this.port.stop();
     this.subscriptions.unsubscribe();
     this.subscriptions = new Subscription();
+    this.snapshotState.set(null);
+    this.connectionState.set('disconnected');
+    this.rejectionState.set(null);
   }
 
   applySnapshot(snapshot: GameSnapshot): void {
@@ -96,11 +101,5 @@ export class GameFacade {
     return (
       globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`
     );
-  }
-
-  private avatarColor(avatarId: string | undefined): string {
-    if (avatarId === 'violet') return '#8d6bff';
-    if (avatarId === 'coral') return '#ff6f91';
-    return '#2f8cff';
   }
 }

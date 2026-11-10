@@ -1,44 +1,65 @@
 # **Guía de integración con backend**
 
-La interfaz ya funciona con adaptadores locales. Para conectarla a un backend no debemos cambiar componentes ni facades. Debemos implementar las mismas interfaces y seleccionar los adaptadores reales en `app.config.ts`.
+Estado: implementado parcialmente con los contratos disponibles del backend de las sesiones 05 a 08.
 
-## **Selección de adaptadores**
+El frontend usa `HttpAuthRepository`, `HttpRoomRepository` y `SignalRGameAdapter`. Los componentes conservan las facades y no llaman directamente a HTTP ni SignalR. Las URLs se cargan desde `.env` mediante `BOMBERMAN_API_URL` y `BOMBERMAN_HUB_URL`.
 
-El modo sale de `src/environments/environment.ts` (`demo`) o de `environment.api.ts` (`api`), según el ADR 0002. `provideDataAdapters(mode)` en `app.config.ts` registra `AUTH_REPOSITORY`, `ROOM_REPOSITORY`, `GAME_PORT` y `SCORE_REPOSITORY`.
+## **Operaciones conectadas**
 
-- `npm start` y `npm run build` usan `demo`.
-- `npx ng serve --configuration api` y `npx ng build --configuration production,api` usan `api`.
+- Registro, login y validación de sesión.
+- Listado, consulta, creación y unión a salas.
+- Inicio de partida.
+- Conexión al Hub y movimiento confirmado por el servidor.
+- Recepción del mapa y posiciones de jugadores.
 
-Hoy la rama `api` lanza un error al iniciar porque faltan los adaptadores reales. Para conectar el backend, crea los adaptadores en `src/app/infrastructure/api/` y `src/app/infrastructure/realtime/` y cambia solo esa rama.
+## **Operaciones pendientes en backend**
 
-## **Autenticación**
+- Consultar y actualizar el perfil completo.
+- Consultar la sala actual aunque esté llena o jugando.
+- Identificar anfitrión, pista, modo y bots.
+- Configurar o abandonar una sala.
+- Informar a los demás participantes que una partida empezó y entregarles el `gameId`.
+- Volver una sala al estado de espera.
+- Colocar bombas, resolver explosiones y terminar partidas.
+- Resultados, puntuaciones y ranking.
 
-Implementamos `AuthRepository` con registro, acceso, restauración de sesión y cierre. El adaptador HTTP debe validar los DTO y errores de `specs/contracts/openapi.yaml`. Los tokens deben permanecer fuera de componentes.
+Estas operaciones no tienen mocks ni resultados inventados en el frontend.
 
-## **Salas**
+## **Configuración**
 
-Implementamos `RoomRepository` para listar, consultar, crear, unirse, añadir bot, salir e iniciar. Antes de conectar HTTP debemos acordar si el backend admite bots y cómo representa `RoomParticipant.kind`.
+Copia `.env.example` como `.env` y ajusta las URLs si el backend usa otro puerto. Los comandos `npm start`, `npm test` y `npm run build` generan `public/runtime-config.js` antes de iniciar Angular. El archivo generado y `.env` permanecen fuera de Git.
 
-## **Partida y conexión**
+## **Ejemplo de conexión y movimiento**
 
-Implementamos `GamePort` para snapshots, conexión, rechazos, comandos y reconexión. El adaptador SignalR debe enviar `commandId`, descartar versiones anteriores y recuperar un snapshot antes de habilitar controles. El servidor debe decidir colisiones, daño, explosiones, resultado y presencia.
+```typescript
+const connection = new signalR.HubConnectionBuilder()
+  .withUrl(environment.hubUrl, {
+    accessTokenFactory: () => session.accessToken,
+  })
+  .withAutomaticReconnect()
+  .build();
 
-## **Resultados**
+connection.on('GameStateUpdated', (gameState) => {
+  console.log(gameState.map, gameState.players);
+});
 
-Implementamos `ScoreRepository` para registrar resultados y consultar el ranking. La fórmula actual es local. El adaptador HTTP debe usar los puntos y el orden confirmados por el servidor sin recalcularlos en la interfaz.
+connection.on('PlayerMoved', (playerId, x, y) => {
+  console.log(playerId, x, y);
+});
 
-## **Comprobaciones necesarias**
+await connection.start();
+await connection.invoke('JoinGame', gameId);
+await connection.invoke('MovePlayer', 'right', crypto.randomUUID());
+```
 
-Antes de activar adaptadores reales debemos comprobar:
+El cliente envía una dirección, no una posición. El servidor valida el movimiento y recién entonces publica el estado al grupo de la sala.
 
-- URL y versión de la API.
-- Forma exacta de solicitudes, respuestas y errores.
-- Encabezado de autenticación y renovación de sesión.
-- URL del hub, eventos y orden de versiones.
-- Recuperación después de perder la conexión.
-- Idempotencia de comandos y resultados.
-- Reglas de bot, puntuación y desempate.
-- Pruebas de contrato contra OpenAPI.
-- Flujo real en dos navegadores.
+## **Prueba de integración**
 
-Hasta completar estas comprobaciones, la configuración debe conservar los adaptadores locales.
+Con el backend local en ejecución y `.env` configurado:
+
+```bash
+npm run verify:backend
+```
+
+La prueba registra jugadores temporales, crea dos salas y comprueba autenticación JWT, actualización inmediata entre dos jugadores, aislamiento entre salas y ausencia de difusión para un movimiento inválido.

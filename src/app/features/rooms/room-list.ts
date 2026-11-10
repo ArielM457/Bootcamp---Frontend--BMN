@@ -26,7 +26,6 @@ export class RoomList implements OnInit {
       nonNullable: true,
       validators: [Validators.required, Validators.min(2), Validators.max(8)],
     }),
-    arenaId: new FormControl<'open' | 'fortress'>('open', { nonNullable: true }),
   });
 
   ngOnInit(): void {
@@ -44,7 +43,7 @@ export class RoomList implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
-    const room = await this.rooms.create({ ...this.form.getRawValue(), mode: 'online' });
+    const room = await this.rooms.create(this.form.getRawValue());
     if (room) await this.router.navigate(['/salas', room.id]);
   }
 
@@ -60,12 +59,6 @@ export class RoomList implements OnInit {
   async returnToRoom(): Promise<void> {
     const room = this.rooms.currentRoom();
     if (room) await this.router.navigate(['/salas', room.id]);
-  }
-
-  async leave(room: Room): Promise<void> {
-    if (!this.isMember(room)) return;
-    if (this.rooms.currentRoom()?.id !== room.id && !(await this.rooms.loadRoom(room.id))) return;
-    if (await this.rooms.leave()) await this.rooms.loadRooms();
   }
 
   isMember(room: Room): boolean {

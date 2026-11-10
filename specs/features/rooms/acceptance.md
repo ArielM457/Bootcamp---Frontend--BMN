@@ -3,10 +3,16 @@
 - El listado muestra estado y plazas reales o señaladas como demostración.
 - Si el jugador pertenece a una sala, el listado ofrece Volver a la sala y su tarjeta permite entrar o salir.
 - Crear una sala válida devuelve su detalle; datos inválidos muestran el campo a corregir.
+- La sala creada muestra un código único de 8 caracteres que el creador puede compartir.
+- Un código válido une al segundo jugador y un código inexistente muestra un error sin cerrar el diálogo.
 - Partida local y Crear sala crean la sala, unen al creador y abren directamente la sala de espera.
 - La creación permite elegir una pista abierta o una fortaleza y la partida aplica su densidad de obstáculos.
 - El anfitrión puede abrir Configurar sala, guardar los cambios y volver a la misma sala sin perder participantes.
 - Unirse agrega al jugador confirmado sin duplicarlo.
+- Al iniciar la partida, todos los participantes que siguen en espera reciben el mismo `gameId` y navegan al juego.
+- Solo el creador ve y puede usar el botón para iniciar la partida.
+- Los demás participantes solo pueden cambiar entre Listo y No listo.
+- El creador no puede iniciar hasta que existan al menos dos jugadores y todos los invitados estén listos.
 - Una sala llena rechaza la entrada y conserva la pantalla estable.
 - El anfitrión puede iniciar solo cuando se cumplen reglas aprobadas.
 - Con un solo participante, el botón principal muestra Esperando jugadores y permanece deshabilitado.

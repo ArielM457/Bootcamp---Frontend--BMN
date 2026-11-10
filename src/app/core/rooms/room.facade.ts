@@ -19,22 +19,25 @@ export class RoomFacade {
   readonly status = this.statusState.asReadonly();
   readonly error = this.errorState.asReadonly();
   readonly isLoading = computed(() => this.statusState() === 'loading');
-  readonly isHost = computed(
-    () => this.currentRoomState()?.hostPlayerId === this.auth.player()?.id,
-  );
-  readonly canStart = computed(
-    () =>
-      this.isHost() &&
-      this.currentRoomState()?.status === 'waiting' &&
-      (this.currentRoomState()?.participants.length ?? 0) >= 2,
-  );
-  readonly canAddBot = computed(() => {
+  readonly isHost = computed(() => {
     const room = this.currentRoomState();
+    return !!room && room.hostPlayerId === this.auth.player()?.id;
+  });
+  readonly currentParticipant = computed(() => {
+    const playerId = this.auth.player()?.id;
+    return this.currentRoomState()?.participants.find((item) => item.id === playerId) ?? null;
+  });
+  readonly canStart = computed(() => {
+    const room = this.currentRoomState();
+    const playerId = this.auth.player()?.id;
     return (
       !!room &&
-      this.isHost() &&
+      room.hostPlayerId === playerId &&
       room.status === 'waiting' &&
-      room.participants.length < room.maxPlayers
+      room.participants.length >= 2 &&
+      room.participants
+        .filter((participant) => participant.id !== room.hostPlayerId)
+        .every((participant) => participant.isReady)
     );
   });
 
@@ -69,7 +72,7 @@ export class RoomFacade {
     if (!player) return null;
     let created: Room | null = null;
     await this.run(async () => {
-      created = await this.repository.create(request, player);
+      created = await this.repository.create(request);
       this.currentRoomState.set(created);
     });
     return created;
@@ -80,63 +83,43 @@ export class RoomFacade {
     if (!player) return null;
     let joined: Room | null = null;
     await this.run(async () => {
-      joined = await this.repository.join(roomId, player);
+      joined = await this.repository.joinById(roomId);
       this.currentRoomState.set(joined);
     });
     return joined;
   }
 
-  async update(request: CreateRoomRequest): Promise<Room | null> {
+  async joinByCode(code: string): Promise<Room | null> {
+    const player = this.auth.player();
+    if (!player) return null;
+    let joined: Room | null = null;
+    await this.run(async () => {
+      joined = await this.repository.joinByCode(code);
+      this.currentRoomState.set(joined);
+    });
+    return joined;
+  }
+
+  async start(): Promise<string | null> {
     const room = this.currentRoomState();
     const player = this.auth.player();
     if (!room || !player) return null;
-    let updated: Room | null = null;
+    let gameId: string | null = null;
     await this.run(async () => {
-      updated = await this.repository.update(room.id, request, player.id);
-      this.currentRoomState.set(updated);
+      const startedRoom = await this.repository.start(room.id);
+      this.currentRoomState.set(startedRoom);
+      gameId = startedRoom.gameId ?? null;
     });
-    return updated;
+    return gameId;
   }
 
-  async leave(): Promise<boolean> {
+  async setReady(isReady: boolean): Promise<boolean> {
     const room = this.currentRoomState();
     const player = this.auth.player();
-    if (!room || !player) return false;
-    const succeeded = await this.run(async () => {
-      await this.repository.leave(room.id, player.id);
-      this.currentRoomState.set(null);
-    });
-    return succeeded;
-  }
-
-  async addBot(): Promise<boolean> {
-    const room = this.currentRoomState();
-    const player = this.auth.player();
-    if (!room || !player) return false;
+    if (!room || !player || room.hostPlayerId === player.id) return false;
     return this.run(async () => {
-      this.currentRoomState.set(await this.repository.addBot(room.id, player.id));
+      this.currentRoomState.set(await this.repository.setReady(room.id, isReady));
     });
-  }
-
-  async start(): Promise<boolean> {
-    const room = this.currentRoomState();
-    const player = this.auth.player();
-    if (!room || !player) return false;
-    return this.run(async () => {
-      this.currentRoomState.set(await this.repository.start(room.id, player.id));
-    });
-  }
-
-  async returnToWaiting(): Promise<Room | null> {
-    const room = this.currentRoomState();
-    const player = this.auth.player();
-    if (!room || !player) return null;
-    let waitingRoom: Room | null = null;
-    await this.run(async () => {
-      waitingRoom = await this.repository.returnToWaiting(room.id, player.id);
-      this.currentRoomState.set(waitingRoom);
-    });
-    return waitingRoom;
   }
 
   clearError(): void {
@@ -175,8 +158,12 @@ export class RoomFacade {
         return 'Solo el anfitrión puede cambiar o iniciar la sala.';
       case 'not-enough-players':
         return 'Se necesitan al menos 2 jugadores para comenzar.';
+      case 'players-not-ready':
+        return 'Todos los demás jugadores deben estar listos.';
       case 'invalid-data':
         return 'Revisa el nombre y la cantidad de jugadores.';
+      case 'unavailable':
+        return 'El backend no tiene disponible esta operación.';
     }
   }
 }

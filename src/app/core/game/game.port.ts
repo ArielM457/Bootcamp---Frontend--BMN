@@ -5,14 +5,13 @@ import {
   GameCommandRejection,
   GameConnectionState,
   GameSnapshot,
-  GameStartOptions,
 } from './game.models';
 
 export interface GamePort {
   readonly snapshots$: Observable<GameSnapshot>;
   readonly connection$: Observable<GameConnectionState>;
   readonly rejections$: Observable<GameCommandRejection>;
-  start(playerId: string, options?: GameStartOptions): void;
+  start(gameId: string): void;
   send(command: GameCommand, commandId: string): void;
   reconnect(): void;
   stop(): void;

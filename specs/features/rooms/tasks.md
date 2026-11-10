@@ -4,8 +4,8 @@
 2. Completado: definir `RoomRepository` y modelos.
 3. Completado: crear datos y adaptador local.
 4. Completado: crear listado, formulario y sala de espera.
-5. Pendiente: conectar HTTP y presencia SignalR tras validar contratos.
-6. Parcial: sala llena, duplicados, permisos y participantes pasan pruebas automatizadas. Falta la revisión en navegador y la prueba con servidor.
+5. Parcial: HTTP conectado para salas, código único e inicio compartido. La presencia SignalR previa a la partida sigue pendiente.
+6. Parcial: sala llena, duplicados, permisos y participantes conservan sus pruebas automatizadas. La unión por código y el `gameId` compartido pasaron una prueba HTTP real. Falta la revisión con dos navegadores.
 7. Completado: añadir varios bots locales inmóviles hasta completar la sala; cada uno ocupa una plaza y cuenta para iniciar.
 8. Completado: elegir entre pista abierta y fortaleza, conservar la selección y aplicarla al simulador local.
 9. Completado: crear y unirse desde ambos tipos de partida, recuperar la sala activa y permitir su configuración por el anfitrión.

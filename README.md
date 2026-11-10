@@ -1,8 +1,8 @@
 # **Bomberman Online**
 
-Frontend Angular de Bomberman con funcionamiento local. Incluye bienvenida retro, registro, inicio de sesión, menú, salas, bot inmóvil, partida Canvas, recuperación local, resultados y ranking.
+Frontend Angular de Bomberman conectado al backend del bootcamp. Incluye bienvenida, registro, inicio de sesión, menú, salas y movimiento en tiempo real sobre Canvas.
 
-La aplicación usa repositorios y adaptadores locales para funcionar sin backend. Las integraciones HTTP y SignalR todavía están pendientes y no se presentan como servicios reales.
+La aplicación usa adaptadores HTTP y SignalR. Los mocks y el simulador local fueron eliminados.
 
 ## **Requisitos**
 
@@ -13,12 +13,13 @@ La aplicación usa repositorios y adaptadores locales para funcionar sin backend
 
 ```bash
 npm ci
+copy .env.example .env
 npm start
 ```
 
 Abre `http://localhost:4200`.
 
-La aplicación arranca en modo `demo`, con adaptadores locales. El modo `api` (`npx ng serve --configuration api`) existe, pero falla al iniciar hasta que haya adaptadores HTTP y SignalR. Lee `specs/architecture/decisions/0002-adapter-selection.md`.
+El archivo `.env` define `BOMBERMAN_API_URL` y `BOMBERMAN_HUB_URL`. `npm start`, `npm test` y `npm run build` generan la configuración pública antes de iniciar Angular.
 
 ## **Validación**
 
@@ -35,34 +36,34 @@ npm run lint
 npm run format:check
 ```
 
+Con el backend ejecutándose, prueba JWT, dos jugadores en una sala, aislamiento entre salas y rechazo de movimientos inválidos:
+
+```bash
+npm run verify:backend
+```
+
 ## **Estado actual**
 
-Funcionan de forma local:
+Conectado al backend:
 
 - Registro, inicio y cierre de sesión.
 - Menú protegido.
 - Listado, creación y unión a salas.
-- Bot inmóvil para iniciar con un jugador humano.
-- Tablero, movimiento, bombas, explosiones, vidas y resultado.
-- Recuperación simulada del último estado confirmado.
-- Puntuación y ranking durante la sesión actual.
+- Inicio de partida.
+- Conexión SignalR, mapa y movimiento confirmado por el servidor.
 
 Pendiente:
 
-- Persistencia real de cuentas, salas y puntuaciones.
-- API HTTP y hub SignalR confirmados por el backend.
-- Partidas compartidas entre navegadores.
+- Perfil editable, anfitrión, bots, salida y configuración de sala.
+- Aviso de inicio y `gameId` para los demás participantes.
+- Bombas, explosiones, final de partida, puntuaciones y ranking.
 - Validación táctil en un dispositivo real.
 
 ## Cambios
 
 - Rediseño de la pantalla de bienvenida según referencia visual (specs/features/welcome)
-- Selección de adaptadores mock/api por configuración (ADR 0002)
+- Adaptadores HTTP y SignalR reales por configuración (ADR 0002)
 - Revisión de accesibilidad en todas las pantallas (specs/features/quality)
-
-## Validación
-
-npm run validate en verde.
 
 ## **Documentación**
 

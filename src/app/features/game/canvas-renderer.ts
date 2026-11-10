@@ -1,11 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  BombState,
-  Direction,
-  GameSnapshot,
-  PlayerState,
-  PowerUpState,
-} from '../../core/game/game.models';
+import { Direction, GameSnapshot, PlayerState } from '../../core/game/game.models';
 
 interface PlayerSprites {
   idle: string;
@@ -19,6 +13,8 @@ interface PlayerVisualState {
   toY: number;
   direction: Direction;
   startedAt: number;
+  walkStartedAt: number;
+  walkFrameOffset: number;
   moving: boolean;
 }
 
@@ -53,25 +49,10 @@ export const PLAYER_SPRITES: Record<Direction, PlayerSprites> = {
   },
 };
 
-export const ITEM_SPRITES = {
-  classicBomb: {
-    normal: '/game-assets/items/bomb-normal.png',
-    glow: '/game-assets/items/bomb-glow.png',
-  },
-  spaceBomb: {
-    normal: '/game-assets/items/space-bomb-normal.png',
-    glow: '/game-assets/items/space-bomb-glow.png',
-  },
-  power: {
-    normal: '/game-assets/items/power-normal.png',
-    glow: '/game-assets/items/power-glow.png',
-  },
-} as const;
-
 @Injectable({ providedIn: 'root' })
 export class CanvasRenderer {
   readonly cellSize = 48;
-  private readonly movementDuration = 360;
+  private readonly movementDuration = 220;
   private readonly walkingFrameDuration = 180;
   private readonly playerVisuals = new Map<string, PlayerVisualState>();
   private readonly spriteImages = new Map<string, HTMLImageElement>();
@@ -106,10 +87,10 @@ export class CanvasRenderer {
     return { x: x * this.cellSize, y: y * this.cellSize, size: this.cellSize };
   }
 
-  playerSprite(direction: Direction, moving: boolean, elapsedMs = 0): string {
+  playerSprite(direction: Direction, moving: boolean, elapsedMs = 0, frameOffset = 0): string {
     const sprites = PLAYER_SPRITES[direction];
     if (!moving) return sprites.idle;
-    return sprites.walking[Math.floor(elapsedMs / this.walkingFrameDuration) % 2];
+    return sprites.walking[(frameOffset + Math.floor(elapsedMs / this.walkingFrameDuration)) % 2];
   }
 
   private updatePlayerVisuals(players: PlayerState[], now: number): void {
@@ -128,6 +109,8 @@ export class CanvasRenderer {
           toY: player.y,
           direction: 'down',
           startedAt: now,
+          walkStartedAt: now,
+          walkFrameOffset: 0,
           moving: false,
         });
         continue;
@@ -136,6 +119,7 @@ export class CanvasRenderer {
       if (visual.toX === player.x && visual.toY === player.y) continue;
 
       const current = this.visualPosition(visual, now);
+      const wasMoving = visual.moving;
       visual.fromX = current.x;
       visual.fromY = current.y;
       visual.direction = this.directionBetween(visual.toX, visual.toY, player.x, player.y);
@@ -143,6 +127,11 @@ export class CanvasRenderer {
       visual.toY = player.y;
       visual.startedAt = now;
       visual.moving = !this.prefersReducedMotion();
+
+      if (visual.moving && !wasMoving) {
+        visual.walkStartedAt = now;
+        visual.walkFrameOffset = (visual.walkFrameOffset + 1) % 2;
+      }
 
       if (!visual.moving) {
         visual.fromX = player.x;
@@ -158,13 +147,12 @@ export class CanvasRenderer {
 
     context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     for (const cell of this.snapshot.cells) this.drawCell(context, cell.x, cell.y, cell.kind);
-    for (const power of this.snapshot.powerUps ?? []) this.drawPower(context, power, now);
-    for (const bomb of this.snapshot.bombs) this.drawBomb(context, bomb, now);
+    for (const bomb of this.snapshot.bombs) this.drawBomb(context, bomb.x, bomb.y);
+    for (const player of this.snapshot.players.filter((item) => item.isAlive)) {
+      this.drawPlayer(context, player, now);
+    }
     for (const explosion of this.snapshot.explosions) {
       for (const cell of explosion.cells) this.drawExplosion(context, cell.x, cell.y);
-    }
-    for (const player of this.snapshot.players) {
-      if (player.alive) this.drawPlayer(context, player, now);
     }
   }
 
@@ -294,7 +282,13 @@ export class CanvasRenderer {
     }
 
     const position = this.visualPosition(visual, now);
-    const path = this.playerSprite(visual.direction, visual.moving, elapsed);
+    const walkingElapsed = now - visual.walkStartedAt;
+    const path = this.playerSprite(
+      visual.direction,
+      visual.moving,
+      walkingElapsed,
+      visual.walkFrameOffset,
+    );
     const image = this.spriteImage(path);
     const idleImage = visual.moving
       ? this.spriteImage(PLAYER_SPRITES[visual.direction].idle)
@@ -304,7 +298,8 @@ export class CanvasRenderer {
     const py = position.y * this.cellSize;
 
     context.save();
-    context.fillStyle = player.color;
+    const playerColor = this.playerColor(player.playerId);
+    context.fillStyle = playerColor;
     context.globalAlpha = 0.55;
     context.beginPath();
     context.ellipse(px + 24, py + this.cellSize + 9, 18, 5, 0, 0, Math.PI * 2);
@@ -325,7 +320,7 @@ export class CanvasRenderer {
       return;
     }
 
-    this.drawPlayerFallback(context, px, py, player.color);
+    this.drawPlayerFallback(context, px, py, playerColor);
   }
 
   private drawPlayerFallback(
@@ -360,10 +355,45 @@ export class CanvasRenderer {
       this.spriteImage(sprites.idle);
       for (const path of sprites.walking) this.spriteImage(path);
     }
-    for (const sprites of Object.values(ITEM_SPRITES)) {
-      this.spriteImage(sprites.normal);
-      this.spriteImage(sprites.glow);
+    this.spriteImage('/game-assets/items/bomb-normal.png');
+  }
+
+  private drawBomb(context: CanvasRenderingContext2D, x: number, y: number): void {
+    const rect = this.cellRect(x, y);
+    const image = this.spriteImage('/game-assets/items/bomb-normal.png');
+    const pulse = 1 + Math.sin(Date.now() / 110) * 0.07;
+    const size = rect.size * 0.72 * pulse;
+    if (this.isImageReady(image)) {
+      context.drawImage(
+        image,
+        rect.x + (rect.size - size) / 2,
+        rect.y + (rect.size - size) / 2,
+        size,
+        size,
+      );
+      return;
     }
+    context.fillStyle = '#17111d';
+    context.beginPath();
+    context.arc(rect.x + rect.size / 2, rect.y + rect.size / 2, size / 2.4, 0, Math.PI * 2);
+    context.fill();
+  }
+
+  private drawExplosion(context: CanvasRenderingContext2D, x: number, y: number): void {
+    const rect = this.cellRect(x, y);
+    const gradient = context.createRadialGradient(
+      rect.x + rect.size / 2,
+      rect.y + rect.size / 2,
+      2,
+      rect.x + rect.size / 2,
+      rect.y + rect.size / 2,
+      rect.size / 2,
+    );
+    gradient.addColorStop(0, '#fff7b1');
+    gradient.addColorStop(0.4, '#ffb000');
+    gradient.addColorStop(1, 'rgba(255, 54, 74, 0.3)');
+    context.fillStyle = gradient;
+    context.fillRect(rect.x + 2, rect.y + 2, rect.size - 4, rect.size - 4);
   }
 
   private isImageReady(image: HTMLImageElement | null): image is HTMLImageElement {
@@ -389,7 +419,7 @@ export class CanvasRenderer {
   private scheduleAnimation(): void {
     if (
       this.animationFrame !== null ||
-      (!this.hasMovingPlayers() && !this.hasAnimatedItems()) ||
+      !this.hasAnimatedElements() ||
       typeof requestAnimationFrame !== 'function'
     ) {
       return;
@@ -412,85 +442,18 @@ export class CanvasRenderer {
     return typeof performance === 'undefined' ? Date.now() : performance.now();
   }
 
-  private hasMovingPlayers(): boolean {
-    return [...this.playerVisuals.values()].some((visual) => visual.moving);
+  private hasAnimatedElements(): boolean {
+    return (
+      [...this.playerVisuals.values()].some((visual) => visual.moving) ||
+      (this.snapshot?.bombs.length ?? 0) > 0 ||
+      (this.snapshot?.explosions.length ?? 0) > 0
+    );
   }
 
-  private hasAnimatedItems(): boolean {
-    return Boolean(this.snapshot?.bombs.length || this.snapshot?.powerUps?.length);
-  }
-
-  private drawBomb(context: CanvasRenderingContext2D, bomb: BombState, now: number): void {
-    const { x: px, y: py, size } = this.cellRect(bomb.x, bomb.y);
-    const remaining = Date.parse(bomb.detonatesAtUtc) - Date.now();
-    const charged = remaining <= 550 && !this.prefersReducedMotion();
-    const sprites = bomb.kind === 'space' ? ITEM_SPRITES.spaceBomb : ITEM_SPRITES.classicBomb;
-    const image = this.spriteImage(charged ? sprites.glow : sprites.normal);
-    if (this.isImageReady(image)) {
-      const pulse = charged ? 1 + Math.sin(now / 70) * 0.04 : 1;
-      const renderSize = (charged ? 54 : 44) * pulse;
-      context.drawImage(
-        image,
-        px + (size - renderSize) / 2,
-        py + (size - renderSize) / 2,
-        renderSize,
-        renderSize,
-      );
-      return;
-    }
-
-    const gradient = context.createRadialGradient(px + 19, py + 18, 2, px + 24, py + 27, 17);
-    gradient.addColorStop(0, '#62536b');
-    gradient.addColorStop(0.35, '#24172c');
-    gradient.addColorStop(1, '#09060c');
-    context.fillStyle = gradient;
-    context.strokeStyle = '#ffffff';
-    context.lineWidth = 2;
-    context.beginPath();
-    context.arc(px + size / 2, py + size / 2 + 3, size * 0.28, 0, Math.PI * 2);
-    context.fill();
-    context.stroke();
-    context.strokeStyle = '#ffe66d';
-    context.lineWidth = 3;
-    context.beginPath();
-    context.moveTo(px + 28, py + 14);
-    context.quadraticCurveTo(px + 38, py + 7, px + 37, py + 2);
-    context.stroke();
-  }
-
-  private drawPower(context: CanvasRenderingContext2D, power: PowerUpState, now: number): void {
-    const { x: px, y: py, size } = this.cellRect(power.x, power.y);
-    const glowing = !this.prefersReducedMotion() && Math.floor(now / 650) % 2 === 1;
-    const image = this.spriteImage(glowing ? ITEM_SPRITES.power.glow : ITEM_SPRITES.power.normal);
-    if (this.isImageReady(image)) {
-      const renderSize = glowing ? 48 : 39;
-      context.drawImage(
-        image,
-        px + (size - renderSize) / 2,
-        py + (size - renderSize) / 2 - 3,
-        renderSize,
-        renderSize,
-      );
-    } else {
-      context.fillStyle = '#22d3ee';
-      context.strokeStyle = '#f5a5ff';
-      context.lineWidth = 3;
-      context.beginPath();
-      context.arc(px + size / 2, py + size / 2 - 3, 12, 0, Math.PI * 2);
-      context.fill();
-      context.stroke();
-    }
-  }
-
-  private drawExplosion(context: CanvasRenderingContext2D, x: number, y: number): void {
-    const { x: px, y: py, size } = this.cellRect(x, y);
-    const glow = context.createRadialGradient(px + 24, py + 24, 3, px + 24, py + 24, 23);
-    glow.addColorStop(0, '#ffffff');
-    glow.addColorStop(0.25, '#ffe66d');
-    glow.addColorStop(0.68, '#ff6b35');
-    glow.addColorStop(1, 'rgba(198, 59, 201, 0.15)');
-    context.fillStyle = glow;
-    context.fillRect(px + 3, py + size * 0.3, size - 6, size * 0.4);
-    context.fillRect(px + size * 0.3, py + 3, size * 0.4, size - 6);
+  private playerColor(playerId: string): string {
+    const colors = ['#2f8cff', '#8d6bff', '#ff6f91', '#22d3ee'];
+    let value = 0;
+    for (const character of playerId) value += character.charCodeAt(0);
+    return colors[value % colors.length];
   }
 }

@@ -4,7 +4,7 @@ Estado: propuesto. Fecha: 14 de octubre de 2026.
 
 ## **Decisión**
 
-Usamos Angular 21 porque Node 24.12 del entorno cumple su rango de compatibilidad. Angular 22 pide Node 24.15 o superior. Usamos componentes standalone, Signals, rutas diferidas y Vitest. El estado compartido real llega del backend; el modo demostración tendrá adaptadores propios. Dejamos las interfaces concretas para cada función aprobada.
+Usamos Angular 21 porque Node 24.12 del entorno cumple su rango de compatibilidad. Angular 22 pide Node 24.15 o superior. Usamos componentes standalone, Signals, rutas diferidas y Vitest. El estado compartido llega del backend mediante adaptadores HTTP y SignalR. Dejamos las interfaces concretas para cada función aprobada.
 
 ## **Consecuencias**
 
